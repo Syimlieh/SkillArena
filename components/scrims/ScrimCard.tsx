@@ -4,6 +4,7 @@ import { Scrim } from "@/types/scrim.types";
 import { ScrimStatus } from "@/enums/ScrimStatus.enum";
 import { Button } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
+import { useMemo } from "react";
 
 interface Props {
   scrim: Scrim;
@@ -19,6 +20,16 @@ const statusCopy: Record<ScrimStatus, string> = {
 
 export const ScrimCard = ({ scrim, onJoin }: Props) => {
   const isJoinable = scrim.status === ScrimStatus.UPCOMING;
+  const startTimeLabel = useMemo(() => {
+    const date = new Date(scrim.startTime);
+    // Explicit timezone avoids server/client mismatch during hydration
+    return new Intl.DateTimeFormat("en-IN", {
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: true,
+      timeZone: "Asia/Kolkata",
+    }).format(date);
+  }, [scrim.startTime]);
 
   return (
     <div className="glass-panel glow-hover flex flex-col gap-3 rounded-2xl p-4">
@@ -29,9 +40,7 @@ export const ScrimCard = ({ scrim, onJoin }: Props) => {
       <div className="text-sm text-slate-300">Entry ₹{scrim.entryFee}</div>
       <div className="flex items-center justify-between text-xs text-slate-400">
         <span>Prize Pool ₹{scrim.prizePool}</span>
-        <span>
-          Starts {new Date(scrim.startTime).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
-        </span>
+        <span>Starts {startTimeLabel}</span>
       </div>
       <div className="flex items-center justify-between text-xs text-slate-400">
         <span>Slots: {scrim.maxSlots}</span>

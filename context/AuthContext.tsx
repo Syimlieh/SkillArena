@@ -1,53 +1,123 @@
 "use client";
 
-import React, { createContext, useContext, useReducer, ReactNode, Dispatch } from "react";
-import { User } from "@/types/user.types";
-import { UserRole } from "@/enums/UserRole.enum";
+import React, { createContext, useContext, useReducer, ReactNode, useCallback } from "react";
+import { AuthStatus } from "@/enums/AuthStatus.enum";
+import { API_ROUTES } from "@/lib/constants";
+import {
+  AuthAction,
+  AuthContextValue,
+  AuthResult,
+  AuthState,
+  LoginPayload,
+  RegisterPayload,
+} from "@/types/auth.types";
 
-type AuthState = {
-  user?: User;
+const initialAuthState: AuthState = {
+  status: AuthStatus.UNAUTHENTICATED,
 };
-
-type AuthAction =
-  | { type: "LOGIN"; payload: User }
-  | { type: "LOGOUT" }
-  | { type: "SET_ROLE"; payload: UserRole };
-
-const initialAuthState: AuthState = {};
-
-const AuthStateContext = createContext<AuthState | undefined>(undefined);
-const AuthDispatchContext = createContext<Dispatch<AuthAction> | undefined>(undefined);
 
 const reducer = (state: AuthState, action: AuthAction): AuthState => {
   switch (action.type) {
-    case "LOGIN":
-      return { user: action.payload };
-    case "LOGOUT":
-      return {};
-    case "SET_ROLE":
-      return state.user ? { user: { ...state.user, role: action.payload } } : state;
+    case "SET_USER":
+      return { ...state, user: action.payload, status: action.payload ? AuthStatus.AUTHENTICATED : AuthStatus.UNAUTHENTICATED };
+    case "SET_STATUS":
+      return { ...state, status: action.payload };
+    case "SET_ERROR":
+      return { ...state, error: action.payload };
     default:
       return state;
   }
 };
 
+const AuthContext = createContext<AuthContextValue | undefined>(undefined);
+
+const performAuthRequest = async (
+  endpoint: string,
+  payload: LoginPayload | RegisterPayload
+): Promise<{ success: boolean; message?: string; user?: AuthState["user"]; fieldErrors?: Record<string, string[]> }> => {
+  try {
+    const response = await fetch(endpoint, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+
+    const data = await response.json().catch(() => ({}));
+    if (data?.success === false) {
+      const message =
+        typeof data?.error?.message === "string"
+          ? data.error.message
+          : typeof data?.error === "string"
+            ? data.error
+            : "Unable to complete authentication request";
+      return { success: false, message, fieldErrors: data?.error?.fieldErrors };
+    }
+    if (!response.ok) {
+      const message = typeof data?.error === "string" ? data.error : "Unable to complete authentication request";
+      return { success: false, message };
+    }
+
+    const user = data?.data?.user ?? data?.user;
+    return { success: true, user, message: "Authenticated" };
+  } catch {
+    return { success: false, message: "Network error. Please try again." };
+  }
+};
+
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [state, dispatch] = useReducer(reducer, initialAuthState);
-  return (
-    <AuthStateContext.Provider value={state}>
-      <AuthDispatchContext.Provider value={dispatch}>{children}</AuthDispatchContext.Provider>
-    </AuthStateContext.Provider>
+
+  const login = useCallback(
+    async (payload: LoginPayload): Promise<AuthResult> => {
+      dispatch({ type: "SET_STATUS", payload: AuthStatus.LOADING });
+      dispatch({ type: "SET_ERROR", payload: undefined });
+      const result = await performAuthRequest(API_ROUTES.authLogin, payload);
+      if (!result.success || !result.user) {
+        dispatch({ type: "SET_STATUS", payload: AuthStatus.UNAUTHENTICATED });
+        dispatch({ type: "SET_ERROR", payload: result.message });
+        return { success: false, message: result.message, fieldErrors: result.fieldErrors };
+      }
+      dispatch({ type: "SET_USER", payload: result.user });
+      dispatch({ type: "SET_STATUS", payload: AuthStatus.AUTHENTICATED });
+      return { success: true, message: "Logged in" };
+    },
+    []
   );
+
+  const register = useCallback(
+    async (payload: RegisterPayload): Promise<AuthResult> => {
+      dispatch({ type: "SET_STATUS", payload: AuthStatus.LOADING });
+      dispatch({ type: "SET_ERROR", payload: undefined });
+      const result = await performAuthRequest(API_ROUTES.authRegister, payload);
+      if (!result.success || !result.user) {
+        dispatch({ type: "SET_STATUS", payload: AuthStatus.UNAUTHENTICATED });
+        dispatch({ type: "SET_ERROR", payload: result.message });
+        return { success: false, message: result.message, fieldErrors: result.fieldErrors };
+      }
+      dispatch({ type: "SET_USER", payload: result.user });
+      dispatch({ type: "SET_STATUS", payload: AuthStatus.AUTHENTICATED });
+      return { success: true, message: "Registered" };
+    },
+    []
+  );
+
+  const logout = useCallback(() => {
+    dispatch({ type: "SET_USER", payload: undefined });
+    dispatch({ type: "SET_STATUS", payload: AuthStatus.UNAUTHENTICATED });
+  }, []);
+
+  const value: AuthContextValue = {
+    state,
+    login,
+    register,
+    logout,
+  };
+
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
 
-export const useAuthState = (): AuthState => {
-  const ctx = useContext(AuthStateContext);
-  if (!ctx) throw new Error("useAuthState must be used within AuthProvider");
-  return ctx;
-};
-
-export const useAuthDispatch = (): Dispatch<AuthAction> => {
-  const ctx = useContext(AuthDispatchContext);
-  if (!ctx) throw new Error("useAuthDispatch must be used within AuthProvider");
+export const useAuth = (): AuthContextValue => {
+  const ctx = useContext(AuthContext);
+  if (!ctx) throw new Error("useAuth must be used within AuthProvider");
   return ctx;
 };

@@ -28,7 +28,9 @@ export const Navbar = () => (
         ))}
       </nav>
       <div className="flex items-center gap-3">
-        <Button variant="ghost">Login</Button>
+        <Link href="/auth/login" className="inline-block">
+          <Button variant="ghost">Login</Button>
+        </Link>
         <Button>Join Next Match</Button>
       </div>
     </div>

@@ -6,11 +6,15 @@ export const BRAND = {
 
 export const SECURITY = {
   webhookSecretHeader: "x-phonepe-signature",
-  authHeader: "x-user-role",
+  authHeader: "authorization",
+  authCookie: "sa_auth",
+  bearerPrefix: "Bearer ",
 };
 
 export const API_ROUTES = {
   scrims: "/api/scrims",
   payments: "/api/payments",
   phonepeWebhook: "/api/webhooks/phonepe",
+  authLogin: "/api/auth/login",
+  authRegister: "/api/auth/register",
 } as const;
