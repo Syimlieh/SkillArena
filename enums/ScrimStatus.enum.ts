@@ -1,5 +1,6 @@
 export enum ScrimStatus {
   UPCOMING = "UPCOMING",
+  ONGOING = "ONGOING",
   FULL = "FULL",
   COMPLETED = "COMPLETED",
   CANCELLED = "CANCELLED",

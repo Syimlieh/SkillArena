@@ -1,28 +1,47 @@
 "use client";
 
+import { useMemo, useCallback } from "react";
+import { useRouter } from "next/navigation";
 import { Scrim } from "@/types/scrim.types";
 import { ScrimStatus } from "@/enums/ScrimStatus.enum";
+import { AuthStatus } from "@/enums/AuthStatus.enum";
 import { Button } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
-import { useMemo } from "react";
+import { useAuth } from "@/context/AuthContext";
+import { buildScrimDetailRoute } from "@/lib/routes";
+import { rememberPostLoginRedirect } from "@/lib/auth";
+import { handleAuthRedirect } from "@/modules/navigation/navigation.service";
+import { resolveScrimSlug } from "@/modules/scrims/scrim.selector";
 
 interface Props {
   scrim: Scrim;
-  onJoin?: (scrimId: string) => void;
 }
 
 const statusCopy: Record<ScrimStatus, string> = {
   [ScrimStatus.UPCOMING]: "Join Now",
-  [ScrimStatus.FULL]: "Full",
+  [ScrimStatus.ONGOING]: "Ongoing",
   [ScrimStatus.COMPLETED]: "Completed",
+  [ScrimStatus.FULL]: "Full",
   [ScrimStatus.CANCELLED]: "Cancelled",
 };
 
-export const ScrimCard = ({ scrim, onJoin }: Props) => {
-  const isJoinable = scrim.status === ScrimStatus.UPCOMING;
+const getAvailableSlots = (scrim: Scrim) => {
+  if (typeof scrim.availableSlots === "number") return scrim.availableSlots;
+  return scrim.maxSlots;
+};
+
+export const ScrimCard = ({ scrim }: Props) => {
+  const router = useRouter();
+  const { state } = useAuth();
+  const isAuthenticated = state.status === AuthStatus.AUTHENTICATED && !!state.user;
+
+  const isJoinable =
+    scrim.status === ScrimStatus.UPCOMING && typeof getAvailableSlots(scrim) === "number"
+      ? getAvailableSlots(scrim) > 0
+      : scrim.status === ScrimStatus.UPCOMING;
+
   const startTimeLabel = useMemo(() => {
     const date = new Date(scrim.startTime);
-    // Explicit timezone avoids server/client mismatch during hydration
     return new Intl.DateTimeFormat("en-IN", {
       hour: "2-digit",
       minute: "2-digit",
@@ -30,6 +49,14 @@ export const ScrimCard = ({ scrim, onJoin }: Props) => {
       timeZone: "Asia/Kolkata",
     }).format(date);
   }, [scrim.startTime]);
+
+  const handleJoin = useCallback(() => {
+    const slug = resolveScrimSlug(scrim);
+    if (!slug) return;
+    const target = buildScrimDetailRoute(slug);
+    if (!isAuthenticated) rememberPostLoginRedirect(target);
+    handleAuthRedirect(router, isAuthenticated, target);
+  }, [isAuthenticated, router, scrim]);
 
   return (
     <div className="glass-panel glow-hover flex flex-col gap-3 rounded-2xl p-4">
@@ -49,10 +76,10 @@ export const ScrimCard = ({ scrim, onJoin }: Props) => {
       <Button
         disabled={!isJoinable}
         variant={isJoinable ? "primary" : "secondary"}
-        onClick={() => isJoinable && onJoin?.(scrim._id?.toString() || "")}
+        onClick={handleJoin}
         className={!isJoinable ? "opacity-60" : ""}
       >
-        {statusCopy[scrim.status]}
+        {statusCopy[scrim.status] ?? "Join"}
       </Button>
     </div>
   );

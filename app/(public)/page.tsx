@@ -1,42 +1,44 @@
-import { ScrimList } from "@/components/scrims/ScrimList";
 import { Card } from "@/components/ui/Card";
-import { Button } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
+import { HeroActions } from "@/components/home/HeroActions";
+import { UpcomingMatches } from "@/components/home/UpcomingMatches";
 import { Scrim } from "@/types/scrim.types";
 import { ScrimStatus } from "@/enums/ScrimStatus.enum";
+import { ScrimMap } from "@/enums/ScrimMap.enum";
 
 const mockScrims: Scrim[] = [
   {
+    slug: "erangel-showdown",
     title: "Erangel Showdown",
     entryFee: 80,
     maxSlots: 25,
+    availableSlots: 12,
     prizePool: 500,
     status: ScrimStatus.UPCOMING,
-    startTime: new Date(),
+    map: ScrimMap.ERANGEL,
+    startTime: new Date(Date.now() + 60 * 60 * 1000),
   },
   {
+    slug: "livik-blitz",
     title: "Miramar Blitz",
     entryFee: 80,
     maxSlots: 25,
+    availableSlots: 4,
     prizePool: 500,
     status: ScrimStatus.UPCOMING,
-    startTime: new Date(),
+    map: ScrimMap.LIVIK,
+    startTime: new Date(Date.now() + 2 * 60 * 60 * 1000),
   },
   {
+    slug: "sanhok-skirmish",
     title: "Sanhok Skirmish",
     entryFee: 80,
     maxSlots: 25,
+    availableSlots: 0,
     prizePool: 500,
     status: ScrimStatus.FULL,
-    startTime: new Date(),
-  },
-  {
-    title: "Vikendi Clash",
-    entryFee: 80,
-    maxSlots: 25,
-    prizePool: 500,
-    status: ScrimStatus.UPCOMING,
-    startTime: new Date(),
+    map: ScrimMap.ERANGEL,
+    startTime: new Date(Date.now() + 3 * 60 * 60 * 1000),
   },
 ];
 
@@ -50,12 +52,7 @@ const Hero = () => (
           Skill-based tournaments with neon-fast payouts.
         </h1>
         <p className="text-lg text-slate-300">₹80 entry • Verified lobbies • Anti-cheat moderation</p>
-        <div className="flex flex-wrap gap-3">
-          <Button className="min-w-[160px]">Join Next Match</Button>
-          <Button variant="secondary" className="min-w-[160px]">
-            View Schedule
-          </Button>
-        </div>
+        <HeroActions scrims={mockScrims} />
       </div>
       <Card className="w-full max-w-sm border border-[rgba(66,255,135,0.2)] bg-[#0c111a]/80">
         <div className="text-sm uppercase text-slate-400">Prize Highlight</div>
@@ -96,13 +93,7 @@ export default function HomePage() {
   return (
     <div className="mx-auto flex max-w-6xl flex-col gap-10 px-6 py-10">
       <Hero />
-      <section className="space-y-4">
-        <div className="flex items-center justify-between">
-          <div className="text-sm uppercase text-[var(--primary)]">Upcoming Matches</div>
-          <Button variant="ghost">Full Schedule</Button>
-        </div>
-        <ScrimList scrims={mockScrims} />
-      </section>
+      <UpcomingMatches scrims={mockScrims} />
       <Highlights />
     </div>
   );

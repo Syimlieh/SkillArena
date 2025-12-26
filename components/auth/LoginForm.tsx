@@ -7,6 +7,8 @@ import { useAuth } from "@/context/AuthContext";
 import { loginSchema } from "@/modules/auth/auth.validator";
 import { LoginPayload } from "@/types/auth.types";
 import { Button } from "@/components/ui/Button";
+import { consumePostLoginRedirect } from "@/lib/auth";
+import { AppRoute } from "@/lib/routes";
 
 type FieldErrors = Record<string, string>;
 
@@ -54,7 +56,8 @@ export const LoginForm = () => {
       return;
     }
 
-    router.push("/dashboard");
+    const redirectTarget = consumePostLoginRedirect() ?? AppRoute.DASHBOARD_MY_MATCHES;
+    router.push(redirectTarget);
   };
 
   const helperText = useMemo(() => {
