@@ -1,9 +1,16 @@
 "use client";
 
 import Link from "next/link";
+import { useMemo } from "react";
 import { Button } from "@/components/ui/Button";
 import { BRAND } from "@/lib/constants";
 import { useAuth } from "@/context/AuthContext";
+import { resolveDashboardRoute } from "@/modules/navigation/navigation.service";
+import ProfileDropdown from "@/components/layout/ProfileDropdown";
+
+interface NavbarProps {
+  variant?: "public" | "app" | "admin";
+}
 
 const navItems = [
   { label: "Home", href: "/" },
@@ -11,12 +18,14 @@ const navItems = [
   { label: "Rules", href: "/dashboard#rules" },
 ];
 
-export const Navbar = () => {
-  const { isAdmin } = useAuth();
+export const Navbar = ({ variant = "public" }: NavbarProps) => {
+  const { isAdmin, isAuthenticated, state } = useAuth();
+  const dashboardHref = useMemo(() => resolveDashboardRoute(state.user?.role), [state.user?.role]);
+
   return (
     <header className="sticky top-0 z-30 border-b border-[#0f172a] bg-[#05070bcc] backdrop-blur">
       <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
-        <Link href="/" className="flex items-center gap-2">
+        <Link href={variant === "public" ? "/" : dashboardHref} className="flex items-center gap-2">
           <div className="h-10 w-10 rounded-full bg-[var(--primary)]/15 neon-border flex items-center justify-center text-lg font-black text-[var(--primary)]">
             BG
           </div>
@@ -25,23 +34,32 @@ export const Navbar = () => {
             <span className="text-lg font-black text-white">Esports</span>
           </div>
         </Link>
-        <nav className="flex items-center gap-8 text-sm font-semibold text-slate-200">
-          {navItems.map((item) => (
-            <Link key={item.href} href={item.href} className="hover:text-[var(--primary)]">
-              {item.label}
-            </Link>
-          ))}
-        </nav>
+
+        {variant === "public" ? (
+          <nav className="flex items-center gap-8 text-sm font-semibold text-slate-200">
+            {navItems.map((item) => (
+              <Link key={item.href} href={item.href} className="hover:text-[var(--primary)]">
+                {item.label}
+              </Link>
+            ))}
+          </nav>
+        ) : (
+          <div />
+        )}
+
         <div className="flex items-center gap-3">
           {isAdmin && (
             <Link href="/dashboard/admin/create-match">
               <Button variant="secondary">Create Match</Button>
             </Link>
           )}
-          <Link href="/auth/login" className="inline-block">
-            <Button variant="ghost">Login</Button>
-          </Link>
-          <Button>Join Next Match</Button>
+          {isAuthenticated ? (
+            <ProfileDropdown />
+          ) : (
+            <Link href="/auth/login" className="inline-block">
+              <Button variant="ghost">Login</Button>
+            </Link>
+          )}
         </div>
       </div>
     </header>
