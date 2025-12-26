@@ -67,11 +67,14 @@ const performAuthRequest = async (
   }
 };
 
-const shapeProfileToUser = (profile: Profile) => ({
-  name: profile.name,
-  email: profile.email,
-  role: profile.role,
-});
+const shapeProfileToUser = (profile: Profile) =>
+  ({
+    name: profile.name,
+    email: profile.email,
+    role: profile.role,
+    phone: "",
+    ageVerified: false,
+  } as const);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [state, dispatch] = useReducer(reducer, initialAuthState);
@@ -127,6 +130,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   );
 
   const logout = useCallback(() => {
+    // clear auth cookie via server route when available
+    fetch("/api/auth/logout", { method: "POST" }).catch(() => {
+      /* ignore */
+    });
     dispatch({ type: "SET_USER", payload: undefined });
     dispatch({ type: "SET_STATUS", payload: AuthStatus.UNAUTHENTICATED });
   }, []);

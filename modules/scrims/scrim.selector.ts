@@ -10,13 +10,14 @@ const getAvailableSlots = (scrim: Scrim): number => {
   return Math.max(scrim.maxSlots ?? 0, 0);
 };
 
-export const getNextAvailableScrim = (scrims: Scrim[]): Scrim | undefined => {
-  const filtered = scrims.filter(
-    (scrim) =>
-      scrim.status === ScrimStatus.UPCOMING &&
-      getAvailableSlots(scrim) > 0 &&
-      (!scrim.map || ALLOWED_MAPS.includes(scrim.map))
-  );
+export const getNextAvailableScrim = (scrims?: Scrim[]): Scrim | undefined => {
+  if (!scrims?.length) return undefined;
+
+  const filtered = scrims.filter((scrim) => {
+    const mapOk = !scrim.map || ALLOWED_MAPS.includes(scrim.map);
+    const slotsOk = getAvailableSlots(scrim) > 0;
+    return scrim.status === ScrimStatus.UPCOMING && mapOk && slotsOk;
+  });
 
   return filtered.sort((a, b) => new Date(a.startTime).getTime() - new Date(b.startTime).getTime())[0];
 };

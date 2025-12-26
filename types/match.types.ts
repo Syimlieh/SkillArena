@@ -14,7 +14,7 @@ export interface Match {
   slug: string;
   map: MatchMap;
   title: string;
-  startTime: Date;
+  startTime: Date | string;
   entryFee: number;
   maxSlots: number;
   prizePool: number;
