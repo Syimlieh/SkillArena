@@ -40,10 +40,13 @@ export interface AuthContextValue {
   login: (payload: LoginPayload) => Promise<AuthResult>;
   register: (payload: RegisterPayload) => Promise<AuthResult>;
   logout: () => void;
+  isAdmin: boolean;
+  isAuthenticated: boolean;
 }
 
 export interface AuthResult {
   success: boolean;
   message?: string;
+  user?: SafeUser;
   fieldErrors?: Record<string, string[]>;
 }

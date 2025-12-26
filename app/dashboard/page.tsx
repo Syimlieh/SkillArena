@@ -1,5 +1,5 @@
-import DashboardShell from "@/components/dashboard/DashboardShell";
+import DashboardPageContent from "@/components/dashboard/DashboardPageContent";
 
-const DashboardPage = () => <DashboardShell />;
+const DashboardPage = () => <DashboardPageContent />;
 
 export default DashboardPage;

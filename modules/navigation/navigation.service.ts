@@ -1,5 +1,6 @@
 import { AppRoute, buildScrimDetailRoute } from "@/lib/routes";
 import { AppRouterInstance } from "next/navigation";
+import { UserRole } from "@/enums/UserRole.enum";
 
 const buildLoginRedirect = (redirectTo: string) =>
   `${AppRoute.LOGIN}?redirect=${encodeURIComponent(redirectTo)}`;
@@ -27,3 +28,6 @@ export const handleAuthRedirect = (
   }
   pushSafely(router, targetPath);
 };
+
+export const resolveDashboardRoute = (role?: UserRole): string =>
+  role === UserRole.ADMIN ? "/dashboard/admin" : "/dashboard";

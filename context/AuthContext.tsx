@@ -1,8 +1,10 @@
 "use client";
 
-import React, { createContext, useContext, useReducer, ReactNode, useCallback } from "react";
+import React, { createContext, useContext, useReducer, ReactNode, useCallback, useEffect } from "react";
 import { AuthStatus } from "@/enums/AuthStatus.enum";
 import { API_ROUTES } from "@/lib/constants";
+import { fetchProfile } from "@/modules/profile/profile.service";
+import { Profile } from "@/types/profile.types";
 import {
   AuthAction,
   AuthContextValue,
@@ -11,6 +13,7 @@ import {
   LoginPayload,
   RegisterPayload,
 } from "@/types/auth.types";
+import { UserRole } from "@/enums/UserRole.enum";
 
 const initialAuthState: AuthState = {
   status: AuthStatus.UNAUTHENTICATED,
@@ -64,8 +67,30 @@ const performAuthRequest = async (
   }
 };
 
+const shapeProfileToUser = (profile: Profile) => ({
+  name: profile.name,
+  email: profile.email,
+  role: profile.role,
+});
+
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [state, dispatch] = useReducer(reducer, initialAuthState);
+
+  const hydrateProfile = useCallback(async () => {
+    dispatch({ type: "SET_STATUS", payload: AuthStatus.LOADING });
+    const profile = await fetchProfile();
+    if (profile) {
+      dispatch({ type: "SET_USER", payload: shapeProfileToUser(profile) });
+      dispatch({ type: "SET_STATUS", payload: AuthStatus.AUTHENTICATED });
+    } else {
+      dispatch({ type: "SET_USER", payload: undefined });
+      dispatch({ type: "SET_STATUS", payload: AuthStatus.UNAUTHENTICATED });
+    }
+  }, []);
+
+  useEffect(() => {
+    void hydrateProfile();
+  }, [hydrateProfile]);
 
   const login = useCallback(
     async (payload: LoginPayload): Promise<AuthResult> => {
@@ -79,7 +104,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       }
       dispatch({ type: "SET_USER", payload: result.user });
       dispatch({ type: "SET_STATUS", payload: AuthStatus.AUTHENTICATED });
-      return { success: true, message: "Logged in" };
+      return { success: true, message: "Logged in", user: result.user };
     },
     []
   );
@@ -88,7 +113,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     async (payload: RegisterPayload): Promise<AuthResult> => {
       dispatch({ type: "SET_STATUS", payload: AuthStatus.LOADING });
       dispatch({ type: "SET_ERROR", payload: undefined });
-      const result = await performAuthRequest(API_ROUTES.authRegister, payload);
+    const result = await performAuthRequest(API_ROUTES.authRegister, payload);
       if (!result.success || !result.user) {
         dispatch({ type: "SET_STATUS", payload: AuthStatus.UNAUTHENTICATED });
         dispatch({ type: "SET_ERROR", payload: result.message });
@@ -96,7 +121,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       }
       dispatch({ type: "SET_USER", payload: result.user });
       dispatch({ type: "SET_STATUS", payload: AuthStatus.AUTHENTICATED });
-      return { success: true, message: "Registered" };
+      return { success: true, message: "Registered", user: result.user };
     },
     []
   );
@@ -106,11 +131,16 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     dispatch({ type: "SET_STATUS", payload: AuthStatus.UNAUTHENTICATED });
   }, []);
 
+  const isAdmin = state.user?.role === UserRole.ADMIN;
+  const isAuthenticated = state.status === AuthStatus.AUTHENTICATED;
+
   const value: AuthContextValue = {
     state,
     login,
     register,
     logout,
+    isAdmin,
+    isAuthenticated,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
