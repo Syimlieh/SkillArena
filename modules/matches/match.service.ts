@@ -51,6 +51,22 @@ export const createMatch = async (input: MatchInput, adminUserId: string): Promi
 export const listMatches = async (status?: MatchStatus): Promise<Match[]> => {
   await connectDb();
   const query = status ? { status } : {};
-  const matches = await MatchModel.find(query).sort({ startTime: 1 }).lean<Match>();
-  return matches;
+  const matches = await MatchModel.find(query).sort({ startTime: 1 }).lean<Match[]>();
+  return matches as Match[];
+};
+
+export const getMatchBySlug = async (slug?: string | null): Promise<Match | null> => {
+  if (!slug) return null;
+  await connectDb();
+  const normalizedSlug = slug.toLowerCase();
+  const normalizedId = slug.toUpperCase();
+
+  const bySlug = await MatchModel.findOne({ slug: normalizedSlug }).lean<Match>();
+  if (bySlug) return bySlug;
+
+  // allow direct matchId lookup regardless of casing
+  const byId = await MatchModel.findOne({
+    matchId: { $in: [slug, normalizedId, slug.toUpperCase()] },
+  }).lean<Match>();
+  return byId ?? null;
 };

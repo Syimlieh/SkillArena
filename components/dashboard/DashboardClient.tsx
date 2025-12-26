@@ -8,9 +8,10 @@ import { Button } from "@/components/ui/Button";
 import DashboardEmptyState from "@/components/dashboard/DashboardEmptyState";
 import { UpcomingMatches } from "@/components/dashboard/UpcomingMatches";
 import { MatchHistory } from "@/components/dashboard/MatchHistory";
+import { AvailableMatches } from "@/components/dashboard/AvailableMatches";
 import { useAuth } from "@/context/AuthContext";
 import { rememberPostLoginRedirect } from "@/lib/auth";
-import { AppRoute, buildScrimDetailRoute } from "@/lib/routes";
+import { AppRoute, buildMatchDetailRoute, buildScrimDetailRoute } from "@/lib/routes";
 import { handleAuthRedirect } from "@/modules/navigation/navigation.service";
 import { resolveScrimSlug } from "@/modules/scrims/scrim.selector";
 
@@ -26,10 +27,17 @@ const DashboardClient = ({ data }: Props) => {
 
   const hasUpcoming = data.upcoming.length > 0;
   const nextJoinablePath = useMemo(() => {
-    if (!data.nextJoinable) return null;
-    const slug = resolveScrimSlug(data.nextJoinable);
-    return slug ? buildScrimDetailRoute(slug) : null;
-  }, [data.nextJoinable]);
+    if (data.nextJoinable) {
+      const slug = resolveScrimSlug(data.nextJoinable);
+      return slug ? buildScrimDetailRoute(slug) : null;
+    }
+    if (data.availableMatches.length > 0) {
+      const match = data.availableMatches[0];
+      const slug = match.slug ?? match.matchId;
+      return slug ? buildMatchDetailRoute(slug) : null;
+    }
+    return null;
+  }, [data.availableMatches, data.nextJoinable]);
 
   const joinDisabledMessage = useMemo(() => {
     if (hasUpcoming) return "You already have an upcoming match";
@@ -48,7 +56,7 @@ const DashboardClient = ({ data }: Props) => {
   }, [isAuthenticated, joinDisabledMessage, nextJoinablePath, router]);
 
   const renderBody = () => {
-    if (data.upcoming.length === 0 && data.history.length === 0) {
+    if (data.upcoming.length === 0 && data.history.length === 0 && data.availableMatches.length === 0) {
       return (
         <DashboardEmptyState
           onJoin={handleJoinNext}
@@ -60,6 +68,7 @@ const DashboardClient = ({ data }: Props) => {
 
     return (
       <div className="space-y-8">
+        {data.availableMatches.length > 0 && <AvailableMatches matches={data.availableMatches} />}
         {data.upcoming.length > 0 && <UpcomingMatches scrims={data.upcoming} />}
         {data.history.length > 0 && <MatchHistory scrims={data.history} />}
       </div>
