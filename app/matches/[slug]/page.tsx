@@ -5,6 +5,7 @@ import { getMatchBySlug } from "@/modules/matches/match.service";
 import { Badge } from "@/components/ui/Badge";
 import { MatchMap } from "@/enums/MatchMap.enum";
 import { Button } from "@/components/ui/Button";
+import RegisterButton from "@/components/matches/RegisterButton";
 
 const formatTime = (date: Date | string) =>
   new Intl.DateTimeFormat("en-IN", {
@@ -16,7 +17,7 @@ const formatTime = (date: Date | string) =>
     timeZone: "Asia/Kolkata",
   }).format(new Date(date));
 
-const MatchDetailsPage = async ({ params }: { params: Promise<{ slug: string }> }) => {
+const MatchDetailsPage = async ({ params }: { params: { slug: string } }) => {
   const { slug } = await params;
   if (!slug) return notFound();
 
@@ -24,6 +25,11 @@ const MatchDetailsPage = async ({ params }: { params: Promise<{ slug: string }> 
   if (!match) return notFound();
 
   const prize = match.prizeBreakdown;
+  const clientMatch = {
+    ...match,
+    _id: match._id ? (match._id as any).toString() : undefined,
+    startTime: match.startTime ? new Date(match.startTime).toISOString() : match.startTime,
+  };
 
   return (
     <div className="mx-auto max-w-4xl px-6 py-10 space-y-4 text-white">
@@ -61,9 +67,7 @@ const MatchDetailsPage = async ({ params }: { params: Promise<{ slug: string }> 
           </div>
         </div>
       </div>
-      <Button disabled className="w-full justify-center opacity-60">
-        Register (coming soon)
-      </Button>
+      <RegisterButton match={clientMatch} />
     </div>
   );
 };

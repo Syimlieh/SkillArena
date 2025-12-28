@@ -9,6 +9,7 @@ import DashboardEmptyState from "@/components/dashboard/DashboardEmptyState";
 import { UpcomingMatches } from "@/components/dashboard/UpcomingMatches";
 import { MatchHistory } from "@/components/dashboard/MatchHistory";
 import { AvailableMatches } from "@/components/dashboard/AvailableMatches";
+import { RegisteredMatches } from "@/components/dashboard/RegisteredMatches";
 import { useAuth } from "@/context/AuthContext";
 import { rememberPostLoginRedirect } from "@/lib/auth";
 import { buildMatchDetailRoute } from "@/lib/routes";
@@ -56,7 +57,12 @@ const DashboardClient = ({ data }: Props) => {
   }, [isAuthenticated, joinDisabledMessage, nextJoinablePath, router]);
 
   const renderBody = () => {
-    if (data.upcoming.length === 0 && data.history.length === 0 && data.availableMatches.length === 0) {
+    if (
+      data.upcoming.length === 0 &&
+      data.history.length === 0 &&
+      data.availableMatches.length === 0 &&
+      data.registeredMatches.length === 0
+    ) {
       return (
         <DashboardEmptyState
           onJoin={handleJoinNext}
@@ -68,6 +74,7 @@ const DashboardClient = ({ data }: Props) => {
 
     return (
       <div className="space-y-8">
+        {data.registeredMatches.length > 0 && <RegisteredMatches matches={data.registeredMatches} />}
         {data.availableMatches.length > 0 && <AvailableMatches matches={data.availableMatches} />}
         {data.upcoming.length > 0 && <UpcomingMatches scrims={data.upcoming} />}
         {data.history.length > 0 && <MatchHistory scrims={data.history} />}
