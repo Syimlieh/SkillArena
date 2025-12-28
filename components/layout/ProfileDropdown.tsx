@@ -5,7 +5,6 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import { resolveDashboardRoute } from "@/modules/navigation/navigation.service";
-import { UserRole } from "@/enums/UserRole.enum";
 
 const initialsFromName = (name?: string) => {
   if (!name) return "SA";
@@ -15,7 +14,7 @@ const initialsFromName = (name?: string) => {
 };
 
 const ProfileDropdown = () => {
-  const { state, logout, isAdmin } = useAuth();
+  const { state, logout } = useAuth();
   const router = useRouter();
   const [open, setOpen] = useState(false);
 
@@ -49,15 +48,6 @@ const ProfileDropdown = () => {
           >
             Dashboard
           </Link>
-          {isAdmin && (
-            <Link
-              href="/dashboard/admin"
-              className="block rounded-lg px-3 py-2 text-sm text-white hover:bg-[#111827]"
-              onClick={() => setOpen(false)}
-            >
-              Admin Dashboard
-            </Link>
-          )}
           <button
             onClick={handleLogout}
             className="mt-1 w-full rounded-lg px-3 py-2 text-left text-sm text-red-300 hover:bg-[#111827]"
