@@ -48,6 +48,11 @@ export const Navbar = ({ variant = "public" }: NavbarProps) => {
         )}
 
         <div className="flex items-center gap-3">
+          {isAuthenticated && !isAdmin && (
+            <Link href="/dashboard/host/apply">
+              <Button variant="ghost">Become a Host</Button>
+            </Link>
+          )}
           {isAdmin && (
             <Link href="/dashboard/admin/create-match">
               <Button variant="secondary">Create Match</Button>
