@@ -7,7 +7,7 @@ import { Scrim } from "@/types/scrim.types";
 import { Match } from "@/types/match.types";
 import { AuthStatus } from "@/enums/AuthStatus.enum";
 import { useAuth } from "@/context/AuthContext";
-import { AppRoute, buildScrimDetailRoute } from "@/lib/routes";
+import { buildMatchDetailRoute } from "@/lib/routes";
 import { rememberPostLoginRedirect } from "@/lib/auth";
 import { handleAuthRedirect, NavigationService } from "@/modules/navigation/navigation.service";
 import { getNextAvailableScrim, resolveScrimSlug } from "@/modules/scrims/scrim.selector";
@@ -21,7 +21,7 @@ interface Props {
 const resolveTargetPath = (scrim: Scrim | undefined): string | null => {
   if (!scrim) return null;
   const slug = resolveScrimSlug(scrim);
-  return slug ? buildScrimDetailRoute(slug) : null;
+  return slug ? buildMatchDetailRoute(slug) : null;
 };
 
 const mapMatchesToScrims = (matches?: Match[]): Scrim[] => {

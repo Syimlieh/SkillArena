@@ -11,7 +11,7 @@ import { MatchHistory } from "@/components/dashboard/MatchHistory";
 import { AvailableMatches } from "@/components/dashboard/AvailableMatches";
 import { useAuth } from "@/context/AuthContext";
 import { rememberPostLoginRedirect } from "@/lib/auth";
-import { AppRoute, buildMatchDetailRoute, buildScrimDetailRoute } from "@/lib/routes";
+import { buildMatchDetailRoute } from "@/lib/routes";
 import { handleAuthRedirect } from "@/modules/navigation/navigation.service";
 import { resolveScrimSlug } from "@/modules/scrims/scrim.selector";
 
@@ -29,7 +29,7 @@ const DashboardClient = ({ data }: Props) => {
   const nextJoinablePath = useMemo(() => {
     if (data.nextJoinable) {
       const slug = resolveScrimSlug(data.nextJoinable);
-      return slug ? buildScrimDetailRoute(slug) : null;
+      return slug ? buildMatchDetailRoute(slug) : null;
     }
     if (data.availableMatches.length > 0) {
       const match = data.availableMatches[0];
