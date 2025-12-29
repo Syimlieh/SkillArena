@@ -106,50 +106,72 @@ export const HostApplicationsTable = ({ applications }: { applications: HostAppl
         </div>
       </div>
       {error && <div className="px-6 py-3 text-sm text-rose-300">{error}</div>}
-      <div className="divide-y divide-[#0f172a]">
-        {rows.map((app) => (
-          <div key={app.id} className="grid grid-cols-1 gap-3 px-6 py-4 md:grid-cols-[1.2fr,1fr,1fr,auto]">
-            <div className="flex flex-col gap-1">
-              <div className="flex items-center gap-2">
-                <span className="text-white font-semibold">{app.displayName}</span>
-                <span className={`rounded-full px-3 py-1 text-xs font-semibold ${statusStyles[app.status]}`}>
-                  {app.status}
-                </span>
-              </div>
-              <div className="text-xs text-slate-400">User: {app.userId}</div>
-              <p className="text-sm text-slate-300 line-clamp-2">{app.description}</p>
-            </div>
-            <div className="text-sm text-slate-200">{app.contactEmail}</div>
-            <div className="flex flex-col text-sm text-slate-300">
-              <span>Submitted: {formatDate(app.createdAt)}</span>
-              <span>Reviewed: {formatDate(app.reviewedAt)}</span>
-              {app.adminComment && <span className="text-amber-300">Note: {app.adminComment}</span>}
-            </div>
-            <div className="flex items-center gap-2">
-              {app.status === HostApplicationStatus.PENDING ? (
-                <>
-                  <Button
-                    onClick={() => handleAction(app.id, "approve")}
-                    disabled={actionId === app.id}
-                    className="min-w-[96px]"
-                  >
-                    {actionId === app.id ? "Approving..." : "Approve"}
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    onClick={() => setRejectModal({ id: app.id, comment: "" })}
-                    disabled={actionId === app.id}
-                    className="min-w-[96px]"
-                  >
-                    {actionId === app.id ? "Rejecting..." : "Reject"}
-                  </Button>
-                </>
-              ) : (
-                <span className="text-xs text-slate-400">No actions</span>
-              )}
-            </div>
-          </div>
-        ))}
+      <div className="overflow-x-auto">
+        <table className="w-full text-left text-sm text-slate-200">
+          <thead>
+            <tr className="border-b border-[#0f172a] text-xs uppercase tracking-wide text-slate-400">
+              <th className="px-6 py-3 font-semibold">Applicant</th>
+              <th className="px-6 py-3 font-semibold">Contact</th>
+              <th className="px-6 py-3 font-semibold">Submitted</th>
+              <th className="px-6 py-3 font-semibold">Reviewed</th>
+              <th className="px-6 py-3 font-semibold">Note</th>
+              <th className="px-6 py-3 font-semibold text-right">Actions</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-[#0f172a]">
+            {rows.map((app) => (
+              <tr key={app.id} className="align-top">
+                <td className="px-6 py-4">
+                  <div className="flex flex-col gap-1">
+                    <div className="flex items-center gap-2">
+                      <span className="text-white font-semibold">{app.displayName || "Unknown"}</span>
+                      <span className={`rounded-full px-3 py-1 text-xs font-semibold ${statusStyles[app.status]}`}>
+                        {app.status}
+                      </span>
+                    </div>
+                    <div className="text-xs text-slate-400">User ID: {app.userId || "—"}</div>
+                    <p className="text-sm text-slate-300 line-clamp-2 max-w-xl">{app.description || "—"}</p>
+                  </div>
+                </td>
+                <td className="px-6 py-4 text-sm text-slate-200">{app.contactEmail || "—"}</td>
+                <td className="px-6 py-4 text-sm text-slate-300">{formatDate(app.createdAt)}</td>
+                <td className="px-6 py-4 text-sm text-slate-300">{formatDate(app.reviewedAt)}</td>
+                <td className="px-6 py-4 text-sm text-amber-200 max-w-xs">
+                  {app.adminComment ? (
+                    <span className="line-clamp-2">{app.adminComment}</span>
+                  ) : (
+                    <span className="text-slate-500">—</span>
+                  )}
+                </td>
+                <td className="px-6 py-4 text-right">
+                  {app.status === HostApplicationStatus.PENDING ? (
+                    <div className="flex justify-end gap-2">
+                      <Button
+                        size="sm"
+                        onClick={() => handleAction(app.id, "approve")}
+                        disabled={actionId === app.id}
+                        className="min-w-[96px]"
+                      >
+                        {actionId === app.id ? "Approving..." : "Approve"}
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        onClick={() => setRejectModal({ id: app.id, comment: "" })}
+                        disabled={actionId === app.id}
+                        className="min-w-[96px]"
+                      >
+                        {actionId === app.id ? "Rejecting..." : "Reject"}
+                      </Button>
+                    </div>
+                  ) : (
+                    <span className="text-xs text-slate-500">No actions</span>
+                  )}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </div>
       <Modal isOpen={Boolean(rejectModal)} onClose={closeRejectModal} title="Reject application?">
         <div className="flex flex-col gap-4">
@@ -163,10 +185,11 @@ export const HostApplicationsTable = ({ applications }: { applications: HostAppl
             placeholder="Optional admin comment (visible to applicant)"
           />
           <div className="flex justify-end gap-3">
-            <Button variant="ghost" onClick={closeRejectModal}>
+            <Button size="sm" variant="ghost" onClick={closeRejectModal}>
               Cancel
             </Button>
             <Button
+              size="sm"
               onClick={() => {
                 if (!rejectModal) return;
                 const trimmed = rejectModal.comment.trim();
