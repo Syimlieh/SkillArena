@@ -6,9 +6,10 @@ import {
   applyForHost,
   approveApplication,
   HostApplicationError,
-  listPendingApplications,
+  listHostApplications,
   rejectApplication,
 } from "@/modules/host/host.service";
+import { HostApplicationStatus } from "@/enums/HostApplicationStatus.enum";
 
 export const handleHostApply = async (req: NextRequest) => {
   try {
@@ -33,10 +34,15 @@ export const handleHostApply = async (req: NextRequest) => {
   }
 };
 
-export const handleListHostApplications = async () => {
+export const handleListHostApplications = async (req: NextRequest) => {
   try {
     await requireAdmin();
-    const apps = await listPendingApplications();
+    const statusParam = req.nextUrl.searchParams.get("status");
+    const status =
+      statusParam && Object.values(HostApplicationStatus).includes(statusParam as HostApplicationStatus)
+        ? (statusParam as HostApplicationStatus)
+        : undefined;
+    const apps = await listHostApplications(status);
     return successResponse({ applications: apps });
   } catch (error: any) {
     if (error?.message === "Unauthorized") return errorResponse("Unauthorized", 401);

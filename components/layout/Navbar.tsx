@@ -7,6 +7,7 @@ import { BRAND } from "@/lib/constants";
 import { useAuth } from "@/context/AuthContext";
 import { resolveDashboardRoute } from "@/modules/navigation/navigation.service";
 import ProfileDropdown from "@/components/layout/ProfileDropdown";
+import { UserRole } from "@/enums/UserRole.enum";
 
 interface NavbarProps {
   variant?: "public" | "app" | "admin";
@@ -20,6 +21,7 @@ const navItems = [
 
 export const Navbar = ({ variant = "public" }: NavbarProps) => {
   const { isAdmin, isAuthenticated, state } = useAuth();
+  const isHost = state.user?.role === UserRole.HOST;
   const dashboardHref = useMemo(() => resolveDashboardRoute(state.user?.role), [state.user?.role]);
 
   return (
@@ -48,15 +50,20 @@ export const Navbar = ({ variant = "public" }: NavbarProps) => {
         )}
 
         <div className="flex items-center gap-3">
-          {isAuthenticated && !isAdmin && (
+          {isAuthenticated && !isAdmin && !isHost && (
             <Link href="/dashboard/host/apply">
               <Button variant="ghost">Become a Host</Button>
             </Link>
           )}
           {isAdmin && (
-            <Link href="/dashboard/admin/create-match">
-              <Button variant="secondary">Create Match</Button>
-            </Link>
+            <>
+              <Link href="/dashboard/admin/host-applications">
+                <Button variant="ghost">Host Applications</Button>
+              </Link>
+              <Link href="/dashboard/admin/create-match">
+                <Button variant="secondary">Create Match</Button>
+              </Link>
+            </>
           )}
           {isAuthenticated ? (
             <ProfileDropdown />

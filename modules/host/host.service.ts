@@ -39,9 +39,11 @@ export const applyForHost = async (userId: string, role: UserRole, input: HostAp
   return created.toObject();
 };
 
-export const listPendingApplications = async (): Promise<HostApplication[]> => {
+export const listHostApplications = async (status?: HostApplicationStatus): Promise<HostApplication[]> => {
   await connectDb();
-  return HostApplicationModel.find({ status: HostApplicationStatus.PENDING }).lean<HostApplication[]>();
+  const query = status ? { status } : {};
+  const apps = await HostApplicationModel.find(query).sort({ createdAt: -1 }).lean();
+  return apps as HostApplication[];
 };
 
 const updateApplicationStatus = async (
