@@ -9,6 +9,9 @@ import { Button } from "@/components/ui/Button";
 import { MATCH_DEFAULTS, API_ROUTES } from "@/lib/constants";
 import { PrizeBreakdown } from "@/types/match.types";
 import { matchSchema } from "@/modules/matches/match.validator";
+import { useAuth } from "@/context/AuthContext";
+import { UserRole } from "@/enums/UserRole.enum";
+import { resolveDashboardRoute } from "@/modules/navigation/navigation.service";
 
 interface Props {
   onCreated?: () => void;
@@ -34,10 +37,13 @@ const initialState: FormState = {
 
 export const CreateMatchForm = ({ onCreated }: Props) => {
   const router = useRouter();
+  const { state } = useAuth();
+  const isAdmin = state.user?.role === UserRole.ADMIN;
   const [form, setForm] = useState<FormState>(initialState);
   const [statusMessage, setStatusMessage] = useState<string | undefined>();
   const [loading, setLoading] = useState(false);
   const [createdMatchId, setCreatedMatchId] = useState<string | undefined>();
+  const dashboardHref = useMemo(() => resolveDashboardRoute(state.user?.role), [state.user?.role]);
 
   const prizePool = useMemo(
     () => form.prizeBreakdown.first + form.prizeBreakdown.second + form.prizeBreakdown.third,
@@ -51,8 +57,8 @@ export const CreateMatchForm = ({ onCreated }: Props) => {
     if (!form.startDate || !form.startTime) {
       const now = new Date();
       const rounded = new Date(Math.ceil(now.getTime() / (15 * 60 * 1000)) * (15 * 60 * 1000)); // next 15 min
-      const dateStr = rounded.toISOString().slice(0, 10);
-      const timeStr = rounded.toISOString().slice(11, 16);
+      const dateStr = `${rounded.getFullYear()}-${String(rounded.getMonth() + 1).padStart(2, "0")}-${String(rounded.getDate()).padStart(2, "0")}`;
+      const timeStr = `${String(rounded.getHours()).padStart(2, "0")}:${String(rounded.getMinutes()).padStart(2, "0")}`;
       setForm((prev) => ({ ...prev, startDate: dateStr, startTime: timeStr }));
     }
   }, [form.startDate, form.startTime]);
@@ -94,8 +100,9 @@ export const CreateMatchForm = ({ onCreated }: Props) => {
       return;
     }
 
+    const endpoint = isAdmin ? API_ROUTES.adminMatches : API_ROUTES.hostMatches;
     try {
-      const res = await fetch(API_ROUTES.adminMatches, {
+      const res = await fetch(endpoint, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(parsed.data),
@@ -103,7 +110,7 @@ export const CreateMatchForm = ({ onCreated }: Props) => {
       const data = await res.json();
       if (!res.ok || data?.success === false) {
         const msg =
-          data?.error?.message || data?.error || "Failed to create match. Ensure you are an admin.";
+          data?.error?.message || data?.error || "Failed to create match. Ensure you are a host or admin.";
         setStatusMessage(msg);
         return;
       }
@@ -112,7 +119,7 @@ export const CreateMatchForm = ({ onCreated }: Props) => {
       setForm(initialState);
       onCreated?.();
       router.refresh();
-      router.push("/dashboard/admin");
+      router.push(dashboardHref);
     } catch (error) {
       setStatusMessage("Network error while creating match.");
     } finally {
@@ -126,7 +133,9 @@ export const CreateMatchForm = ({ onCreated }: Props) => {
         <div className="flex items-center justify-between">
           <div>
             <h2 className="text-2xl font-bold">Create Upcoming Match</h2>
-            <p className="text-sm text-slate-400">Admins can schedule new BGMI scrims.</p>
+            <p className="text-sm text-slate-400">
+              {isAdmin ? "Admins" : "Hosts"} can schedule new BGMI scrims.
+            </p>
           </div>
           <Button type="submit" disabled={loading}>
             {loading ? "Creating..." : "Create Match"}

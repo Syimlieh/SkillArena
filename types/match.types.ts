@@ -1,6 +1,7 @@
 import { Types } from "mongoose";
 import { MatchStatus } from "@/enums/MatchStatus.enum";
 import { MatchMap } from "@/enums/MatchMap.enum";
+import { MatchType } from "@/enums/MatchType.enum";
 
 export interface PrizeBreakdown {
   first: number;
@@ -20,6 +21,7 @@ export interface Match {
   prizePool: number;
   prizeBreakdown: PrizeBreakdown;
   status: MatchStatus;
+  type?: MatchType;
   createdBy: string;
   createdAt?: Date;
   updatedAt?: Date;

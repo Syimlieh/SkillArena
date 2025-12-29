@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import { resolveDashboardRoute } from "@/modules/navigation/navigation.service";
+import { UserRole } from "@/enums/UserRole.enum";
 
 const initialsFromName = (name?: string) => {
   if (!name) return "SA";
@@ -20,6 +21,7 @@ const ProfileDropdown = () => {
 
   const dashboardHref = useMemo(() => resolveDashboardRoute(state.user?.role), [state.user?.role]);
   const initials = useMemo(() => initialsFromName(state.user?.name), [state.user?.name]);
+  const isHost = state.user?.role === UserRole.HOST;
 
   const handleLogout = () => {
     logout();
@@ -48,6 +50,15 @@ const ProfileDropdown = () => {
           >
             Dashboard
           </Link>
+          {isHost && (
+            <Link
+              href="/dashboard/host/matches"
+              className="mt-1 block rounded-lg px-3 py-2 text-sm text-white hover:bg-[#111827]"
+              onClick={() => setOpen(false)}
+            >
+              Your Matches
+            </Link>
+          )}
           <button
             onClick={handleLogout}
             className="mt-1 w-full rounded-lg px-3 py-2 text-left text-sm text-red-300 hover:bg-[#111827]"

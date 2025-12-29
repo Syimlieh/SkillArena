@@ -50,10 +50,21 @@ export const Navbar = ({ variant = "public" }: NavbarProps) => {
         )}
 
         <div className="flex items-center gap-3">
-          {isAuthenticated && !isAdmin && !isHost && (
-            <Link href="/dashboard/host/apply">
-              <Button variant="ghost">Become a Host</Button>
-            </Link>
+          {isAuthenticated && !isAdmin && (
+            isHost ? (
+              <>
+                <Link href="/dashboard/host/matches">
+                  <Button variant="ghost">Your Matches</Button>
+                </Link>
+                <Link href="/dashboard/host/create-match">
+                  <Button variant="secondary">Host a Match</Button>
+                </Link>
+              </>
+            ) : (
+              <Link href="/dashboard/host/apply">
+                <Button variant="ghost">Become a Host</Button>
+              </Link>
+            )
           )}
           {isAdmin && (
             <>

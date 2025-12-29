@@ -49,3 +49,15 @@ export const requireUser = async (): Promise<AuthContext> => {
   }
   return { userId: payload.userId, role: payload.role, email: payload.email };
 };
+
+export const requireMatchCreator = async (): Promise<AuthContext> => {
+  const token = await extractToken();
+  if (!token) {
+    throw new Error("Unauthorized");
+  }
+  const payload = verifyAuthToken(token);
+  if (!payload || (payload.role !== UserRole.ADMIN && payload.role !== UserRole.HOST)) {
+    throw new Error("Forbidden");
+  }
+  return { userId: payload.userId, role: payload.role, email: payload.email };
+};

@@ -2,6 +2,7 @@ import { Match } from "@/types/match.types";
 import { Badge } from "@/components/ui/Badge";
 import { MatchStatus } from "@/enums/MatchStatus.enum";
 import { MatchMap } from "@/enums/MatchMap.enum";
+import { MatchType } from "@/enums/MatchType.enum";
 
 interface Props {
   matches: Match[];
@@ -18,6 +19,7 @@ const formatTime = (date: Date | string) =>
   }).format(new Date(date));
 
 const mapTone = (map?: MatchMap) => (map === MatchMap.LIVIK ? "warning" : "success") as const;
+const typeTone = (type?: MatchType) => (type === MatchType.COMMUNITY ? "neutral" : "success");
 
 export const UpcomingMatchesTable = ({ matches }: Props) => (
   <div className="glass-panel rounded-2xl p-4">
@@ -27,6 +29,7 @@ export const UpcomingMatchesTable = ({ matches }: Props) => (
         <thead className="text-xs uppercase text-slate-400">
           <tr>
             <th className="pb-2 pr-4">Match ID</th>
+            <th className="pb-2 pr-4">Type</th>
             <th className="pb-2 pr-4">Map</th>
             <th className="pb-2 pr-4">Date / Time</th>
             <th className="pb-2 pr-4">Slots</th>
@@ -39,6 +42,9 @@ export const UpcomingMatchesTable = ({ matches }: Props) => (
           {matches.map((match) => (
             <tr key={match._id?.toString() ?? match.matchId}>
               <td className="py-2 pr-4 font-semibold">{match.matchId}</td>
+              <td className="py-2 pr-4">
+                <Badge tone={typeTone(match.type)}>{match.type ?? MatchType.OFFICIAL}</Badge>
+              </td>
               <td className="py-2 pr-4">
                 <Badge tone={mapTone(match.map)}>{match.map}</Badge>
               </td>
@@ -53,7 +59,7 @@ export const UpcomingMatchesTable = ({ matches }: Props) => (
           ))}
           {matches.length === 0 && (
             <tr>
-              <td className="py-3 text-slate-400" colSpan={7}>
+              <td className="py-3 text-slate-400" colSpan={8}>
                 No upcoming matches yet.
               </td>
             </tr>

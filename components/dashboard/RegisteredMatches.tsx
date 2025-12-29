@@ -4,6 +4,7 @@ import Link from "next/link";
 import { RegisteredMatch } from "@/types/dashboard.types";
 import { Badge } from "@/components/ui/Badge";
 import { MatchMap } from "@/enums/MatchMap.enum";
+import { MatchType } from "@/enums/MatchType.enum";
 import { RegistrationStatus } from "@/enums/RegistrationStatus.enum";
 import { PaymentStatus } from "@/enums/PaymentStatus.enum";
 import { buildMatchDetailRoute } from "@/lib/routes";
@@ -23,6 +24,7 @@ const formatTime = (date: Date | string) =>
   }).format(new Date(date));
 
 const mapTone = (map?: MatchMap) => (map === MatchMap.LIVIK ? "warning" : "success");
+const typeTone = (type?: MatchType) => (type === MatchType.COMMUNITY ? "neutral" : "success");
 
 const statusLabel = (reg: RegistrationStatus, pay: PaymentStatus) => {
   if (reg === RegistrationStatus.PENDING_PAYMENT) return { text: "Awaiting Payment", tone: "warning" as const };
@@ -43,7 +45,10 @@ export const RegisteredMatches = ({ matches }: Props) => {
           return (
             <div key={match.matchId} className="glass-panel rounded-2xl p-4 text-white space-y-2">
               <div className="flex items-center justify-between">
-                <div className="text-lg font-semibold">{match.title}</div>
+                <div className="flex flex-col gap-1">
+                  <div className="text-lg font-semibold">{match.title}</div>
+                  <Badge tone={typeTone(match.type)}>{match.type ?? MatchType.OFFICIAL}</Badge>
+                </div>
                 <Badge tone={mapTone(match.map)}>{match.map}</Badge>
               </div>
               <div className="text-xs text-slate-400">Match ID: {match.matchId}</div>

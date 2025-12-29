@@ -18,6 +18,7 @@ export const API_ROUTES = {
   authLogin: "/api/auth/login",
   authRegister: "/api/auth/register",
   adminMatches: "/api/admin/matches",
+  hostMatches: "/api/host/matches",
   profile: "/api/profile",
 } as const;
 

@@ -1,6 +1,7 @@
 import mongoose, { Schema, Model } from "mongoose";
 import { MatchStatus } from "@/enums/MatchStatus.enum";
 import { MatchMap } from "@/enums/MatchMap.enum";
+import { MatchType } from "@/enums/MatchType.enum";
 import { Match } from "@/types/match.types";
 
 const PrizeSchema = new Schema(
@@ -24,6 +25,7 @@ const MatchSchema = new Schema<Match>(
     prizePool: { type: Number, required: true, min: 0 },
     prizeBreakdown: { type: PrizeSchema, required: true },
     status: { type: String, enum: Object.values(MatchStatus), default: MatchStatus.UPCOMING, required: true },
+    type: { type: String, enum: Object.values(MatchType), default: MatchType.OFFICIAL, required: true },
     createdBy: { type: String, required: true },
   },
   { timestamps: true }
