@@ -11,7 +11,7 @@ interface Props {
 }
 
 const RegisterButton = ({ match }: Props) => {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, isAdmin } = useAuth();
   const router = useRouter();
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
@@ -23,6 +23,8 @@ const RegisterButton = ({ match }: Props) => {
     }
     setOpen(true);
   };
+
+  if (isAdmin) return null;
 
   return (
     <div className="space-y-3">

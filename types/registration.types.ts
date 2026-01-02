@@ -6,6 +6,11 @@ export interface Registration {
   userId: string;
   matchId: string;
   status: RegistrationStatus;
+  paymentReference?: string;
+  paymentAmount?: number;
+  paymentMethod?: string;
+  paymentNote?: string;
+  recordedBy?: string;
   createdAt?: Date;
   expiresAt?: Date;
 }

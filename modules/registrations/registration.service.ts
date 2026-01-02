@@ -4,6 +4,7 @@ import { connectDb } from "@/lib/db";
 import { MatchModel } from "@/models/Match.model";
 import { RegistrationModel } from "@/models/Registration.model";
 import { Registration } from "@/types/registration.types";
+import { AuthContext } from "@/lib/auth.server";
 import { Match } from "@/types/match.types";
 
 const ACTIVE_REG_STATUSES = [RegistrationStatus.PENDING_PAYMENT, RegistrationStatus.CONFIRMED];
@@ -63,6 +64,40 @@ export const registerForMatch = async (matchId: string, userId: string) => {
     userId,
     matchId: match.matchId,
     status: RegistrationStatus.PENDING_PAYMENT,
+  });
+
+  return {
+    registration: registration.toObject(),
+    match,
+  };
+};
+
+export const registerForMatchAsAdmin = async (
+  matchId: string,
+  userId: string,
+  actor: AuthContext,
+  payment?: { reference?: string; amount?: number; method?: string; note?: string }
+) => {
+  await connectDb();
+
+  const match = await findMatchById(matchId);
+  if (!match) {
+    throw new RegistrationError("Match not found", 404);
+  }
+
+  ensureMatchIsJoinable(match);
+  await ensureSlotsAvailable(match.matchId, match.maxSlots);
+  await ensureNotAlreadyRegistered(userId, match.matchId);
+
+  const registration = await RegistrationModel.create({
+    userId,
+    matchId: match.matchId,
+    status: payment?.amount || payment?.reference ? RegistrationStatus.CONFIRMED : RegistrationStatus.PENDING_PAYMENT,
+    paymentReference: payment?.reference,
+    paymentAmount: payment?.amount,
+    paymentMethod: payment?.method,
+    paymentNote: payment?.note,
+    recordedBy: actor.userId,
   });
 
   return {

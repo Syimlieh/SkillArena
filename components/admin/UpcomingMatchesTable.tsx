@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { Match } from "@/types/match.types";
 import { Badge } from "@/components/ui/Badge";
 import { MatchStatus } from "@/enums/MatchStatus.enum";
@@ -39,24 +40,48 @@ export const UpcomingMatchesTable = ({ matches }: Props) => (
           </tr>
         </thead>
         <tbody className="divide-y divide-[#0f172a]">
-          {matches.map((match) => (
-            <tr key={match._id?.toString() ?? match.matchId}>
-              <td className="py-2 pr-4 font-semibold">{match.matchId}</td>
-              <td className="py-2 pr-4">
-                <Badge tone={typeTone(match.type)}>{match.type ?? MatchType.OFFICIAL}</Badge>
-              </td>
-              <td className="py-2 pr-4">
-                <Badge tone={mapTone(match.map)}>{match.map}</Badge>
-              </td>
-              <td className="py-2 pr-4">{formatTime(match.startTime)}</td>
-              <td className="py-2 pr-4">{`0/${match.maxSlots}`}</td>
-              <td className="py-2 pr-4">₹{match.entryFee}</td>
-              <td className="py-2 pr-4">₹{match.prizePool}</td>
-              <td className="py-2 pr-4">
-                <Badge tone="success">{MatchStatus.UPCOMING}</Badge>
-              </td>
-            </tr>
-          ))}
+          {matches.map((match) => {
+            const href = `/matches/${match.slug ?? match.matchId.toLowerCase()}`;
+            const key = match._id?.toString() ?? match.matchId;
+            return (
+              <tr key={key} className="transition hover:bg-[#0b1224]/60">
+                <td className="p-0">
+                  <Link href={href} className="block py-2 pr-4 font-semibold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--primary)] focus-visible:ring-offset-2 focus-visible:ring-offset-[#0f172a]">
+                    {match.matchId}
+                  </Link>
+                </td>
+                <td className="p-0">
+                  <Link href={href} className="block py-2 pr-4">
+                    <Badge tone={typeTone(match.type)}>{match.type ?? MatchType.OFFICIAL}</Badge>
+                  </Link>
+                </td>
+                <td className="p-0">
+                  <Link href={href} className="block py-2 pr-4">
+                    <Badge tone={mapTone(match.map)}>{match.map}</Badge>
+                  </Link>
+                </td>
+                <td className="p-0">
+                  <Link href={href} className="block py-2 pr-4">
+                    {formatTime(match.startTime)}
+                  </Link>
+                </td>
+                <td className="p-0">
+                  <Link href={href} className="block py-2 pr-4">{`0/${match.maxSlots}`}</Link>
+                </td>
+                <td className="p-0">
+                  <Link href={href} className="block py-2 pr-4">₹{match.entryFee}</Link>
+                </td>
+                <td className="p-0">
+                  <Link href={href} className="block py-2 pr-4">₹{match.prizePool}</Link>
+                </td>
+                <td className="p-0">
+                  <Link href={href} className="block py-2 pr-4">
+                    <Badge tone="success">{MatchStatus.UPCOMING}</Badge>
+                  </Link>
+                </td>
+              </tr>
+            );
+          })}
           {matches.length === 0 && (
             <tr>
               <td className="py-3 text-slate-400" colSpan={8}>

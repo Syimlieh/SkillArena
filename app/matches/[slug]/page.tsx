@@ -4,8 +4,8 @@ import { notFound } from "next/navigation";
 import { getMatchBySlug } from "@/modules/matches/match.service";
 import { Badge } from "@/components/ui/Badge";
 import { MatchMap } from "@/enums/MatchMap.enum";
-import { Button } from "@/components/ui/Button";
 import RegisterButton from "@/components/matches/RegisterButton";
+import AdminManualRegisterButton from "@/components/admin/AdminManualRegisterButton";
 
 const formatTime = (date: Date | string) =>
   new Intl.DateTimeFormat("en-IN", {
@@ -67,7 +67,14 @@ const MatchDetailsPage = async ({ params }: { params: { slug: string } }) => {
           </div>
         </div>
       </div>
-      <RegisterButton match={clientMatch} />
+      <div className="space-y-3">
+        <RegisterButton match={clientMatch} />
+        <div className="flex justify-center">
+          <div className="w-full max-w-xl">
+            <AdminManualRegisterButton matchId={match.matchId} buttonVariant="primary" fullWidth />
+          </div>
+        </div>
+      </div>
     </div>
   );
 };

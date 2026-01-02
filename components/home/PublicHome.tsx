@@ -34,7 +34,7 @@ const Hero = ({ matches }: { matches: Match[] }) => (
       <div className="max-w-2xl space-y-4">
         <Badge tone="success">Weekend BGMI Scrims</Badge>
         <h1 className="text-4xl font-black leading-tight text-white md:text-5xl">
-          Skill-based tournaments with neon-fast payouts.
+          Skill-based tournaments for everyone.
         </h1>
         <p className="text-lg text-slate-300">₹{MATCH_DEFAULTS.entryFee} entry • Verified lobbies • Anti-cheat moderation</p>
         <HeroActions matches={matches} />
@@ -69,9 +69,6 @@ const PublicHome = async () => {
     <div className="mx-auto flex max-w-6xl flex-col gap-10 px-6 py-10">
       <Hero matches={matches} />
       <section className="space-y-4">
-        <div className="flex items-center justify-between">
-          <div className="text-sm uppercase text-[var(--primary)]">Upcoming Matches</div>
-        </div>
         <AvailableMatches matches={matches} />
       </section>
       <Highlights />

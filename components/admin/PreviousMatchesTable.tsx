@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { Badge } from "@/components/ui/Badge";
 import { MatchMap } from "@/enums/MatchMap.enum";
 
@@ -40,19 +41,46 @@ export const PreviousMatchesTable = () => (
           </tr>
         </thead>
         <tbody className="divide-y divide-[#0f172a]">
-          {mockHistory.map((row) => (
-            <tr key={row.matchId}>
-              <td className="py-2 pr-4 font-semibold">{row.matchId}</td>
-              <td className="py-2 pr-4">{row.map}</td>
-              <td className="py-2 pr-4">{formatTime(row.datetime)}</td>
-              <td className="py-2 pr-4">{row.placement}</td>
-              <td className="py-2 pr-4">{row.kills}</td>
-              <td className="py-2 pr-4">₹{row.prize}</td>
-              <td className="py-2 pr-4">
-                <Badge tone={resultTone(row.result)}>{row.result}</Badge>
-              </td>
-            </tr>
-          ))}
+          {mockHistory.map((row) => {
+            const href = `/matches/${row.matchId.toLowerCase()}`;
+            return (
+              <tr key={row.matchId} className="transition hover:bg-[#0b1224]/60">
+                <td className="p-0">
+                  <Link href={href} className="block py-2 pr-4 font-semibold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--primary)] focus-visible:ring-offset-2 focus-visible:ring-offset-[#0f172a]">
+                    {row.matchId}
+                  </Link>
+                </td>
+                <td className="p-0">
+                  <Link href={href} className="block py-2 pr-4">
+                    {row.map}
+                  </Link>
+                </td>
+                <td className="p-0">
+                  <Link href={href} className="block py-2 pr-4">
+                    {formatTime(row.datetime)}
+                  </Link>
+                </td>
+                <td className="p-0">
+                  <Link href={href} className="block py-2 pr-4">
+                    {row.placement}
+                  </Link>
+                </td>
+                <td className="p-0">
+                  <Link href={href} className="block py-2 pr-4">
+                    {row.kills}
+                  </Link>
+                </td>
+                <td className="p-0">
+                  <Link href={href} className="block py-2 pr-4">₹{row.prize}</Link>
+                </td>
+                <td className="p-0">
+                  <Link href={href} className="block py-2 pr-4">
+                    <Badge tone={resultTone(row.result)}>{row.result}</Badge>
+                  </Link>
+                </td>
+              </tr>
+            );
+          })}
         </tbody>
       </table>
     </div>
