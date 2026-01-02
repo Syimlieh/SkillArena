@@ -83,11 +83,11 @@ const DashboardClient = ({ data }: Props) => {
   };
 
   return (
-    <div className="mx-auto max-w-5xl px-6 py-10 space-y-6">
+    <div className="mx-auto max-w-5xl px-6 py-10 space-y-6 text-[var(--text-primary)]">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-black text-white">Player Dashboard</h1>
-          <p className="text-sm text-slate-400">Track scrims, payouts, and performance.</p>
+          <h1 className="text-3xl font-black">Player Dashboard</h1>
+          <p className="text-sm text-[var(--text-secondary)]">Track scrims, payouts, and performance.</p>
         </div>
         <Button onClick={handleJoinNext} disabled={!!joinDisabledMessage}>
           {joinDisabledMessage ? joinDisabledMessage : "Join New Match"}

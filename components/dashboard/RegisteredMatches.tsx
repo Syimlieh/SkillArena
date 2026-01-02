@@ -37,26 +37,26 @@ export const RegisteredMatches = ({ matches }: Props) => {
   if (!matches.length) return null;
   return (
     <div className="space-y-3">
-      <div className="text-sm uppercase text-[var(--primary)]">My Matches</div>
+      <div className="text-sm uppercase text-[var(--text-secondary)]">My Matches</div>
       <div className="grid gap-3 md:grid-cols-2">
         {matches.map((item) => {
           const { match, registrationStatus, paymentStatus } = item;
           const label = statusLabel(registrationStatus, paymentStatus);
           return (
-            <div key={match.matchId} className="glass-panel rounded-2xl p-4 text-white space-y-2">
+            <div key={match.matchId} className="rounded-2xl border border-[var(--border-subtle)] bg-[var(--card-bg)] p-4 space-y-2 shadow-sm">
               <div className="flex items-center justify-between">
                 <div className="flex flex-col gap-1">
-                  <div className="text-lg font-semibold">{match.title}</div>
+                  <div className="text-lg font-semibold text-[var(--text-primary)]">{match.title}</div>
                   <Badge tone={typeTone(match.type)}>{match.type ?? MatchType.OFFICIAL}</Badge>
                 </div>
                 <Badge tone={mapTone(match.map)}>{match.map}</Badge>
               </div>
-              <div className="text-xs text-slate-400">Match ID: {match.matchId}</div>
-              <div className="text-sm text-slate-300">Start: {formatTime(match.startTime)}</div>
-              <div className="text-sm text-slate-300">Entry: ₹{match.entryFee} • Prize Pool: ₹{match.prizePool}</div>
+              <div className="text-xs text-[var(--text-secondary)]">Match ID: {match.matchId}</div>
+              <div className="text-sm text-[var(--text-secondary)]">Start: {formatTime(match.startTime)}</div>
+              <div className="text-sm text-[var(--text-secondary)]">Entry: ₹{match.entryFee} • Prize Pool: ₹{match.prizePool}</div>
               <div className="flex items-center justify-between">
                 <Badge tone={label.tone}>{label.text}</Badge>
-                <Link href={buildMatchDetailRoute(match.slug ?? match.matchId)} className="text-xs text-[var(--primary)] hover:underline">
+                <Link href={buildMatchDetailRoute(match.slug ?? match.matchId)} className="text-xs text-[var(--accent-primary)] hover:underline">
                   View Details
                 </Link>
               </div>

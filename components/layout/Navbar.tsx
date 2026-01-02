@@ -2,12 +2,14 @@
 
 import Link from "next/link";
 import { useMemo } from "react";
+import { usePathname } from "next/navigation";
 import { Button } from "@/components/ui/Button";
 import { BRAND } from "@/lib/constants";
 import { useAuth } from "@/context/AuthContext";
 import { resolveDashboardRoute } from "@/modules/navigation/navigation.service";
 import ProfileDropdown from "@/components/layout/ProfileDropdown";
 import { UserRole } from "@/enums/UserRole.enum";
+import ThemeToggle from "@/components/layout/ThemeToggle";
 
 interface NavbarProps {
   variant?: "public" | "app" | "admin";
@@ -15,41 +17,47 @@ interface NavbarProps {
 
 const navItems = [
   { label: "Home", href: "/" },
-  { label: "Tournaments", href: "/dashboard" },
+  { label: "Matches", href: "/dashboard" },
   { label: "Rules", href: "/rules" },
 ];
 
 export const Navbar = ({ variant = "public" }: NavbarProps) => {
   const { isAdmin, isAuthenticated, state } = useAuth();
+  const pathname = usePathname();
   const isHost = state.user?.role === UserRole.HOST;
   const dashboardHref = useMemo(() => resolveDashboardRoute(state.user?.role), [state.user?.role]);
 
   return (
-    <header className="sticky top-0 z-30 border-b border-[#0f172a] bg-[#05070bcc] backdrop-blur">
-      <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
+    <header className="sticky top-0 z-30 border-b border-[var(--border-subtle)] bg-[var(--bg-primary)]/85 backdrop-blur">
+      <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3 md:px-6">
         <Link href={variant === "public" ? "/" : dashboardHref} className="flex items-center gap-2">
-          <div className="h-10 w-10 rounded-full bg-[var(--primary)]/15 neon-border flex items-center justify-center text-lg font-black text-[var(--primary)]">
+          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[var(--accent-primary)]/18 text-lg font-black text-[var(--accent-primary)]">
             BG
           </div>
           <div className="flex flex-col leading-tight">
-            <span className="text-sm uppercase text-slate-400">{BRAND.name}</span>
-            <span className="text-lg font-black text-white">Esports</span>
+            <span className="text-sm font-bold text-[var(--text-primary)]">SkillArena</span>
+            <span className="text-xs uppercase tracking-wide text-[var(--text-secondary)]">Esports</span>
           </div>
         </Link>
 
         {variant === "public" ? (
-          <nav className="flex items-center gap-8 text-sm font-semibold text-slate-200">
-            {navItems.map((item) => (
-              <Link key={item.href} href={item.href} className="hover:text-[var(--primary)]">
-                {item.label}
-              </Link>
-            ))}
+          <nav className="hidden items-center gap-6 text-sm font-semibold text-[var(--text-primary)] md:flex">
+            {navItems.map((item) => {
+              const active = pathname === item.href || (item.href !== "/" && pathname.startsWith(item.href));
+              return (
+                <Link key={item.href} href={item.href} className="group relative pb-2">
+                  <span className="transition-colors group-hover:text-[var(--accent-primary)]">{item.label}</span>
+                  {active && <span className="absolute inset-x-0 -bottom-1 mx-auto h-0.5 w-10 rounded-full bg-[var(--accent-primary)]" />}
+                </Link>
+              );
+            })}
           </nav>
         ) : (
           <div />
         )}
 
         <div className="flex items-center gap-3">
+          <ThemeToggle />
           {isAuthenticated && !isAdmin && (
             isHost ? (
               <>
@@ -79,8 +87,12 @@ export const Navbar = ({ variant = "public" }: NavbarProps) => {
           {isAuthenticated ? (
             <ProfileDropdown />
           ) : (
-            <Link href="/auth/login" className="inline-block">
-              <Button variant="ghost">Login</Button>
+            <Link
+              href="/auth/login"
+              className="inline-flex items-center gap-2 rounded-full border border-[var(--border-subtle)] bg-[var(--card-bg)] px-4 py-2 text-sm font-semibold text-[var(--text-primary)] transition hover:border-[var(--accent-primary)] hover:text-[var(--accent-primary)]"
+            >
+              Login
+              <span className="text-lg leading-none">›</span>
             </Link>
           )}
         </div>

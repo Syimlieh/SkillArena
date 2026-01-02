@@ -14,7 +14,7 @@ import { resolveDashboardRoute } from "@/modules/navigation/navigation.service";
 type FieldErrors = Record<string, string>;
 
 const inputStyles =
-  "w-full rounded-xl border border-[#1f2937] bg-[#0c111a] px-4 py-3 text-sm text-white focus:border-[var(--primary)] focus:outline-none placeholder:text-slate-500";
+  "w-full rounded-xl border border-[var(--border-subtle)] bg-[var(--card-bg)] px-4 py-3 text-sm text-[var(--text-primary)] focus:border-[var(--accent-primary)] focus:outline-none placeholder:text-[var(--text-secondary)]";
 
 export const LoginForm = () => {
   const router = useRouter();
@@ -71,7 +71,7 @@ export const LoginForm = () => {
   return (
     <form className="space-y-4" onSubmit={handleSubmit} noValidate>
       <div className="space-y-1">
-        <label className="text-sm font-semibold text-white" htmlFor="email">
+        <label className="text-sm font-semibold text-[var(--text-primary)]" htmlFor="email">
           Email
         </label>
         <input
@@ -89,7 +89,7 @@ export const LoginForm = () => {
       </div>
 
       <div className="space-y-1">
-        <label className="text-sm font-semibold text-white" htmlFor="password">
+        <label className="text-sm font-semibold text-[var(--text-primary)]" htmlFor="password">
           Password
         </label>
         <input
@@ -110,7 +110,7 @@ export const LoginForm = () => {
 
       <Button
         type="submit"
-        className="w-full justify-center bg-[var(--primary)] text-black hover:bg-[#63ff9b]"
+        className="w-full justify-center bg-[var(--accent-primary)] text-[var(--bg-primary)] hover:bg-[var(--accent-secondary)]"
         disabled={isLoading}
       >
         {isLoading ? "Signing In..." : "Login"}

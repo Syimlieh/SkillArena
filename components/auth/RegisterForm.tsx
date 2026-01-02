@@ -14,7 +14,7 @@ import { resolveDashboardRoute } from "@/modules/navigation/navigation.service";
 type FieldErrors = Record<string, string>;
 
 const inputStyles =
-  "w-full rounded-xl border border-[#1f2937] bg-[#0c111a] px-4 py-3 text-sm text-white focus:border-[var(--primary)] focus:outline-none placeholder:text-slate-500";
+  "w-full rounded-xl border border-[var(--border-subtle)] bg-[var(--card-bg)] px-4 py-3 text-sm text-[var(--text-primary)] focus:border-[var(--accent-primary)] focus:outline-none placeholder:text-[var(--text-secondary)]";
 
 type RegisterFormState = RegisterPayload & { confirmPassword: string };
 
@@ -98,7 +98,7 @@ export const RegisterForm = () => {
   return (
     <form className="space-y-4" onSubmit={handleSubmit} noValidate>
       <div className="space-y-1">
-        <label className="text-sm font-semibold text-white" htmlFor="name">
+        <label className="text-sm font-semibold text-[var(--text-primary)]" htmlFor="name">
           Full Name
         </label>
         <input
@@ -116,7 +116,7 @@ export const RegisterForm = () => {
       </div>
 
       <div className="space-y-1">
-        <label className="text-sm font-semibold text-white" htmlFor="email">
+        <label className="text-sm font-semibold text-[var(--text-primary)]" htmlFor="email">
           Email
         </label>
         <input
@@ -134,7 +134,7 @@ export const RegisterForm = () => {
       </div>
 
       <div className="space-y-1">
-        <label className="text-sm font-semibold text-white" htmlFor="phone">
+        <label className="text-sm font-semibold text-[var(--text-primary)]" htmlFor="phone">
           Phone
         </label>
         <input
@@ -153,7 +153,7 @@ export const RegisterForm = () => {
 
       <div className="grid gap-3 md:grid-cols-2">
         <div className="space-y-1">
-          <label className="text-sm font-semibold text-white" htmlFor="password">
+          <label className="text-sm font-semibold text-[var(--text-primary)]" htmlFor="password">
             Password
           </label>
           <input
@@ -171,7 +171,7 @@ export const RegisterForm = () => {
         </div>
 
         <div className="space-y-1">
-          <label className="text-sm font-semibold text-white" htmlFor="confirmPassword">
+          <label className="text-sm font-semibold text-[var(--text-primary)]" htmlFor="confirmPassword">
             Confirm Password
           </label>
           <input
@@ -189,7 +189,7 @@ export const RegisterForm = () => {
         </div>
       </div>
 
-      <label className="flex items-center gap-3 rounded-xl border border-[#1f2937] bg-[#0c111a] px-4 py-3 text-sm text-slate-200">
+      <label className="flex items-center gap-3 rounded-xl border border-[var(--border-subtle)] bg-[var(--card-bg)] px-4 py-3 text-sm text-[var(--text-secondary)]">
         <input
           type="checkbox"
           checked={formState.ageVerified}
@@ -204,7 +204,7 @@ export const RegisterForm = () => {
 
       <Button
         type="submit"
-        className="w-full justify-center bg-[var(--primary)] text-black hover:bg-[#63ff9b]"
+        className="w-full justify-center bg-[var(--accent-primary)] text-[var(--bg-primary)] hover:bg-[var(--accent-secondary)]"
         disabled={isLoading}
       >
         {isLoading ? "Creating Account..." : "Create Account"}

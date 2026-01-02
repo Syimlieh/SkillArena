@@ -1,0 +1,46 @@
+:root {
+  color-scheme: light;
+}
+
+:root {
+  --bg-primary: #050814;
+  --bg-secondary: #0b1020;
+  --card-bg: #0f172a;
+  --text-primary: #f8fafc;
+  --text-secondary: #cbd5e1;
+  --primary: #63ff9b;
+  --accent-primary: #63ff9b;
+  --accent-secondary: #1d9a6f;
+  --border-subtle: #1f2937;
+  --badge-bg: rgba(99, 255, 155, 0.12);
+  --hero-image: url("/images/hero-dark.jpg");
+}
+
+:root[data-theme="dark"] {
+}
+
+:root[data-theme="light"] {
+  color-scheme: light;
+  --bg-primary: #f3f4f6;
+  --bg-secondary: #ffffff;
+  --card-bg: #ffffff;
+  --text-primary: #0f172a;
+  --text-secondary: #475569;
+  --primary: #0f9f6e;
+  --accent-primary: #0f9f6e;
+  --accent-secondary: #0b7a56;
+  --border-subtle: #e2e8f0;
+  --badge-bg: rgba(15, 159, 110, 0.1);
+  --hero-image: url("/images/hero-light.jpg");
+}
+
+body {
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+}
+
+.hero-surface {
+  background-image: var(--hero-image);
+  background-size: cover;
+  background-position: center;
+}

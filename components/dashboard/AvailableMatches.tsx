@@ -29,13 +29,13 @@ export const AvailableMatches = ({ matches }: Props) => {
   if (!matches.length) return null;
   return (
     <div className="space-y-3">
-      <div className="text-sm uppercase text-[var(--primary)]">Available Matches</div>
+      <div className="text-sm uppercase text-[var(--text-secondary)]">Available Matches</div>
       <div className="grid gap-3 md:grid-cols-2">
         {matches.map((match) => (
           <Link
             key={match._id?.toString() ?? match.matchId}
             href={buildMatchDetailRoute(match.slug ?? match.matchId)}
-            className="glass-panel glow-hover rounded-2xl p-4 text-white transition"
+            className="rounded-2xl border border-[var(--border-subtle)] bg-[var(--card-bg)] p-4 text-[var(--text-primary)] shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
           >
             <div className="flex items-center justify-between">
               <div className="flex flex-col gap-1">
@@ -44,11 +44,11 @@ export const AvailableMatches = ({ matches }: Props) => {
               </div>
               <Badge tone={mapTone(match.map)}>{match.map}</Badge>
             </div>
-            <div className="mt-2 flex items-center justify-between text-sm text-slate-300">
+            <div className="mt-2 flex items-center justify-between text-sm text-[var(--text-secondary)]">
               <span>Start: {formatTime(match.startTime)}</span>
-              <span className="text-[var(--primary)] font-semibold">{MatchStatus.UPCOMING}</span>
+              <span className="text-[var(--accent-primary)] font-semibold">{MatchStatus.UPCOMING}</span>
             </div>
-            <div className="mt-1 text-xs text-slate-400">
+            <div className="mt-1 text-xs text-[var(--text-secondary)]">
               Entry ₹{match.entryFee} • Prize Pool ₹{match.prizePool}
             </div>
           </Link>
