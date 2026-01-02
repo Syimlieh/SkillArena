@@ -33,14 +33,21 @@ const MatchDetailsPage = async ({ params }: { params: { slug: string } }) => {
 
   return (
     <div className="mx-auto max-w-4xl px-6 py-10 space-y-4 text-white">
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between gap-4">
         <div>
           <h1 className="text-3xl font-black">{match.title}</h1>
           <p className="text-sm text-slate-400">Match ID: {match.matchId}</p>
         </div>
-        <Badge tone={match.map === MatchMap.LIVIK ? "warning" : "success"}>Map: {match.map}</Badge>
+        <div className="flex-shrink-0">
+          <Badge
+            tone={match.map === MatchMap.LIVIK ? "warning" : "success"}
+            className="whitespace-nowrap px-4 text-[11px]"
+          >
+            Map: {match.map}
+          </Badge>
+        </div>
       </div>
-      <div className="grid gap-3 md:grid-cols-2">
+      <div className="grid gap-3 md:grid-cols-3">
         <div className="glass-panel rounded-xl p-4">
           <div className="text-xs uppercase text-[var(--primary)]">Start Time</div>
           <div className="text-lg font-semibold">{formatTime(match.startTime)}</div>
@@ -48,6 +55,10 @@ const MatchDetailsPage = async ({ params }: { params: { slug: string } }) => {
         <div className="glass-panel rounded-xl p-4">
           <div className="text-xs uppercase text-[var(--primary)]">Entry Fee</div>
           <div className="text-lg font-semibold">₹{match.entryFee}</div>
+        </div>
+        <div className="glass-panel rounded-xl p-4">
+          <div className="text-xs uppercase text-[var(--primary)]">Registered Users</div>
+          <div className="text-lg font-semibold">{`${match.registrationCount ?? 0}/${match.maxSlots}`}</div>
         </div>
       </div>
       <div className="glass-panel rounded-xl p-4">

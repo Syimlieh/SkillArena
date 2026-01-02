@@ -23,6 +23,7 @@ export interface Match {
   status: MatchStatus;
   type?: MatchType;
   createdBy: string;
+  registrationCount?: number;
   createdAt?: Date;
   updatedAt?: Date;
 }

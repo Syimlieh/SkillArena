@@ -66,7 +66,9 @@ export const UpcomingMatchesTable = ({ matches }: Props) => (
                   </Link>
                 </td>
                 <td className="p-0">
-                  <Link href={href} className="block py-2 pr-4">{`0/${match.maxSlots}`}</Link>
+                  <Link href={href} className="block py-2 pr-4">
+                    {(match.registrationCount ?? 0) + "/" + match.maxSlots}
+                  </Link>
                 </td>
                 <td className="p-0">
                   <Link href={href} className="block py-2 pr-4">₹{match.entryFee}</Link>

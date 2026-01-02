@@ -9,6 +9,8 @@ import { Match } from "@/types/match.types";
 import { MatchType } from "@/enums/MatchType.enum";
 import { UserRole } from "@/enums/UserRole.enum";
 import { AuthContext } from "@/lib/auth.server";
+import { RegistrationModel } from "@/models/Registration.model";
+import { RegistrationStatus } from "@/enums/RegistrationStatus.enum";
 
 const buildTitle = (input: MatchInput, matchId: string): string => {
   if (input.title) return input.title;
@@ -58,7 +60,20 @@ export const listMatches = async (status?: MatchStatus, createdBy?: string): Pro
   if (status) query.status = status;
   if (createdBy) query.createdBy = createdBy;
   const matches = await MatchModel.find(query).sort({ startTime: 1 }).lean<Match[]>();
-  return matches as Match[];
+
+  const matchIds = matches.map((m) => m.matchId);
+  if (matchIds.length === 0) return matches as Match[];
+
+  const counts = await RegistrationModel.aggregate<{ _id: string; count: number }>([
+    { $match: { matchId: { $in: matchIds }, status: { $in: [RegistrationStatus.PENDING_PAYMENT, RegistrationStatus.CONFIRMED] } } },
+    { $group: { _id: "$matchId", count: { $sum: 1 } } },
+  ]);
+  const countMap = new Map<string, number>(counts.map((c) => [c._id, c.count]));
+
+  return matches.map((m) => ({
+    ...m,
+    registrationCount: countMap.get(m.matchId) ?? 0,
+  })) as Match[];
 };
 
 export const getMatchBySlug = async (slug?: string | null): Promise<Match | null> => {
@@ -67,12 +82,21 @@ export const getMatchBySlug = async (slug?: string | null): Promise<Match | null
   const normalizedSlug = slug.toLowerCase();
   const normalizedId = slug.toUpperCase();
 
+  const attachCount = async (match: Match | null) => {
+    if (!match) return null;
+    const registrationCount = await RegistrationModel.countDocuments({
+      matchId: match.matchId,
+      status: { $in: [RegistrationStatus.PENDING_PAYMENT, RegistrationStatus.CONFIRMED] },
+    });
+    return { ...match, registrationCount };
+  };
+
   const bySlug = await MatchModel.findOne({ slug: normalizedSlug }).lean<Match>();
-  if (bySlug) return bySlug;
+  if (bySlug) return attachCount(bySlug);
 
   // allow direct matchId lookup regardless of casing
   const byId = await MatchModel.findOne({
     matchId: { $in: [slug, normalizedId, slug.toUpperCase()] },
   }).lean<Match>();
-  return byId ?? null;
+  return attachCount(byId);
 };
