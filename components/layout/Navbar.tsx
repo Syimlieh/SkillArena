@@ -16,7 +16,7 @@ interface NavbarProps {
 const navItems = [
   { label: "Home", href: "/" },
   { label: "Tournaments", href: "/dashboard" },
-  { label: "Rules", href: "/dashboard#rules" },
+  { label: "Rules", href: "/rules" },
 ];
 
 export const Navbar = ({ variant = "public" }: NavbarProps) => {

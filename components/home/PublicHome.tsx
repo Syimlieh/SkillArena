@@ -17,7 +17,7 @@ const serializeMatch = (match: Match): Match => ({
 
 const Highlights = () => (
   <section className="grid gap-4 md:grid-cols-3">
-    {["Anti-cheat Admins", "Secure PhonePe-ready", "Fast Slot Updates"].map((item) => (
+    {["Anti-cheat Admins", "Secure payment", "Fast Slot Updates"].map((item) => (
       <Card key={item} className="border border-[#0f172a]">
         <div className="text-sm uppercase text-[var(--primary)]">Feature</div>
         <div className="mt-2 text-lg font-semibold text-white">{item}</div>
