@@ -62,6 +62,7 @@ export const HostMatchesTable = () => {
                 <th className="px-4 py-3 font-semibold">Type</th>
                 <th className="px-4 py-3 font-semibold">Map</th>
                 <th className="px-4 py-3 font-semibold">Start</th>
+                <th className="px-4 py-3 font-semibold">Slots</th>
                 <th className="px-4 py-3 font-semibold">Entry</th>
                 <th className="px-4 py-3 font-semibold">Prize Pool</th>
                 <th className="px-4 py-3 font-semibold">Status</th>
@@ -79,6 +80,9 @@ export const HostMatchesTable = () => {
                   <td className="px-4 py-3 text-xs text-slate-200">{typeLabel(match.type)}</td>
                   <td className="px-4 py-3 text-xs text-slate-200">{match.map}</td>
                   <td className="px-4 py-3 text-xs text-slate-200">{formatTime(match.startTime)}</td>
+                  <td className="px-4 py-3 text-xs text-slate-200">
+                    {(match.registrationCount ?? 0) + "/" + match.maxSlots}
+                  </td>
                   <td className="px-4 py-3 text-xs text-slate-200">₹{match.entryFee ?? MATCH_DEFAULTS.entryFee}</td>
                   <td className="px-4 py-3 text-xs text-slate-200">₹{match.prizePool ?? MATCH_DEFAULTS.prizes.first}</td>
                   <td className="px-4 py-3 text-xs text-[var(--primary)] font-semibold">{match.status ?? MatchStatus.UPCOMING}</td>
