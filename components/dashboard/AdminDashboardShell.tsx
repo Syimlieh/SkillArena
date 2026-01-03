@@ -13,7 +13,9 @@ const AdminDashboardShell = async () => {
     redirect("/dashboard");
   }
 
-  const upcoming = await listMatches(MatchStatus.UPCOMING);
+  const matches = await listMatches(); // pull all statuses for admin view
+  const upcoming = matches.filter((m) => m.status === MatchStatus.UPCOMING);
+  const ongoing = matches.filter((m) => m.status === MatchStatus.ONGOING);
   // Placeholder: completed matches could be fetched; using static in table per requirements.
 
   return (
@@ -22,7 +24,7 @@ const AdminDashboardShell = async () => {
         <h1 className="text-3xl font-black text-[var(--text-primary)]">Admin Dashboard</h1>
         <p className="text-sm text-[var(--text-secondary)]">Manage upcoming and previous matches</p>
       </div>
-      <UpcomingMatchesTable matches={upcoming} />
+      <UpcomingMatchesTable matches={[...ongoing, ...upcoming]} />
       <PreviousMatchesTable />
       <div className="flex justify-center">
         <Link href="/dashboard/admin/create-match" className="inline-flex">

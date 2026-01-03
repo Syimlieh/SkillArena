@@ -1,0 +1,22 @@
+import mongoose, { Model, Schema } from "mongoose";
+import { ResultStatus } from "@/enums/ResultStatus.enum";
+import { MatchResultSubmission } from "@/types/result";
+
+const MatchResultSubmissionSchema = new Schema<MatchResultSubmission>(
+  {
+    userId: { type: String, required: true, index: true },
+    matchId: { type: String, required: true, index: true },
+    screenshotUrl: { type: String, required: true },
+    status: { type: String, enum: Object.values(ResultStatus), default: ResultStatus.SUBMITTED, required: true },
+    placement: { type: Number },
+    kills: { type: Number },
+    totalScore: { type: Number },
+    reviewerId: { type: String },
+  },
+  { timestamps: { createdAt: true, updatedAt: false } }
+);
+
+MatchResultSubmissionSchema.index({ userId: 1, matchId: 1 }, { unique: true });
+
+export const MatchResultSubmissionModel: Model<MatchResultSubmission> =
+  mongoose.models.MatchResultSubmission || mongoose.model<MatchResultSubmission>("MatchResultSubmission", MatchResultSubmissionSchema);

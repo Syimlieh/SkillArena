@@ -11,6 +11,8 @@ import { UserRole } from "@/enums/UserRole.enum";
 import { AuthContext } from "@/lib/auth.server";
 import { RegistrationModel } from "@/models/Registration.model";
 import { RegistrationStatus } from "@/enums/RegistrationStatus.enum";
+import { MatchResultSubmissionModel } from "@/models/MatchResultSubmission.model";
+import { ResultStatus } from "@/enums/ResultStatus.enum";
 
 const buildTitle = (input: MatchInput, matchId: string): string => {
   if (input.title) return input.title;
@@ -64,19 +66,26 @@ export const listMatches = async (status?: MatchStatus, createdBy?: string): Pro
   const matchIds = matches.map((m) => m.matchId);
   if (matchIds.length === 0) return matches as Match[];
 
-  const counts = await RegistrationModel.aggregate<{ _id: string; count: number }>([
+  const regCounts = await RegistrationModel.aggregate<{ _id: string; count: number }>([
     { $match: { matchId: { $in: matchIds }, status: { $in: [RegistrationStatus.PENDING_PAYMENT, RegistrationStatus.CONFIRMED] } } },
     { $group: { _id: "$matchId", count: { $sum: 1 } } },
   ]);
-  const countMap = new Map<string, number>(counts.map((c) => [c._id, c.count]));
+  const pendingResults = await MatchResultSubmissionModel.aggregate<{ _id: string; count: number }>([
+    { $match: { matchId: { $in: matchIds }, status: { $in: [ResultStatus.SUBMITTED, ResultStatus.UNDER_REVIEW] } } },
+    { $group: { _id: "$matchId", count: { $sum: 1 } } },
+  ]);
+
+  const regCountMap = new Map<string, number>(regCounts.map((c) => [c._id, c.count]));
+  const pendingResultMap = new Map<string, number>(pendingResults.map((c) => [c._id, c.count]));
 
   return matches.map((m) => ({
     ...m,
-    registrationCount: countMap.get(m.matchId) ?? 0,
+    registrationCount: regCountMap.get(m.matchId) ?? 0,
+    pendingResultCount: pendingResultMap.get(m.matchId) ?? 0,
   })) as Match[];
 };
 
-export const getMatchBySlug = async (slug?: string | null): Promise<Match | null> => {
+export const getMatchBySlug = async (slug?: string | null, userId?: string | null): Promise<(Match & { isRegistered?: boolean }) | null> => {
   if (!slug) return null;
   await connectDb();
   const normalizedSlug = slug.toLowerCase();
@@ -88,7 +97,20 @@ export const getMatchBySlug = async (slug?: string | null): Promise<Match | null
       matchId: match.matchId,
       status: { $in: [RegistrationStatus.PENDING_PAYMENT, RegistrationStatus.CONFIRMED] },
     });
-    return { ...match, registrationCount };
+    const pendingResultCount = await MatchResultSubmissionModel.countDocuments({
+      matchId: match.matchId,
+      status: { $in: [ResultStatus.SUBMITTED, ResultStatus.UNDER_REVIEW] },
+    });
+    let isRegistered: boolean | undefined;
+    if (userId) {
+      const registration = await RegistrationModel.findOne({
+        userId,
+        matchId: match.matchId,
+        status: { $in: [RegistrationStatus.PENDING_PAYMENT, RegistrationStatus.CONFIRMED] },
+      }).lean();
+      isRegistered = !!registration;
+    }
+    return { ...match, registrationCount, pendingResultCount, isRegistered };
   };
 
   const bySlug = await MatchModel.findOne({ slug: normalizedSlug }).lean<Match>();
@@ -99,4 +121,21 @@ export const getMatchBySlug = async (slug?: string | null): Promise<Match | null
     matchId: { $in: [slug, normalizedId, slug.toUpperCase()] },
   }).lean<Match>();
   return attachCount(byId);
+};
+
+export const startMatch = async (matchId: string, actor: AuthContext): Promise<Match | null> => {
+  await connectDb();
+  const normalizedId = matchId.toUpperCase();
+  const match = await MatchModel.findOne({ matchId: { $in: [matchId, normalizedId, matchId.toLowerCase()] } }).lean<Match>();
+  if (!match) return null;
+  const isOwner = match.createdBy === actor.userId;
+  const isAdmin = actor.role === UserRole.ADMIN;
+  if (!isOwner && !isAdmin) {
+    throw new Error("Forbidden");
+  }
+  if (match.status !== MatchStatus.UPCOMING) {
+    return match;
+  }
+  await MatchModel.updateOne({ matchId: match.matchId }, { $set: { status: MatchStatus.ONGOING } });
+  return { ...match, status: MatchStatus.ONGOING };
 };

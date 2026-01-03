@@ -1,0 +1,6 @@
+export enum ResultStatus {
+  SUBMITTED = "SUBMITTED",
+  UNDER_REVIEW = "UNDER_REVIEW",
+  VERIFIED = "VERIFIED",
+  REJECTED = "REJECTED",
+}

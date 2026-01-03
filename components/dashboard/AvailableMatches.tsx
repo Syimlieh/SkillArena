@@ -46,7 +46,7 @@ export const AvailableMatches = ({ matches }: Props) => {
             </div>
             <div className="mt-2 flex items-center justify-between text-sm text-[var(--text-secondary)]">
               <span>Start: {formatTime(match.startTime)}</span>
-              <span className="text-[var(--accent-primary)] font-semibold">{MatchStatus.UPCOMING}</span>
+              <span className="text-[var(--accent-primary)] font-semibold">{match.status}</span>
             </div>
             <div className="mt-1 text-xs text-[var(--text-secondary)]">
               Entry ₹{match.entryFee} • Prize Pool ₹{match.prizePool}

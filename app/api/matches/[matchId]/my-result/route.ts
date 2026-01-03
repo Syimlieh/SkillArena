@@ -1,0 +1,39 @@
+import { NextRequest } from "next/server";
+import { successResponse, errorResponse } from "@/lib/api-response";
+import { requireUser } from "@/lib/auth.server";
+import { connectDb } from "@/lib/db";
+import { MatchResultSubmissionModel } from "@/models/MatchResultSubmission.model";
+import { getMatchBySlug } from "@/modules/matches/match.service";
+
+export const dynamic = "force-dynamic";
+
+export const GET = async (_req: NextRequest, { params }: { params: { matchId: string } }) => {
+  try {
+    const user = await requireUser();
+    await connectDb();
+    const matchId = params.matchId;
+    const match = await getMatchBySlug(matchId, user.userId);
+    if (!match) {
+      return errorResponse("Match not found", 404);
+    }
+
+    const submission = await MatchResultSubmissionModel.findOne({ userId: user.userId, matchId: match.matchId }).lean();
+    if (!submission) {
+      return errorResponse("No submission found", 404);
+    }
+
+    return successResponse({
+      submission: {
+        status: submission.status,
+        screenshotUrl: submission.screenshotUrl,
+        submittedAt: submission.createdAt ?? new Date().toISOString(),
+      },
+    });
+  } catch (err) {
+    const message = err instanceof Error ? err.message : "Unauthorized";
+    if (message === "Unauthorized") {
+      return errorResponse("Unauthorized", 401);
+    }
+    return errorResponse("Unable to load submission", 500);
+  }
+};

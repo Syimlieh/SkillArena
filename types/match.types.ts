@@ -24,6 +24,7 @@ export interface Match {
   type?: MatchType;
   createdBy: string;
   registrationCount?: number;
+  pendingResultCount?: number;
   createdAt?: Date;
   updatedAt?: Date;
 }

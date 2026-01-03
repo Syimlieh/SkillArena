@@ -2,88 +2,80 @@ export const dynamic = "force-dynamic";
 
 import { notFound } from "next/navigation";
 import { getMatchBySlug } from "@/modules/matches/match.service";
-import { Badge } from "@/components/ui/Badge";
-import { MatchMap } from "@/enums/MatchMap.enum";
+import { MatchHeader } from "@/components/match/MatchHeader";
+import { MatchDetailsCard } from "@/components/match/MatchDetailsCard";
+import ResultSubmissionCard from "@/components/match/ResultSubmissionCard";
 import RegisterButton from "@/components/matches/RegisterButton";
 import AdminManualRegisterButton from "@/components/admin/AdminManualRegisterButton";
-
-const formatTime = (date: Date | string) =>
-  new Intl.DateTimeFormat("en-IN", {
-    day: "2-digit",
-    month: "short",
-    hour: "2-digit",
-    minute: "2-digit",
-    hour12: true,
-    timeZone: "Asia/Kolkata",
-  }).format(new Date(date));
+import { Match } from "@/types/match.types";
+import { requireUser } from "@/lib/auth.server";
+import { RegistrationStatus } from "@/enums/RegistrationStatus.enum";
+import StartMatchButton from "@/components/matches/StartMatchButton";
+import { UserRole } from "@/enums/UserRole.enum";
+import { MatchStatus } from "@/enums/MatchStatus.enum";
+import { MatchResultSubmissionModel } from "@/models/MatchResultSubmission.model";
+import { ResultStatus } from "@/enums/ResultStatus.enum";
+import ResultSubmissionsAdminTable from "@/components/match/ResultSubmissionsAdminTable";
 
 const MatchDetailsPage = async ({ params }: { params: { slug: string } }) => {
   const { slug } = await params;
-  console.log("Slug:", slug);
   if (!slug) return notFound();
 
-  const match = await getMatchBySlug(slug);
-  console.log("Match:", match);
+  let userId: string | null = null;
+  let userRole: UserRole | null = null;
+  try {
+    const user = await requireUser();
+    userId = user.userId;
+    userRole = user.role;
+  } catch {
+    // not logged in
+  }
+
+  const match = await getMatchBySlug(slug, userId);
   if (!match) return notFound();
 
-  const prize = match.prizeBreakdown;
-  console.log("Prize Breakdown:", prize);
-  const clientMatch = {
+  const clientMatch: Match = {
     ...match,
     _id: match._id ? (match._id as any).toString() : undefined,
     startTime: match.startTime ? new Date(match.startTime).toISOString() : match.startTime,
   };
-  console.log("Client Match:", clientMatch);
+  const isRegistered = match.isRegistered === true;
+  const registrationStatus = isRegistered ? RegistrationStatus.CONFIRMED : null;
+  const canStart = (userId && match.createdBy === userId) || userRole === UserRole.ADMIN;
+  const showStartButton = canStart && match.status === MatchStatus.UPCOMING;
+  const isAdmin = userRole === UserRole.ADMIN;
+
+  let submissions: { userId?: string; status: ResultStatus; screenshotUrl: string; submittedAt: string; submissionId?: string; placement?: number; kills?: number; totalScore?: number }[] = [];
+  if (isAdmin) {
+    try {
+      const records = await MatchResultSubmissionModel.find({ matchId: match.matchId }).lean();
+      submissions = records.map((r) => ({
+        submissionId: r._id?.toString(),
+        userId: r.userId,
+        status: r.status as ResultStatus,
+        screenshotUrl: r.screenshotUrl,
+        submittedAt: r.createdAt ? new Date(r.createdAt).toISOString() : new Date().toISOString(),
+        placement: r.placement,
+        kills: r.kills,
+        totalScore: r.totalScore,
+      }));
+    } catch {
+      submissions = [];
+    }
+  }
 
   return (
     <div className="mx-auto max-w-5xl px-6 py-10 space-y-6 text-[var(--text-primary)]">
-      <div className="flex items-center justify-between gap-4">
-        <div>
-          <h1 className="text-3xl font-black">{match.title}</h1>
-          <p className="text-sm text-[var(--text-secondary)]">Match ID: {match.matchId}</p>
-        </div>
-        <div className="flex-shrink-0">
-          <Badge
-            tone={match.map === MatchMap.LIVIK ? "warning" : "success"}
-            className="whitespace-nowrap px-4 text-[11px]"
-          >
-            Map: {match.map}
-          </Badge>
-        </div>
-      </div>
-      <div className="grid gap-4 md:grid-cols-3">
-        <div className="rounded-2xl border border-[var(--border-subtle)] bg-[var(--card-bg)] p-4 shadow-sm">
-          <div className="text-xs uppercase text-[var(--text-secondary)]">Start Time</div>
-          <div className="text-lg font-semibold">{formatTime(match.startTime)}</div>
-        </div>
-        <div className="rounded-2xl border border-[var(--border-subtle)] bg-[var(--card-bg)] p-4 shadow-sm">
-          <div className="text-xs uppercase text-[var(--text-secondary)]">Entry Fee</div>
-          <div className="text-lg font-semibold">₹{match.entryFee}</div>
-        </div>
-        <div className="rounded-2xl border border-[var(--border-subtle)] bg-[var(--card-bg)] p-4 shadow-sm">
-          <div className="text-xs uppercase text-[var(--text-secondary)]">Registered Users</div>
-          <div className="text-lg font-semibold">{`${match.registrationCount ?? 0}/${match.maxSlots}`}</div>
-        </div>
-      </div>
-      <div className="rounded-2xl border border-[var(--border-subtle)] bg-[var(--card-bg)] p-4 shadow-sm">
-        <div className="text-xs uppercase text-[var(--text-secondary)]">Prize Breakdown</div>
-        <div className="mt-2 grid grid-cols-3 gap-3 text-sm">
-          <div>
-            <div className="font-semibold text-[var(--text-primary)]">1st</div>
-            <div className="text-[var(--text-secondary)]">₹{prize.first}</div>
-          </div>
-          <div>
-            <div className="font-semibold text-[var(--text-primary)]">2nd</div>
-            <div className="text-[var(--text-secondary)]">₹{prize.second}</div>
-          </div>
-          <div>
-            <div className="font-semibold text-[var(--text-primary)]">3rd</div>
-            <div className="text-[var(--text-secondary)]">₹{prize.third}</div>
-          </div>
-        </div>
-      </div>
+      <MatchHeader match={clientMatch} />
+      <MatchDetailsCard match={clientMatch} />
+      {isAdmin ? (
+        <ResultSubmissionsAdminTable submissions={submissions} matchId={match.matchId} />
+      ) : (
+        <ResultSubmissionCard matchId={match.matchId} matchStatus={match.status} isRegistered={isRegistered} />
+      )}
       <div className="space-y-3">
-        <RegisterButton match={clientMatch} />
+        {showStartButton && <StartMatchButton matchId={match.matchId} />}
+        <RegisterButton match={clientMatch} registrationStatus={registrationStatus} isRegistered={isRegistered} />
         <div className="flex justify-center">
           <div className="w-full max-w-xl">
             <AdminManualRegisterButton matchId={match.matchId} buttonVariant="primary" fullWidth />

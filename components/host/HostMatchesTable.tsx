@@ -6,6 +6,7 @@ import { API_ROUTES, MATCH_DEFAULTS } from "@/lib/constants";
 import { MatchMap } from "@/enums/MatchMap.enum";
 import { MatchStatus } from "@/enums/MatchStatus.enum";
 import { MatchType } from "@/enums/MatchType.enum";
+import Link from "next/link";
 
 const formatTime = (date: Date | string) =>
   new Intl.DateTimeFormat("en-IN", {
@@ -72,10 +73,10 @@ export const HostMatchesTable = () => {
               {matches.map((match) => (
                 <tr key={match._id?.toString() ?? match.matchId} className="align-top">
                   <td className="px-4 py-3">
-                    <div className="flex flex-col">
+                    <Link href={`/matches/${match.slug ?? match.matchId.toLowerCase()}`} className="flex flex-col hover:text-[var(--primary)]">
                       <span className="font-semibold text-[var(--text-primary)]">{match.title}</span>
                       <span className="text-xs text-[var(--text-secondary)]">ID: {match.matchId}</span>
-                    </div>
+                    </Link>
                   </td>
                   <td className="px-4 py-3 text-xs text-[var(--text-secondary)]">{typeLabel(match.type)}</td>
                   <td className="px-4 py-3 text-xs text-[var(--text-secondary)]">{match.map}</td>

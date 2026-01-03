@@ -1,15 +1,26 @@
-const POST_LOGIN_REDIRECT_KEY = "postLoginRedirect";
+const REDIRECT_KEY = "post_login_redirect";
 
-export const rememberPostLoginRedirect = (path: string) => {
+export const rememberPostLoginRedirect = (url: string) => {
   if (typeof window === "undefined") return;
-  sessionStorage.setItem(POST_LOGIN_REDIRECT_KEY, path);
+  try {
+    localStorage.setItem(REDIRECT_KEY, url);
+  } catch {
+    // ignore storage failures
+  }
 };
 
 export const consumePostLoginRedirect = (): string | null => {
   if (typeof window === "undefined") return null;
-  const value = sessionStorage.getItem(POST_LOGIN_REDIRECT_KEY);
-  if (value) {
-    sessionStorage.removeItem(POST_LOGIN_REDIRECT_KEY);
+  try {
+    const value = localStorage.getItem(REDIRECT_KEY);
+    if (value) {
+      localStorage.removeItem(REDIRECT_KEY);
+      return value;
+    }
+  } catch {
+    return null;
   }
-  return value;
+  return null;
 };
+
+// Server-only helpers live in lib/auth.server.ts; import directly where needed.

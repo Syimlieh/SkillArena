@@ -1,0 +1,25 @@
+import { NextRequest } from "next/server";
+import { errorResponse, successResponse } from "@/lib/api-response";
+import { requireMatchCreator } from "@/lib/auth.server";
+import { startMatch } from "@/modules/matches/match.service";
+
+export const dynamic = "force-dynamic";
+
+export const POST = async (_req: NextRequest, { params }: { params: { matchId: string } }) => {
+  try {
+    const actor = await requireMatchCreator();
+    const { matchId } = await params;
+    if (!matchId) {
+      return errorResponse("Match not found", 404);
+    }
+    const updated = await startMatch(matchId, actor);
+    if (!updated) {
+      return errorResponse("Match not found", 404);
+    }
+    return successResponse({ match: updated });
+  } catch (err: any) {
+    if (err?.message === "Unauthorized") return errorResponse("Unauthorized", 401);
+    if (err?.message === "Forbidden") return errorResponse("Forbidden", 403);
+    return errorResponse("Unable to start match", 500);
+  }
+};

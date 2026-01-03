@@ -39,21 +39,27 @@ const toRegisteredMatch = (match: Match, regStatus: RegistrationStatus): Registe
 
 export const getDashboardData = async (userId?: string): Promise<DashboardData> => {
   const scrims = (await listScrims()).map(serializeScrim);
-  const allUpcomingMatches: Match[] = (await listMatches(MatchStatus.UPCOMING)).map(serializeMatch);
+  const upcomingMatches: Match[] = (await listMatches(MatchStatus.UPCOMING)).map(serializeMatch);
+  const ongoingMatches: Match[] = (await listMatches(MatchStatus.ONGOING)).map(serializeMatch);
+  const relevantMatches = [...upcomingMatches, ...ongoingMatches];
+  const relevantMap = new Map(relevantMatches.map((m) => [m.matchId, m]));
 
   let registeredMatches: RegisteredMatch[] = [];
   if (userId) {
     const regs = await RegistrationModel.find({ userId }).lean();
     const matchIds = regs.map((r) => r.matchId);
-    const matched = allUpcomingMatches.filter((m) => matchIds.includes(m.matchId));
-    registeredMatches = matched.map((m) => {
-      const reg = regs.find((r) => r.matchId === m.matchId);
-      return toRegisteredMatch(m, reg?.status ?? RegistrationStatus.NONE);
-    });
+    registeredMatches = matchIds
+      .map((id) => {
+        const match = relevantMap.get(id);
+        if (!match) return null;
+        const reg = regs.find((r) => r.matchId === id);
+        return toRegisteredMatch(match, reg?.status ?? RegistrationStatus.NONE);
+      })
+      .filter(Boolean) as RegisteredMatch[];
   }
 
   const registeredIds = registeredMatches.map((r) => r.match.matchId);
-  const availableMatches = allUpcomingMatches.filter((m) => !registeredIds.includes(m.matchId));
+  const availableMatches = upcomingMatches.filter((m) => !registeredIds.includes(m.matchId));
 
   // Placeholder: assumes all UPCOMING/COMPLETED scrims in DB are joined by the user.
   const upcoming = scrims

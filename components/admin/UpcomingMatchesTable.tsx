@@ -25,6 +25,10 @@ const typeTone = (type?: MatchType) => (type === MatchType.COMMUNITY ? "neutral"
 export const UpcomingMatchesTable = ({ matches }: Props) => (
   <div className="glass-panel rounded-2xl p-4">
     <div className="mb-3 text-sm uppercase text-[var(--primary)]">Upcoming Matches</div>
+    <div className="mb-3 flex gap-2 text-xs text-[var(--text-secondary)]">
+      <span className="rounded-full border border-[var(--border-subtle)] px-2 py-1">Showing: Upcoming + Ongoing</span>
+      <span className="rounded-full border border-[var(--border-subtle)] px-2 py-1">Total: {matches.length}</span>
+    </div>
     <div className="overflow-x-auto">
       <table className="min-w-full text-left text-sm text-[var(--text-primary)]">
         <thead className="text-xs uppercase text-[var(--text-secondary)]">
@@ -36,6 +40,7 @@ export const UpcomingMatchesTable = ({ matches }: Props) => (
             <th className="pb-2 pr-4">Slots</th>
             <th className="pb-2 pr-4">Entry Fee</th>
             <th className="pb-2 pr-4">Prize Pool</th>
+            <th className="pb-2 pr-4">Review</th>
             <th className="pb-2 pr-4">Status</th>
           </tr>
         </thead>
@@ -78,7 +83,18 @@ export const UpcomingMatchesTable = ({ matches }: Props) => (
                 </td>
                 <td className="p-0">
                   <Link href={href} className="block py-2 pr-4">
-                    <Badge tone="success">{MatchStatus.UPCOMING}</Badge>
+                    {match.pendingResultCount && match.pendingResultCount > 0 ? (
+                      <Badge tone="warning">{match.pendingResultCount} pending</Badge>
+                    ) : (
+                      <span className="text-[var(--text-secondary)] text-xs">None</span>
+                    )}
+                  </Link>
+                </td>
+                <td className="p-0">
+                  <Link href={href} className="block py-2 pr-4">
+                    <Badge tone={match.status === MatchStatus.ONGOING ? "warning" : "success"}>
+                      {match.status === MatchStatus.ONGOING ? "Ongoing" : "Upcoming"}
+                    </Badge>
                   </Link>
                 </td>
               </tr>
