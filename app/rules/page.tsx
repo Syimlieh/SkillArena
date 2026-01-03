@@ -20,6 +20,7 @@ const toc = [
   { id: "eligibility", label: "Eligibility" },
   { id: "registration", label: "Registration" },
   { id: "format", label: "Match Format" },
+  { id: "scoring", label: "Scoring & Winner Determination" },
   { id: "cheating", label: "Cheating Policy" },
   { id: "result-submission", label: "Result Submission" },
   { id: "prize-distribution", label: "Prize Distribution" },

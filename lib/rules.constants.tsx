@@ -68,6 +68,51 @@ export const RULES_SECTIONS: RuleItem[] = [
     ),
   },
   {
+    id: "scoring",
+    title: "Scoring & Winner Determination",
+    body: (
+      <div className="space-y-3 text-[var(--text-secondary)]">
+        <div className="text-[var(--text-primary)] font-semibold">Total Score</div>
+        <ul className="list-disc space-y-1 pl-5">
+          <li>Total Score = Placement Points + Kill Points</li>
+          <li>1 kill = 1 point (no kill cap unless stated in match details)</li>
+        </ul>
+        <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--card-bg)] p-3">
+          <div className="text-xs uppercase tracking-wide text-[var(--text-secondary)]">Placement Points (Squad)</div>
+          <table className="mt-2 w-full text-sm text-[var(--text-primary)]">
+            <tbody className="divide-y divide-[var(--border-subtle)]">
+              {[
+                ["1st", "15"],
+                ["2nd", "12"],
+                ["3rd", "10"],
+                ["4th", "8"],
+                ["5th", "6"],
+                ["6th", "4"],
+                ["7th", "2"],
+                ["8th", "1"],
+                ["9th–Last", "0"],
+              ].map(([placement, points]) => (
+                <tr key={placement}>
+                  <td className="py-1 pr-4">{placement}</td>
+                  <td className="py-1">{points} pts</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        <div className="text-[var(--text-primary)] font-semibold">Tie-breakers (in order)</div>
+        <ul className="list-disc space-y-1 pl-5">
+          <li>Higher placement</li>
+          <li>Higher kill count</li>
+          <li>Admin decision (final)</li>
+        </ul>
+        <p className="text-[var(--text-secondary)]">
+          All scores are verified using submitted in-game result screenshots; admin decisions are final.
+        </p>
+      </div>
+    ),
+  },
+  {
     id: "cheating",
     title: "Fair Play & Cheating Policy",
     emphasis: true,
@@ -100,12 +145,15 @@ export const RULES_SECTIONS: RuleItem[] = [
     id: "prize-distribution",
     title: "Prize Distribution",
     body: (
-      <ul className="list-disc space-y-1 pl-5 text-[var(--text-secondary)]">
-        <li>Prize pool and breakdown are pre-declared.</li>
-        <li>Prizes are released only after verification.</li>
-        <li>Payments are made via UPI / bank transfer.</li>
-        <li>Incorrect payment details may cause delays.</li>
-      </ul>
+      <div className="space-y-2 text-[var(--text-secondary)]">
+        <p className="text-[var(--text-primary)] font-semibold">Dynamic prize distribution</p>
+        <ul className="list-disc space-y-1 pl-5">
+          <li>Each match declares its own prize pool, number of winning positions, and prize split (Top 1/2/3, etc.).</li>
+          <li>Prize details are shown before registration opens and on the match details page.</li>
+          <li>Players must review the prize split for each match before registering; prizes are match-specific and not fixed across events.</li>
+          <li>Prizes are released only after verification; payments are made via UPI / bank transfer.</li>
+        </ul>
+      </div>
     ),
   },
   {
