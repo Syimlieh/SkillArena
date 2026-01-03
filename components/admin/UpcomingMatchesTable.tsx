@@ -26,8 +26,8 @@ export const UpcomingMatchesTable = ({ matches }: Props) => (
   <div className="glass-panel rounded-2xl p-4">
     <div className="mb-3 text-sm uppercase text-[var(--primary)]">Upcoming Matches</div>
     <div className="overflow-x-auto">
-      <table className="min-w-full text-left text-sm text-slate-200">
-        <thead className="text-xs uppercase text-slate-400">
+      <table className="min-w-full text-left text-sm text-[var(--text-primary)]">
+        <thead className="text-xs uppercase text-[var(--text-secondary)]">
           <tr>
             <th className="pb-2 pr-4">Match ID</th>
             <th className="pb-2 pr-4">Type</th>
@@ -39,14 +39,14 @@ export const UpcomingMatchesTable = ({ matches }: Props) => (
             <th className="pb-2 pr-4">Status</th>
           </tr>
         </thead>
-        <tbody className="divide-y divide-[#0f172a]">
+        <tbody className="divide-y divide-[var(--border-subtle)]">
           {matches.map((match) => {
             const href = `/matches/${match.slug ?? match.matchId.toLowerCase()}`;
             const key = match._id?.toString() ?? match.matchId;
             return (
-              <tr key={key} className="transition hover:bg-[#0b1224]/60">
+              <tr key={key} className="transition hover:bg-[var(--bg-secondary)]/60">
                 <td className="p-0">
-                  <Link href={href} className="block py-2 pr-4 font-semibold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--primary)] focus-visible:ring-offset-2 focus-visible:ring-offset-[#0f172a]">
+                  <Link href={href} className="block py-2 pr-4 font-semibold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--primary)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--card-bg)]">
                     {match.matchId}
                   </Link>
                 </td>
@@ -86,7 +86,7 @@ export const UpcomingMatchesTable = ({ matches }: Props) => (
           })}
           {matches.length === 0 && (
             <tr>
-              <td className="py-3 text-slate-400" colSpan={8}>
+              <td className="py-3 text-[var(--text-secondary)]" colSpan={8}>
                 No upcoming matches yet.
               </td>
             </tr>

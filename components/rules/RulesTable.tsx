@@ -7,21 +7,21 @@ interface Props {
 }
 
 export const RulesTable = ({ title, rows }: Props) => (
-  <div className="rounded-2xl border border-[#1f2937] bg-[#0c111a] p-4 shadow-inner shadow-black/20">
-    <div className="mb-3 text-xs uppercase tracking-wide text-slate-400">{title}</div>
+  <div className="rounded-2xl border border-[var(--border-subtle)] bg-[var(--card-bg)] p-4 shadow-inner shadow-black/10">
+    <div className="mb-3 text-xs uppercase tracking-wide text-[var(--text-secondary)]">{title}</div>
     <div className="overflow-x-auto">
-      <table className="min-w-full text-left text-sm text-slate-200">
+      <table className="min-w-full text-left text-sm text-[var(--text-primary)]">
         <thead>
-          <tr className="text-xs uppercase text-slate-400">
+          <tr className="text-xs uppercase text-[var(--text-secondary)]">
             <th className="pb-2 pr-4">Violation</th>
             <th className="pb-2 pr-4">Action</th>
           </tr>
         </thead>
-        <tbody className="divide-y divide-[#111827]">
+        <tbody className="divide-y divide-[var(--border-subtle)]">
           {rows.map((row) => (
-            <tr key={row.label} className="hover:bg-[#0f172a]/50">
+            <tr key={row.label} className="hover:bg-[var(--bg-secondary)]/60 transition">
               <td className="py-2 pr-4 font-semibold">{row.label}</td>
-              <td className="py-2 pr-4 text-slate-300">{row.action}</td>
+              <td className="py-2 pr-4 text-[var(--text-secondary)]">{row.action}</td>
             </tr>
           ))}
         </tbody>

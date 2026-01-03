@@ -20,9 +20,9 @@ export interface HostApplicationView {
 }
 
 const statusStyles: Record<HostApplicationStatus, string> = {
-  [HostApplicationStatus.PENDING]: "bg-amber-500/15 text-amber-300 border border-amber-500/40",
-  [HostApplicationStatus.APPROVED]: "bg-emerald-500/15 text-emerald-300 border border-emerald-500/40",
-  [HostApplicationStatus.REJECTED]: "bg-rose-500/15 text-rose-300 border border-rose-500/40",
+  [HostApplicationStatus.PENDING]: "bg-amber-500/15 text-amber-700 dark:text-amber-300 border border-amber-500/40",
+  [HostApplicationStatus.APPROVED]: "bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border border-emerald-500/40",
+  [HostApplicationStatus.REJECTED]: "bg-rose-500/15 text-rose-700 dark:text-rose-300 border border-rose-500/40",
 };
 
 const formatDate = (date?: string) =>
@@ -88,28 +88,28 @@ export const HostApplicationsTable = ({ applications }: { applications: HostAppl
 
   if (!rows.length) {
     return (
-      <div className="rounded-2xl border border-[#0f172a] bg-[#0a0f17] p-6 text-slate-200">
-        <div className="text-lg font-semibold">No applications</div>
-        <p className="text-sm text-slate-400">Host applications will appear here for review.</p>
-      </div>
-    );
-  }
+    <div className="glass-panel rounded-2xl p-6 text-[var(--text-primary)]">
+      <div className="text-lg font-semibold">No applications</div>
+      <p className="text-sm text-[var(--text-secondary)]">Host applications will appear here for review.</p>
+    </div>
+  );
+}
 
-  return (
-    <div className="rounded-2xl border border-[#0f172a] bg-[#0a0f17]">
-      <div className="flex items-center justify-between border-b border-[#0f172a] px-6 py-4">
+return (
+    <div className="glass-panel rounded-2xl">
+      <div className="flex items-center justify-between border-b border-[var(--border-subtle)] px-6 py-4">
         <div>
-          <div className="text-lg font-bold text-white">Host Applications</div>
-          <div className="text-sm text-slate-400">
+          <div className="text-lg font-bold text-[var(--text-primary)]">Host Applications</div>
+          <div className="text-sm text-[var(--text-secondary)]">
             Pending: {pendingCount} • Total: {rows.length}
           </div>
         </div>
       </div>
-      {error && <div className="px-6 py-3 text-sm text-rose-300">{error}</div>}
+      {error && <div className="px-6 py-3 text-sm text-rose-500 dark:text-rose-300">{error}</div>}
       <div className="overflow-x-auto">
-        <table className="w-full text-left text-sm text-slate-200">
+        <table className="w-full text-left text-sm text-[var(--text-primary)]">
           <thead>
-            <tr className="border-b border-[#0f172a] text-xs uppercase tracking-wide text-slate-400">
+            <tr className="border-b border-[var(--border-subtle)] text-xs uppercase tracking-wide text-[var(--text-secondary)]">
               <th className="px-6 py-3 font-semibold">Applicant</th>
               <th className="px-6 py-3 font-semibold">Contact</th>
               <th className="px-6 py-3 font-semibold">Submitted</th>
@@ -118,29 +118,29 @@ export const HostApplicationsTable = ({ applications }: { applications: HostAppl
               <th className="px-6 py-3 font-semibold text-right">Actions</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-[#0f172a]">
+          <tbody className="divide-y divide-[var(--border-subtle)]">
             {rows.map((app) => (
               <tr key={app.id} className="align-top">
                 <td className="px-6 py-4">
                   <div className="flex flex-col gap-1">
                     <div className="flex items-center gap-2">
-                      <span className="text-white font-semibold">{app.displayName || "Unknown"}</span>
+                      <span className="font-semibold text-[var(--text-primary)]">{app.displayName || "Unknown"}</span>
                       <span className={`rounded-full px-3 py-1 text-xs font-semibold ${statusStyles[app.status]}`}>
                         {app.status}
                       </span>
                     </div>
-                    <div className="text-xs text-slate-400">User ID: {app.userId || "—"}</div>
-                    <p className="text-sm text-slate-300 line-clamp-2 max-w-xl">{app.description || "—"}</p>
+                    <div className="text-xs text-[var(--text-secondary)]">User ID: {app.userId || "—"}</div>
+                    <p className="text-sm text-[var(--text-secondary)] line-clamp-2 max-w-xl">{app.description || "—"}</p>
                   </div>
                 </td>
-                <td className="px-6 py-4 text-sm text-slate-200">{app.contactEmail || "—"}</td>
-                <td className="px-6 py-4 text-sm text-slate-300">{formatDate(app.createdAt)}</td>
-                <td className="px-6 py-4 text-sm text-slate-300">{formatDate(app.reviewedAt)}</td>
-                <td className="px-6 py-4 text-sm text-amber-200 max-w-xs">
+                <td className="px-6 py-4 text-sm text-[var(--text-secondary)]">{app.contactEmail || "—"}</td>
+                <td className="px-6 py-4 text-sm text-[var(--text-secondary)]">{formatDate(app.createdAt)}</td>
+                <td className="px-6 py-4 text-sm text-[var(--text-secondary)]">{formatDate(app.reviewedAt)}</td>
+                <td className="px-6 py-4 text-sm text-amber-700 dark:text-amber-200 max-w-xs">
                   {app.adminComment ? (
                     <span className="line-clamp-2">{app.adminComment}</span>
                   ) : (
-                    <span className="text-slate-500">—</span>
+                    <span className="text-[var(--text-secondary)]">—</span>
                   )}
                 </td>
                 <td className="px-6 py-4 text-right">
@@ -175,13 +175,13 @@ export const HostApplicationsTable = ({ applications }: { applications: HostAppl
       </div>
       <Modal isOpen={Boolean(rejectModal)} onClose={closeRejectModal} title="Reject application?">
         <div className="flex flex-col gap-4">
-          <p className="text-sm text-slate-300">
+          <p className="text-sm text-[var(--text-secondary)]">
             Add an optional note for the applicant. This decision can&apos;t be undone.
           </p>
           <textarea
             value={rejectModal?.comment ?? ""}
             onChange={(e) => setRejectModal((prev) => (prev ? { ...prev, comment: e.target.value } : prev))}
-            className="min-h-[96px] w-full rounded-xl border border-[#1f2937] bg-[#0f172a] p-3 text-sm text-slate-200 outline-none focus:border-indigo-500"
+            className="min-h-[96px] w-full rounded-xl border border-[var(--border-subtle)] bg-[var(--card-bg)] p-3 text-sm text-[var(--text-primary)] outline-none focus:border-[var(--primary)]"
             placeholder="Optional admin comment (visible to applicant)"
           />
           <div className="flex justify-end gap-3">

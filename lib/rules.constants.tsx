@@ -23,7 +23,7 @@ export const RULES_SECTIONS: RuleItem[] = [
     id: "platform-overview",
     title: "Platform Overview",
     body: (
-      <ul className="list-disc space-y-1 pl-5 text-slate-200">
+      <ul className="list-disc space-y-1 pl-5 text-[var(--text-secondary)]">
         <li>SkillArena is a skill-based esports platform for BGMI custom matches.</li>
         <li>Matches are skill-based competitions — no element of chance, betting, or gambling.</li>
         <li>SkillArena acts as the platform, payment collector (escrow), rule enforcer.</li>
@@ -34,7 +34,7 @@ export const RULES_SECTIONS: RuleItem[] = [
     id: "eligibility",
     title: "Eligibility & Account Rules",
     body: (
-      <ul className="list-disc space-y-1 pl-5 text-slate-200">
+      <ul className="list-disc space-y-1 pl-5 text-[var(--text-secondary)]">
         <li>Players must be 18 years or older.</li>
         <li>Players must use their correct BGMI IGN.</li>
         <li>Violation may result in disqualification or permanent ban.</li>
@@ -45,7 +45,7 @@ export const RULES_SECTIONS: RuleItem[] = [
     id: "registration",
     title: "Match Registration Rules",
     body: (
-      <ul className="list-disc space-y-1 pl-5 text-slate-200">
+      <ul className="list-disc space-y-1 pl-5 text-[var(--text-secondary)]">
         <li>Entry fees must be paid only via SkillArena; direct payments to hosts are strictly prohibited.</li>
         <li>Registration is confirmed only after successful payment.</li>
         <li>Slots are limited and filled on a first-come, first-served basis.</li>
@@ -57,7 +57,7 @@ export const RULES_SECTIONS: RuleItem[] = [
     id: "format",
     title: "Match Format",
     body: (
-      <ul className="list-disc space-y-1 pl-5 text-slate-200">
+      <ul className="list-disc space-y-1 pl-5 text-[var(--text-secondary)]">
         <li>Game: Battlegrounds Mobile India (BGMI)</li>
         <li>Mode: Squad</li>
         <li>Maps: Erangel / Livik (as announced)</li>
@@ -75,7 +75,7 @@ export const RULES_SECTIONS: RuleItem[] = [
       <div className="space-y-3">
         <div>
           <div className="mb-1 text-xs font-semibold uppercase tracking-wide text-rose-300">Strictly Prohibited</div>
-          <ul className="list-disc space-y-1 pl-5 text-slate-200">
+          <ul className="list-disc space-y-1 pl-5 text-[var(--text-secondary)]">
             <li>Hacks, mods, modified APKs, emulators.</li>
             <li>Third-party plugins or scripts;</li>
             <li>Fake or edited screenshots; stream sniping.</li>
@@ -88,7 +88,7 @@ export const RULES_SECTIONS: RuleItem[] = [
     id: "result-submission",
     title: "Result Submission & Verification",
     body: (
-      <ul className="list-disc space-y-1 pl-5 text-slate-200">
+      <ul className="list-disc space-y-1 pl-5 text-[var(--text-secondary)]">
         <li>Submit valid screenshots showing placement, kill count, and match ID.</li>
         <li>Results are verified by SkillArena Admin or Host (subject to admin review).</li>
         <li>Failure to submit proof leads to disqualification.</li>
@@ -100,7 +100,7 @@ export const RULES_SECTIONS: RuleItem[] = [
     id: "prize-distribution",
     title: "Prize Distribution",
     body: (
-      <ul className="list-disc space-y-1 pl-5 text-slate-200">
+      <ul className="list-disc space-y-1 pl-5 text-[var(--text-secondary)]">
         <li>Prize pool and breakdown are pre-declared.</li>
         <li>Prizes are released only after verification.</li>
         <li>Payments are made via UPI / bank transfer.</li>
@@ -114,8 +114,8 @@ export const RULES_SECTIONS: RuleItem[] = [
     emphasis: true,
     body: (
       <div className="space-y-2">
-        <p className="text-slate-200">Some matches on SkillArena are hosted by verified third-party Hosts.</p>
-        <div className="rounded-xl border border-[rgba(66,255,135,0.4)] bg-[rgba(66,255,135,0.12)] p-3 text-slate-100">
+        <p className="text-[var(--text-secondary)]">Some matches on SkillArena are hosted by verified third-party Hosts.</p>
+        <div className="rounded-xl border border-[rgba(66,255,135,0.4)] bg-[rgba(66,255,135,0.12)] p-3 text-[var(--text-primary)]">
           <div className="text-xs uppercase tracking-wide text-[var(--primary)]">Payment & Escrow</div>
           <ul className="mt-2 list-disc space-y-1 pl-4">
             <li>All entry fees are collected by SkillArena and held in escrow.</li>
@@ -123,8 +123,8 @@ export const RULES_SECTIONS: RuleItem[] = [
             <li>Hosts are paid only after match completion and verification.</li>
           </ul>
         </div>
-        <div className="rounded-xl border border-[#1f2937] bg-[#0c111a] p-3 text-slate-200">
-          <div className="text-xs uppercase tracking-wide text-slate-400">Host Responsibilities</div>
+        <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--card-bg)] p-3 text-[var(--text-secondary)]">
+          <div className="text-xs uppercase tracking-wide text-[var(--text-secondary)]">Host Responsibilities</div>
           <ul className="mt-2 list-disc space-y-1 pl-4">
             <li>Create matches accurately and host fair custom rooms.</li>
             <li>Submit correct results and follow all SkillArena rules.</li>
@@ -138,7 +138,7 @@ export const RULES_SECTIONS: RuleItem[] = [
     id: "commission",
     title: "Commission & Host Payouts",
     body: (
-      <ul className="list-disc space-y-1 pl-5 text-slate-200">
+      <ul className="list-disc space-y-1 pl-5 text-[var(--text-secondary)]">
         <li>SkillArena charges a platform commission (3–5%), deducted from match earnings.</li>
         <li>Host earnings are released after winners are paid; payouts may be batched (daily/weekly).</li>
         <li>SkillArena may withhold payouts in case of violations.</li>
@@ -151,9 +151,9 @@ export const RULES_SECTIONS: RuleItem[] = [
     emphasis: true,
     body: (
       <div className="grid gap-3 md:grid-cols-2">
-        <div className="rounded-xl border border-[#1f2937] bg-[#0c111a] p-3">
+        <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--card-bg)] p-3">
           <div className="text-xs uppercase tracking-wide text-rose-300">No Refunds If</div>
-          <ul className="mt-2 list-disc space-y-1 pl-4 text-slate-200">
+          <ul className="mt-2 list-disc space-y-1 pl-4 text-[var(--text-secondary)]">
             <li>Match has already started.</li>
             <li>Player fails to join the room.</li>
             <li>Player is disqualified due to rule violations.</li>
@@ -163,7 +163,7 @@ export const RULES_SECTIONS: RuleItem[] = [
         </div>
         <div className="rounded-xl border border-[rgba(66,255,135,0.4)] bg-[rgba(66,255,135,0.12)] p-3">
           <div className="text-xs uppercase tracking-wide text-[var(--primary)]">Refunds Allowed If</div>
-          <ul className="mt-2 list-disc space-y-1 pl-4 text-slate-100">
+          <ul className="mt-2 list-disc space-y-1 pl-4 text-[var(--text-primary)]">
             <li>Match is cancelled by SkillArena or Host.</li>
             <li>Incorrect room details are shared.</li>
             <li>Server issues occur before match start.</li>
@@ -178,7 +178,7 @@ export const RULES_SECTIONS: RuleItem[] = [
     id: "disputes",
     title: "Dispute Resolution",
     body: (
-      <ul className="list-disc space-y-1 pl-5 text-slate-200">
+      <ul className="list-disc space-y-1 pl-5 text-[var(--text-secondary)]">
         <li>Disputes must be raised within 24 hours; evidence may be required.</li>
         <li>Admin decision is final and binding.</li>
       </ul>
@@ -188,7 +188,7 @@ export const RULES_SECTIONS: RuleItem[] = [
     id: "platform-rights",
     title: "Platform Rights",
     body: (
-      <ul className="list-disc space-y-1 pl-5 text-slate-200">
+      <ul className="list-disc space-y-1 pl-5 text-[var(--text-secondary)]">
         <li>SkillArena may cancel or reschedule matches; disqualify players or hosts.</li>
         <li>SkillArena may withhold payouts or modify rules with notice.</li>
       </ul>
@@ -198,7 +198,7 @@ export const RULES_SECTIONS: RuleItem[] = [
     id: "disclaimer",
     title: "Disclaimer",
     body: (
-      <p className="text-slate-200">
+      <p className="text-[var(--text-secondary)]">
         SkillArena hosts skill-based esports competitions only. There is no gambling, betting, or chance-based gameplay. Entry fees are
         charged for participation and platform services.
       </p>

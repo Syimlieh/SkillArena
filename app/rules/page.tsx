@@ -33,14 +33,14 @@ const toc = [
 
 const RulesPage = () => {
   return (
-    <div className="min-h-screen bg-[#050814] text-white">
+    <div className="min-h-screen bg-[var(--bg-primary)] text-[var(--text-primary)]">
       <Navbar variant="public" />
       <div className="mx-auto flex w-full max-w-6xl flex-col gap-6 px-6 py-12 md:flex-row">
         <aside className="md:sticky md:top-24 md:w-64 md:self-start">
           <div className="mb-4 text-xs uppercase tracking-[0.2em] text-[var(--primary)]">Rules</div>
-          <div className="rounded-2xl border border-[#1f2937] bg-[#0b1020]/80 p-4 text-sm text-slate-200 shadow-lg shadow-black/30">
-            <div className="mb-3 font-semibold text-white">Table of Contents</div>
-            <nav className="space-y-2 text-slate-300">
+          <div className="glass-panel rounded-2xl p-4 text-sm text-[var(--text-primary)]">
+            <div className="mb-3 font-semibold text-[var(--text-primary)]">Table of Contents</div>
+            <nav className="space-y-2 text-[var(--text-secondary)]">
               {toc.map((item) => (
                 <div key={item.id}>
                   <Link href={`#${item.id}`} className="hover:text-[var(--primary)]">
@@ -53,16 +53,16 @@ const RulesPage = () => {
         </aside>
 
         <main className="flex-1 space-y-6">
-          <header className="rounded-2xl border border-[#1f2937] bg-gradient-to-r from-[#0b1020] to-[#0f1a30] p-6 shadow-lg shadow-black/30">
+          <header className="glass-panel rounded-2xl p-6">
             <div className="flex flex-wrap items-center gap-3">
               <Badge tone="success" className="text-[11px]">Public</Badge>
               <Badge tone="neutral" className="text-[11px]">Skill-based esports</Badge>
             </div>
-            <h1 className="mt-4 text-3xl font-black text-white md:text-4xl">SkillArena Rules & Policies</h1>
-            <p className="mt-2 max-w-2xl text-sm text-slate-300">
+            <h1 className="mt-4 text-3xl font-black text-[var(--text-primary)] md:text-4xl">SkillArena Rules & Policies</h1>
+            <p className="mt-2 max-w-2xl text-sm text-[var(--text-secondary)]">
               Official rules for BGMI custom matches on SkillArena. Please read carefully before registering for any match.
             </p>
-            <p className="mt-4 text-xs uppercase tracking-wide text-slate-400">Last updated: March 2025</p>
+            <p className="mt-4 text-xs uppercase tracking-wide text-[var(--text-secondary)]">Last updated: March 2025</p>
           </header>
 
           <div className="space-y-5">
@@ -80,7 +80,7 @@ const RulesPage = () => {
             ))}
           </div>
 
-          <footer className="rounded-2xl border border-[#1f2937] bg-[#0b1020]/70 p-4 text-xs text-slate-400">
+          <footer className="glass-panel rounded-2xl p-4 text-xs text-[var(--text-secondary)]">
             SkillArena is a skill-based esports platform. There is no gambling or betting. For questions, contact support.
           </footer>
         </main>

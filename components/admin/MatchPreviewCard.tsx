@@ -43,21 +43,21 @@ export const MatchPreviewCard = ({
   );
 
   return (
-    <div className="glass-panel rounded-2xl p-4 text-white space-y-3">
+    <div className="glass-panel rounded-2xl p-4 space-y-3 text-[var(--text-primary)]">
       <div className="flex items-center justify-between">
         <div>
           <div className="text-xs uppercase text-[var(--primary)]">Preview</div>
           <div className="text-lg font-bold">BGMI Scrim</div>
-          {matchId && <div className="text-xs text-slate-400">Match ID: {matchId}</div>}
+          {matchId && <div className="text-xs text-[var(--text-secondary)]">Match ID: {matchId}</div>}
         </div>
         <Badge tone={map === MatchMap.LIVIK ? "warning" : "success"}>Map: {map}</Badge>
       </div>
-      <div className="grid grid-cols-2 gap-3 text-sm text-slate-200">
-        <div className="rounded-xl border border-[#1f2937] bg-[#0c111a] p-3">
+      <div className="grid grid-cols-2 gap-3 text-sm text-[var(--text-primary)]">
+        <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--card-bg)] p-3">
           <div className="text-xs uppercase text-[var(--primary)]">Start</div>
           <div className="font-semibold">{formatTime(startDate, startTime)}</div>
         </div>
-        <div className="rounded-xl border border-[#1f2937] bg-[#0c111a] p-3">
+        <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--card-bg)] p-3">
           <div className="text-xs uppercase text-[var(--primary)]">Slots</div>
           <div className="font-semibold">{maxSlots}</div>
         </div>
@@ -76,9 +76,9 @@ export const MatchPreviewCard = ({
           <div className="font-semibold">SkillArena BGMI</div>
         </div>
       </div>
-      <div className="rounded-xl border border-[#1f2937] bg-[#0c111a] p-3 text-sm">
+      <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--card-bg)] p-3 text-sm">
         <div className="text-xs uppercase text-[var(--primary)] mb-1">Prizes</div>
-        <div className="flex gap-4 text-slate-300">
+        <div className="flex gap-4 text-[var(--text-secondary)]">
           <span>1st ₹{prizeBreakdown.first}</span>
           <span>2nd ₹{prizeBreakdown.second}</span>
           <span>3rd ₹{prizeBreakdown.third}</span>

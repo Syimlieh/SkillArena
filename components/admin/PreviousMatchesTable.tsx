@@ -28,8 +28,8 @@ export const PreviousMatchesTable = () => (
   <div className="glass-panel rounded-2xl p-4">
     <div className="mb-3 text-sm uppercase text-[var(--primary)]">Previous Matches</div>
     <div className="overflow-x-auto">
-      <table className="min-w-full text-left text-sm text-slate-200">
-        <thead className="text-xs uppercase text-slate-400">
+      <table className="min-w-full text-left text-sm text-[var(--text-primary)]">
+        <thead className="text-xs uppercase text-[var(--text-secondary)]">
           <tr>
             <th className="pb-2 pr-4">Match ID</th>
             <th className="pb-2 pr-4">Map</th>
@@ -40,13 +40,13 @@ export const PreviousMatchesTable = () => (
             <th className="pb-2 pr-4">Result</th>
           </tr>
         </thead>
-        <tbody className="divide-y divide-[#0f172a]">
+        <tbody className="divide-y divide-[var(--border-subtle)]">
           {mockHistory.map((row) => {
             const href = `/matches/${row.matchId.toLowerCase()}`;
             return (
-              <tr key={row.matchId} className="transition hover:bg-[#0b1224]/60">
+              <tr key={row.matchId} className="transition hover:bg-[var(--bg-secondary)]/60">
                 <td className="p-0">
-                  <Link href={href} className="block py-2 pr-4 font-semibold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--primary)] focus-visible:ring-offset-2 focus-visible:ring-offset-[#0f172a]">
+                  <Link href={href} className="block py-2 pr-4 font-semibold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--primary)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--card-bg)]">
                     {row.matchId}
                   </Link>
                 </td>

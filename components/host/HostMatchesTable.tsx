@@ -51,13 +51,13 @@ export const HostMatchesTable = () => {
   return (
     <div className="space-y-3">
       <div className="text-sm uppercase text-[var(--primary)]">Your Matches</div>
-      {error && <p className="text-sm text-red-400">{error}</p>}
-      {loading && <p className="text-sm text-slate-400">Loading...</p>}
+      {error && <p className="text-sm text-red-500">{error}</p>}
+      {loading && <p className="text-sm text-[var(--text-secondary)]">Loading...</p>}
       {hasRows ? (
-        <div className="overflow-x-auto rounded-2xl border border-[#0f172a] bg-[#0a0f17]">
-          <table className="w-full text-left text-sm text-slate-200">
+        <div className="glass-panel overflow-x-auto rounded-2xl">
+          <table className="w-full text-left text-sm text-[var(--text-primary)]">
             <thead>
-              <tr className="border-b border-[#0f172a] text-xs uppercase tracking-wide text-slate-400">
+              <tr className="border-b border-[var(--border-subtle)] text-xs uppercase tracking-wide text-[var(--text-secondary)]">
                 <th className="px-4 py-3 font-semibold">Title</th>
                 <th className="px-4 py-3 font-semibold">Type</th>
                 <th className="px-4 py-3 font-semibold">Map</th>
@@ -68,23 +68,27 @@ export const HostMatchesTable = () => {
                 <th className="px-4 py-3 font-semibold">Status</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-[#0f172a]">
+            <tbody className="divide-y divide-[var(--border-subtle)]">
               {matches.map((match) => (
                 <tr key={match._id?.toString() ?? match.matchId} className="align-top">
                   <td className="px-4 py-3">
                     <div className="flex flex-col">
-                      <span className="text-white font-semibold">{match.title}</span>
-                      <span className="text-xs text-slate-500">ID: {match.matchId}</span>
+                      <span className="font-semibold text-[var(--text-primary)]">{match.title}</span>
+                      <span className="text-xs text-[var(--text-secondary)]">ID: {match.matchId}</span>
                     </div>
                   </td>
-                  <td className="px-4 py-3 text-xs text-slate-200">{typeLabel(match.type)}</td>
-                  <td className="px-4 py-3 text-xs text-slate-200">{match.map}</td>
-                  <td className="px-4 py-3 text-xs text-slate-200">{formatTime(match.startTime)}</td>
-                  <td className="px-4 py-3 text-xs text-slate-200">
+                  <td className="px-4 py-3 text-xs text-[var(--text-secondary)]">{typeLabel(match.type)}</td>
+                  <td className="px-4 py-3 text-xs text-[var(--text-secondary)]">{match.map}</td>
+                  <td className="px-4 py-3 text-xs text-[var(--text-secondary)]">{formatTime(match.startTime)}</td>
+                  <td className="px-4 py-3 text-xs text-[var(--text-secondary)]">
                     {(match.registrationCount ?? 0) + "/" + match.maxSlots}
                   </td>
-                  <td className="px-4 py-3 text-xs text-slate-200">₹{match.entryFee ?? MATCH_DEFAULTS.entryFee}</td>
-                  <td className="px-4 py-3 text-xs text-slate-200">₹{match.prizePool ?? MATCH_DEFAULTS.prizes.first}</td>
+                  <td className="px-4 py-3 text-xs text-[var(--text-secondary)]">
+                    ₹{match.entryFee ?? MATCH_DEFAULTS.entryFee}
+                  </td>
+                  <td className="px-4 py-3 text-xs text-[var(--text-secondary)]">
+                    ₹{match.prizePool ?? MATCH_DEFAULTS.prizes.first}
+                  </td>
                   <td className="px-4 py-3 text-xs text-[var(--primary)] font-semibold">{match.status ?? MatchStatus.UPCOMING}</td>
                 </tr>
               ))}
@@ -92,7 +96,7 @@ export const HostMatchesTable = () => {
           </table>
         </div>
       ) : (
-        !loading && <p className="text-sm text-slate-400">No matches created yet.</p>
+        !loading && <p className="text-sm text-[var(--text-secondary)]">No matches created yet.</p>
       )}
     </div>
   );

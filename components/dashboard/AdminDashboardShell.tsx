@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { redirect } from "next/navigation";
 import { MatchStatus } from "@/enums/MatchStatus.enum";
 import { requireUser } from "@/lib/auth.server";
@@ -18,17 +19,17 @@ const AdminDashboardShell = async () => {
   return (
     <div className="mx-auto flex max-w-6xl flex-col gap-8 px-6 py-10">
       <div>
-        <h1 className="text-3xl font-black text-white">Admin Dashboard</h1>
-        <p className="text-sm text-slate-400">Manage upcoming and previous matches</p>
+        <h1 className="text-3xl font-black text-[var(--text-primary)]">Admin Dashboard</h1>
+        <p className="text-sm text-[var(--text-secondary)]">Manage upcoming and previous matches</p>
       </div>
       <UpcomingMatchesTable matches={upcoming} />
       <PreviousMatchesTable />
       <div className="flex justify-center">
-        <a href="/dashboard/admin/create-match" className="inline-flex">
+        <Link href="/dashboard/admin/create-match" className="inline-flex">
           <span className="rounded-xl bg-[var(--primary)] px-4 py-2 text-sm font-semibold text-black hover:bg-[#63ff9b]">
             Create New Match
           </span>
-        </a>
+        </Link>
       </div>
     </div>
   );

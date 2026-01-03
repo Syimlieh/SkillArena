@@ -74,6 +74,9 @@ export const CreateMatchForm = ({ onCreated }: Props) => {
     }));
   };
 
+  const fieldBase =
+    "w-full rounded-xl border border-[var(--border-subtle)] bg-[var(--card-bg)] px-3 py-2 text-[var(--text-primary)] focus:border-[var(--primary)] focus:outline-none placeholder:text-[var(--text-secondary)]";
+
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     console.log("Submitting form...");
     event.preventDefault();
@@ -129,11 +132,11 @@ export const CreateMatchForm = ({ onCreated }: Props) => {
 
   return (
     <div className="space-y-6">
-      <form onSubmit={handleSubmit} className="glass-panel rounded-2xl p-6 text-white space-y-4">
+      <form onSubmit={handleSubmit} className="glass-panel rounded-2xl p-6 space-y-4 text-[var(--text-primary)]">
         <div className="flex items-center justify-between">
           <div>
             <h2 className="text-2xl font-bold">Create Upcoming Match</h2>
-            <p className="text-sm text-slate-400">
+            <p className="text-sm text-[var(--text-secondary)]">
               {isAdmin ? "Admins" : "Hosts"} can schedule new BGMI scrims.
             </p>
           </div>
@@ -144,11 +147,11 @@ export const CreateMatchForm = ({ onCreated }: Props) => {
 
         <div className="grid gap-4 md:grid-cols-2">
           <label className="space-y-2 text-sm">
-            <span className="text-slate-200">Map</span>
+            <span className="text-[var(--text-primary)]">Map</span>
             <select
               value={form.map}
               onChange={(e) => handleChange("map", e.target.value as MatchMap)}
-              className="w-full rounded-xl border border-[#1f2937] bg-[#0c111a] px-3 py-2 text-white"
+              className={fieldBase}
             >
               {Object.values(MatchMap).map((map) => (
                 <option key={map} value={map}>
@@ -159,12 +162,12 @@ export const CreateMatchForm = ({ onCreated }: Props) => {
           </label>
 
           <label className="space-y-2 text-sm">
-            <span className="text-slate-200">Start Date</span>
+            <span className="text-[var(--text-primary)]">Start Date</span>
             <input
               type="date"
               value={form.startDate}
               onChange={(e) => handleChange("startDate", e.target.value)}
-              className="w-full rounded-xl border border-[#1f2937] bg-[#0c111a] px-3 py-2 text-white"
+              className={fieldBase}
               required
             />
           </label>
@@ -172,12 +175,12 @@ export const CreateMatchForm = ({ onCreated }: Props) => {
 
         <div className="grid gap-4 md:grid-cols-2">
           <label className="space-y-2 text-sm">
-            <span className="text-slate-200">Start Time</span>
+            <span className="text-[var(--text-primary)]">Start Time</span>
             <input
               type="time"
               value={form.startTime}
               onChange={(e) => handleChange("startTime", e.target.value)}
-              className="w-full rounded-xl border border-[#1f2937] bg-[#0c111a] px-3 py-2 text-white"
+              className={fieldBase}
               required
             />
           </label>
@@ -185,34 +188,34 @@ export const CreateMatchForm = ({ onCreated }: Props) => {
 
         <div className="grid gap-4 md:grid-cols-3">
           <label className="space-y-2 text-sm">
-            <span className="text-slate-200">Entry Fee</span>
+            <span className="text-[var(--text-primary)]">Entry Fee</span>
             <input
               type="number"
               value={form.entryFee}
               onChange={(e) => handleChange("entryFee", Number(e.target.value))}
-              className="w-full rounded-xl border border-[#1f2937] bg-[#0c111a] px-3 py-2 text-white"
+              className={fieldBase}
               min={1}
               max={500}
             />
           </label>
           <label className="space-y-2 text-sm">
-            <span className="text-slate-200">Max Slots</span>
+            <span className="text-[var(--text-primary)]">Max Slots</span>
             <input
               type="number"
               value={form.maxSlots}
               onChange={(e) => handleChange("maxSlots", Number(e.target.value))}
-              className="w-full rounded-xl border border-[#1f2937] bg-[#0c111a] px-3 py-2 text-white"
+              className={fieldBase}
               min={1}
               max={MATCH_DEFAULTS.maxSlots}
             />
           </label>
           <label className="space-y-2 text-sm">
-            <span className="text-slate-200">Prize Pool (auto)</span>
+            <span className="text-[var(--text-primary)]">Prize Pool (auto)</span>
             <input
               type="number"
               value={prizePool}
               readOnly
-              className="w-full rounded-xl border border-[#1f2937] bg-[#0c111a] px-3 py-2 text-white opacity-70"
+              className={`${fieldBase} opacity-70`}
             />
           </label>
         </div>
@@ -220,12 +223,12 @@ export const CreateMatchForm = ({ onCreated }: Props) => {
         <div className="grid gap-4 md:grid-cols-3">
           {(["first", "second", "third"] as (keyof PrizeBreakdown)[]).map((key) => (
             <label key={key} className="space-y-2 text-sm">
-              <span className="text-slate-200 capitalize">{key} Prize</span>
+              <span className="capitalize text-[var(--text-primary)]">{key} Prize</span>
               <input
                 type="number"
                 value={form.prizeBreakdown[key]}
                 onChange={(e) => handlePrizeChange(key, Number(e.target.value))}
-                className="w-full rounded-xl border border-[#1f2937] bg-[#0c111a] px-3 py-2 text-white"
+                className={fieldBase}
                 min={0}
               />
             </label>
