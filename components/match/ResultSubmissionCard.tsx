@@ -6,16 +6,18 @@ import { Button } from "@/components/ui/Button";
 import { MatchStatus } from "@/enums/MatchStatus.enum";
 import { ResultStatus } from "@/enums/ResultStatus.enum";
 import { ResultSubmissionResponse } from "@/types/result";
+import apiClient from "@/lib/apiClient";
 
 interface Props {
   matchId: string;
   matchStatus: MatchStatus;
+  isRegistered?: boolean;
 }
 
 const ACCEPTED_TYPES = ["image/jpeg", "image/png", "image/jpg"];
 const MAX_SIZE = 5 * 1024 * 1024;
 
-export const ResultSubmissionCard = ({ matchId, matchStatus }: Props) => {
+export const ResultSubmissionCard = ({ matchId, matchStatus, isRegistered }: Props) => {
   const [existing, setExisting] = useState<ResultSubmissionResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -103,26 +105,35 @@ export const ResultSubmissionCard = ({ matchId, matchStatus }: Props) => {
     setSubmitting(true);
     setError(null);
     try {
-      const formData = new FormData();
-      formData.append("screenshot", file);
-      formData.append("confirm", confirm ? "true" : "false");
-      const res = await fetch(`/api/matches/${matchId}/submit-result`, {
-        method: "POST",
-        body: formData,
+      // Upload screenshot first
+      const uploadData = new FormData();
+      uploadData.append("file", file);
+      uploadData.append("type", "RESULT_SCREENSHOT");
+      uploadData.append("folder", "results");
+      const uploadRes = await apiClient.post("/api/uploads", uploadData, {
+        headers: { "Content-Type": "multipart/form-data" },
       });
-      const data = await res.json();
-      if (!res.ok || data?.success === false) {
-        const msg = data?.error?.message || "Unable to submit result. Please try again.";
-        setError(res.status === 401 ? "Log in to submit results." : msg);
+      const fileId = uploadRes.data?.data?.fileId as string | undefined;
+      const screenshotUrl = uploadRes.data?.data?.url as string | undefined;
+      if (!fileId || !screenshotUrl) {
+        setError("Upload failed. Please try again.");
+        setSubmitting(false);
         return;
       }
-      const submission: ResultSubmissionResponse | undefined = data?.data?.submission;
+
+      const submitRes = await apiClient.post(`/api/matches/${matchId}/submit-result`, {
+        fileId,
+      });
+      const submission: ResultSubmissionResponse | undefined = submitRes.data?.data?.submission;
       if (submission) {
         setExisting(submission);
         setPreviewUrl(submission.screenshotUrl);
       }
-    } catch {
-      setError("Network error while submitting.");
+    } catch (err: any) {
+      const msg =
+        err?.response?.data?.error?.message ||
+        (err?.response?.status === 401 ? "Log in to submit results." : "Unable to submit result. Please try again.");
+      setError(msg);
     } finally {
       setSubmitting(false);
     }
@@ -130,6 +141,9 @@ export const ResultSubmissionCard = ({ matchId, matchStatus }: Props) => {
 
   const renderBody = () => {
     if (loading) return <p className="text-sm text-[var(--text-secondary)]">Loading submission status...</p>;
+    if (!isRegistered) {
+      return <p className="text-sm text-[var(--text-secondary)]">Register for this match to submit results.</p>;
+    }
     if (!canSubmit && !existing)
       return <p className="text-sm text-[var(--text-secondary)]">Result submission opens once the match starts.</p>;
     if (existing) {

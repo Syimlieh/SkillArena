@@ -7,8 +7,8 @@ import { MatchStatus } from "@/enums/MatchStatus.enum";
 import { RegistrationModel } from "@/models/Registration.model";
 import { RegistrationStatus } from "@/enums/RegistrationStatus.enum";
 import { MatchResultSubmissionModel } from "@/models/MatchResultSubmission.model";
-import { saveImageUpload } from "@/lib/upload";
 import { ResultStatus } from "@/enums/ResultStatus.enum";
+import { FileMetadataModel } from "@/models/FileMetadata.model";
 
 export const dynamic = "force-dynamic";
 
@@ -42,33 +42,33 @@ export const POST = async (req: NextRequest, { params }: { params: { matchId: st
       return errorResponse("Result already submitted for this match.", 409);
     }
 
-    const formData = await req.formData();
-    const file = formData.get("screenshot");
-    if (!(file instanceof File)) {
-      return errorResponse("Screenshot is required.", 400);
+    const body = await req.json().catch(() => null);
+    const fileId = body?.fileId as string | undefined;
+    if (!fileId) {
+      return errorResponse("Screenshot fileId is required.", 400);
     }
 
-    let screenshotUrl: string;
-    try {
-      screenshotUrl = await saveImageUpload(file, "results");
-    } catch (err) {
-      const message = err instanceof Error ? err.message : "Invalid upload.";
-      return errorResponse(message, 400);
+    const fileMeta = await FileMetadataModel.findOne({ fileId }).lean();
+    if (!fileMeta) {
+      return errorResponse("Uploaded screenshot not found.", 400);
     }
 
     const doc = await MatchResultSubmissionModel.create({
       userId: user.userId,
       matchId: match.matchId,
-      screenshotUrl,
+      screenshotUrl: fileMeta.url,
+      fileId,
       status: ResultStatus.SUBMITTED,
     });
 
     return successResponse(
       {
         submission: {
+          submissionId: doc._id?.toString(),
           status: doc.status,
           screenshotUrl: doc.screenshotUrl,
           submittedAt: doc.createdAt ?? new Date().toISOString(),
+          fileId,
         },
       },
       { status: 201 }

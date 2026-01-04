@@ -5,6 +5,7 @@ export interface MatchResultSubmission {
   _id?: Types.ObjectId;
   matchId: string;
   userId: string;
+  fileId?: string;
   screenshotUrl: string;
   status: ResultStatus;
   placement?: number;
@@ -16,6 +17,7 @@ export interface MatchResultSubmission {
 
 export interface ResultSubmissionResponse {
   status: ResultStatus;
+  fileId?: string;
   screenshotUrl: string;
   submittedAt: string;
   submissionId?: string;

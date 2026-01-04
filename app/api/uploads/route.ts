@@ -3,6 +3,7 @@ import { errorResponse, successResponse } from "@/lib/api-response";
 import { uploadToSpaces } from "@/lib/spaces";
 import { FileMetadataModel } from "@/models/FileMetadata.model";
 import { connectDb } from "@/lib/db";
+import { FileType } from "@/types/file.types";
 
 export const dynamic = "force-dynamic";
 
@@ -11,6 +12,8 @@ export const POST = async (req: NextRequest) => {
     const formData = await req.formData();
     const file = formData.get("file");
     const folder = typeof formData.get("folder") === "string" ? String(formData.get("folder")) : undefined;
+    const typeParam = typeof formData.get("type") === "string" ? String(formData.get("type")) : undefined;
+    const fileType = typeParam && Object.values(FileType).includes(typeParam as FileType) ? (typeParam as FileType) : FileType.OTHER;
 
     if (!(file instanceof File)) {
       return errorResponse("File is required", 400);
@@ -22,7 +25,11 @@ export const POST = async (req: NextRequest) => {
       return errorResponse("Image must be 5MB or smaller", 400);
     }
 
-    const uploaded = await uploadToSpaces(file, folder);
+    const targetFolder =
+      folder ||
+      (fileType === FileType.PROFILE ? "profiles" : fileType === FileType.RESULT_SCREENSHOT ? "results" : "uploads");
+
+    const uploaded = await uploadToSpaces(file, targetFolder);
 
     await connectDb();
     await FileMetadataModel.create({
@@ -31,10 +38,11 @@ export const POST = async (req: NextRequest) => {
       url: uploaded.url,
       format: uploaded.format,
       bytes: uploaded.bytes,
+      type: fileType,
     });
 
     return successResponse(
-      { fileId: uploaded.fileId, url: uploaded.url },
+      { fileId: uploaded.fileId, url: uploaded.url, type: fileType },
       { status: 201 }
     );
   } catch (err: any) {

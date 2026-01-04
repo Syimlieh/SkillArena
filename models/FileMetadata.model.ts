@@ -1,5 +1,5 @@
 import mongoose, { Model, Schema } from "mongoose";
-import { FileMetadata } from "@/types/file.types";
+import { FileMetadata, FileType } from "@/types/file.types";
 
 const FileMetadataSchema = new Schema<FileMetadata>(
   {
@@ -10,6 +10,7 @@ const FileMetadataSchema = new Schema<FileMetadata>(
     bytes: { type: Number },
     width: { type: Number },
     height: { type: Number },
+    type: { type: String, enum: Object.values(FileType), default: FileType.OTHER },
   },
   { timestamps: true }
 );

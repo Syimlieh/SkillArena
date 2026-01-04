@@ -6,6 +6,7 @@ const MatchResultSubmissionSchema = new Schema<MatchResultSubmission>(
   {
     userId: { type: String, required: true, index: true },
     matchId: { type: String, required: true, index: true },
+    fileId: { type: String },
     screenshotUrl: { type: String, required: true },
     status: { type: String, enum: Object.values(ResultStatus), default: ResultStatus.SUBMITTED, required: true },
     placement: { type: Number },
