@@ -6,6 +6,7 @@ export interface Registration {
   userId: string;
   matchId: string;
   status: RegistrationStatus;
+  teamName?: string;
   paymentReference?: string;
   paymentAmount?: number;
   paymentMethod?: string;

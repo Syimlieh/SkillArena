@@ -13,6 +13,7 @@ import { RegistrationModel } from "@/models/Registration.model";
 import { RegistrationStatus } from "@/enums/RegistrationStatus.enum";
 import { MatchResultSubmissionModel } from "@/models/MatchResultSubmission.model";
 import { ResultStatus } from "@/enums/ResultStatus.enum";
+import { ACTIVE_REG_STATUSES } from "@/modules/registrations/registration.service";
 
 const buildTitle = (input: MatchInput, matchId: string): string => {
   if (input.title) return input.title;
@@ -97,6 +98,7 @@ export const getMatchBySlug = async (slug?: string | null, userId?: string | nul
       matchId: match.matchId,
       status: { $in: [RegistrationStatus.PENDING_PAYMENT, RegistrationStatus.CONFIRMED] },
     });
+    const firstTeam = await RegistrationModel.findOne({ matchId: match.matchId }).lean();
     const pendingResultCount = await MatchResultSubmissionModel.countDocuments({
       matchId: match.matchId,
       status: { $in: [ResultStatus.SUBMITTED, ResultStatus.UNDER_REVIEW] },
@@ -110,7 +112,7 @@ export const getMatchBySlug = async (slug?: string | null, userId?: string | nul
       }).lean();
       isRegistered = !!registration;
     }
-    return { ...match, registrationCount, pendingResultCount, isRegistered };
+    return { ...match, registrationCount, pendingResultCount, isRegistered, teamName: firstTeam?.teamName };
   };
 
   const bySlug = await MatchModel.findOne({ slug: normalizedSlug }).lean<Match>();

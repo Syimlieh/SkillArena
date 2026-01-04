@@ -7,7 +7,7 @@ import { Registration } from "@/types/registration.types";
 import { AuthContext } from "@/lib/auth.server";
 import { Match } from "@/types/match.types";
 
-const ACTIVE_REG_STATUSES = [RegistrationStatus.PENDING_PAYMENT, RegistrationStatus.CONFIRMED];
+export const ACTIVE_REG_STATUSES = [RegistrationStatus.PENDING_PAYMENT, RegistrationStatus.CONFIRMED];
 
 export class RegistrationError extends Error {
   statusCode: number;
@@ -48,7 +48,7 @@ const ensureNotAlreadyRegistered = async (userId: string, matchId: string) => {
   }
 };
 
-export const registerForMatch = async (matchId: string, userId: string) => {
+export const registerForMatch = async (matchId: string, userId: string, teamName?: string) => {
   await connectDb();
 
   const match = await findMatchById(matchId);
@@ -63,6 +63,7 @@ export const registerForMatch = async (matchId: string, userId: string) => {
   const registration = await RegistrationModel.create({
     userId,
     matchId: match.matchId,
+    teamName,
     status: RegistrationStatus.PENDING_PAYMENT,
   });
 
@@ -76,7 +77,7 @@ export const registerForMatchAsAdmin = async (
   matchId: string,
   userId: string,
   actor: AuthContext,
-  payment?: { reference?: string; amount?: number; method?: string; note?: string }
+  payload?: { reference?: string; amount?: number; method?: string; note?: string; teamName?: string }
 ) => {
   await connectDb();
 
@@ -92,11 +93,12 @@ export const registerForMatchAsAdmin = async (
   const registration = await RegistrationModel.create({
     userId,
     matchId: match.matchId,
-    status: payment?.amount || payment?.reference ? RegistrationStatus.CONFIRMED : RegistrationStatus.PENDING_PAYMENT,
-    paymentReference: payment?.reference,
-    paymentAmount: payment?.amount,
-    paymentMethod: payment?.method,
-    paymentNote: payment?.note,
+    teamName: payload?.teamName,
+    status: payload?.amount || payload?.reference ? RegistrationStatus.CONFIRMED : RegistrationStatus.PENDING_PAYMENT,
+    paymentReference: payload?.reference,
+    paymentAmount: payload?.amount,
+    paymentMethod: payload?.method,
+    paymentNote: payload?.note,
     recordedBy: actor.userId,
   });
 

@@ -16,6 +16,9 @@ import { MatchStatus } from "@/enums/MatchStatus.enum";
 import { MatchResultSubmissionModel } from "@/models/MatchResultSubmission.model";
 import { ResultStatus } from "@/enums/ResultStatus.enum";
 import ResultSubmissionsAdminTable from "@/components/match/ResultSubmissionsAdminTable";
+import { RegistrationModel } from "@/models/Registration.model";
+import { ACTIVE_REG_STATUSES } from "@/modules/registrations/registration.service";
+import { UserModel } from "@/models/User.model";
 
 const MatchDetailsPage = async ({ params }: { params: { slug: string } }) => {
   const { slug } = await params;
@@ -45,13 +48,23 @@ const MatchDetailsPage = async ({ params }: { params: { slug: string } }) => {
   const showStartButton = canStart && match.status === MatchStatus.UPCOMING;
   const isAdmin = userRole === UserRole.ADMIN;
 
-  let submissions: { userId?: string; status: ResultStatus; screenshotUrl: string; submittedAt: string; submissionId?: string; placement?: number; kills?: number; totalScore?: number }[] = [];
+  let submissions: { userId?: string; teamName?: string; status: ResultStatus; screenshotUrl: string; submittedAt: string; submissionId?: string; placement?: number; kills?: number; totalScore?: number }[] = [];
   if (isAdmin) {
     try {
       const records = await MatchResultSubmissionModel.find({ matchId: match.matchId }).lean();
+      const userIds = records.map((r) => r.userId).filter(Boolean) as string[];
+      const regDocs = await RegistrationModel.find({
+        matchId: match.matchId,
+        userId: { $in: userIds },
+      }).lean();
+      const teamByUser = new Map(regDocs.map((r) => [r.userId, r.teamName]));
+      const users = await UserModel.find({ _id: { $in: userIds } }).lean();
+      const nameByUser = new Map(users.map((u: any) => [u._id?.toString?.() ?? "", u.name]));
+
       submissions = records.map((r) => ({
         submissionId: r._id?.toString(),
         userId: r.userId,
+        teamName: teamByUser.get(r.userId) || nameByUser.get(r.userId),
         status: r.status as ResultStatus,
         screenshotUrl: r.screenshotUrl,
         submittedAt: r.createdAt ? new Date(r.createdAt).toISOString() : new Date().toISOString(),

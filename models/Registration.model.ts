@@ -7,6 +7,7 @@ const RegistrationSchema = new Schema<Registration>(
     userId: { type: String, required: true, index: true },
     matchId: { type: String, required: true, index: true },
     status: { type: String, enum: Object.values(RegistrationStatus), required: true },
+    teamName: { type: String },
     paymentReference: { type: String },
     paymentAmount: { type: Number },
     paymentMethod: { type: String },

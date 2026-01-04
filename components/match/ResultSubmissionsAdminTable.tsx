@@ -10,6 +10,7 @@ import { useState } from "react";
 interface SubmissionRow extends ResultSubmissionResponse {
   userId?: string;
   submissionId?: string;
+  teamName?: string;
 }
 
 interface Props {
@@ -114,7 +115,10 @@ export const ResultSubmissionsAdminTable = ({ submissions, matchId }: Props) => 
             {rows.map((submission) => (
               <tr key={submission.submissionId ?? submission.screenshotUrl} className="align-top">
                 <td className="py-2 pr-4 text-[var(--text-secondary)] text-xs">
-                  {submission.userId ?? "Unknown"}
+                  <div className="flex flex-col">
+                    <span className="font-semibold text-[var(--text-primary)]">{submission.teamName || "Unnamed Team"}</span>
+                    <span className="text-[var(--text-secondary)] text-[11px]">{submission.userId ?? "Unknown user"}</span>
+                  </div>
                 </td>
                 <td className="py-2 pr-4">
                   <Badge tone={toneForStatus(submission.status)}>{labelForStatus(submission.status)}</Badge>

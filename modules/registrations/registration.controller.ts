@@ -23,7 +23,9 @@ export const handleRegisterMatch = async (req: NextRequest, params: Promise<{ ma
       });
     }
 
-    const result = await registerForMatch(parsed.data.matchId, user.userId);
+    const body = await req.json().catch(() => ({}));
+    const teamName = typeof body?.teamName === "string" ? body.teamName.trim() : undefined;
+    const result = await registerForMatch(parsed.data.matchId, user.userId, teamName);
     return successResponse(
       {
         registrationId: result.registration._id,
@@ -77,6 +79,7 @@ export const handleAdminRegisterMatch = async (req: NextRequest, params: Promise
         amount: parsedBody.data.paymentAmount,
         method: parsedBody.data.paymentMethod,
         note: parsedBody.data.paymentNote,
+        teamName: parsedBody.data.teamName,
       }
     );
 

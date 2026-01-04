@@ -1,9 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Modal from "@/components/ui/Modal";
 import { Match } from "@/types/match.types";
+import { useAuth } from "@/context/AuthContext";
 
 interface Props {
   match: Match;
@@ -23,13 +24,27 @@ const formatTime = (date: Date | string) =>
 
 const RegisterModal = ({ match, isOpen, onClose }: Props) => {
   const router = useRouter();
+  const { state } = useAuth();
   const [agree, setAgree] = useState(false);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<string | undefined>();
+  const [teamName, setTeamName] = useState("");
+
+  const defaultTeamName = state.user?.name ?? "";
+
+  useEffect(() => {
+    if (isOpen && !teamName && defaultTeamName) {
+      setTeamName("");
+    }
+  }, [isOpen, defaultTeamName, teamName]);
 
   const handleProceed = async () => {
     if (!agree) {
       setMessage("Please agree to the rules and fair-play policy.");
+      return;
+    }
+    if (!teamName.trim()) {
+      setMessage("Please add a team name.");
       return;
     }
     setLoading(true);
@@ -38,6 +53,7 @@ const RegisterModal = ({ match, isOpen, onClose }: Props) => {
       const res = await fetch(`/api/matches/${encodeURIComponent(match.matchId)}/register`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ teamName: teamName.trim() }),
       });
       const data = await res.json();
       if (!res.ok || data?.success === false) {
@@ -89,6 +105,27 @@ const RegisterModal = ({ match, isOpen, onClose }: Props) => {
               <div className="text-slate-300">₹80</div>
             </div>
           </div>
+        </div>
+        <div className="space-y-2">
+          <div className="flex items-center justify-between text-xs uppercase text-[var(--primary)]">
+            <span>Team Name</span>
+            {defaultTeamName && (
+              <button
+                type="button"
+                onClick={() => setTeamName(defaultTeamName)}
+                className="text-[var(--accent-primary)] underline"
+              >
+                Use my name
+              </button>
+            )}
+          </div>
+          <input
+            value={teamName}
+            onChange={(e) => setTeamName(e.target.value)}
+            placeholder="Your team name"
+            className="w-full rounded-xl border border-[#1f2937] bg-[#0c111a] px-3 py-2 text-sm text-[var(--text-primary)] focus:border-[var(--primary)] focus:outline-none"
+            disabled={loading}
+          />
         </div>
         <label className="flex items-center gap-2 text-sm text-slate-200">
           <input
