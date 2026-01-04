@@ -10,6 +10,7 @@ export const registerSchema = z.object({
     .regex(/^\+?[0-9]{10,15}$/, "Phone must be 10-15 digits, optionally starting with +"),
   password: z.string().min(8).max(64),
   ageVerified: z.boolean(),
+  profileFileId: z.string().trim().optional(),
 });
 
 export const loginSchema = z.object({

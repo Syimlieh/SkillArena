@@ -9,6 +9,7 @@ export interface User {
   phone: string;
   role: UserRole;
   ageVerified: boolean;
+  profileFileId?: string;
   createdAt?: Date;
   updatedAt?: Date;
 }

@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/Button";
 import { consumePostLoginRedirect } from "@/lib/auth";
 import { AppRoute } from "@/lib/routes";
 import { resolveDashboardRoute } from "@/modules/navigation/navigation.service";
+import Image from "next/image";
 
 type FieldErrors = Record<string, string>;
 
@@ -28,9 +29,12 @@ export const RegisterForm = () => {
     password: "",
     confirmPassword: "",
     ageVerified: false,
+    profileFileId: undefined,
   });
   const [errors, setErrors] = useState<FieldErrors>({});
   const [message, setMessage] = useState<string | undefined>();
+  const [preview, setPreview] = useState<string | null>(null);
+  const [uploading, setUploading] = useState(false);
 
   const isLoading = state.status === AuthStatus.LOADING;
 
@@ -48,6 +52,7 @@ export const RegisterForm = () => {
       phone: formState.phone,
       password: formState.password,
       ageVerified: formState.ageVerified,
+      profileFileId: formState.profileFileId,
     };
 
     const parsed = registerSchema.safeParse(payload);
@@ -94,6 +99,38 @@ export const RegisterForm = () => {
     if (state.error) return state.error;
     return undefined;
   }, [message, state.error]);
+
+  const handleProfileUpload = async (file?: File | null) => {
+    if (!file) return;
+    if (!file.type.startsWith("image/")) {
+      setMessage("Profile image must be an image file.");
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      setMessage("Profile image must be under 5MB.");
+      return;
+    }
+    setUploading(true);
+    setMessage(undefined);
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("folder", "profiles");
+      const res = await fetch("/api/uploads", { method: "POST", body: formData });
+      const data = await res.json();
+      if (!res.ok || data?.success === false) {
+        setMessage(data?.error?.message || "Unable to upload image.");
+        setUploading(false);
+        return;
+      }
+      setField("profileFileId", data?.data?.fileId);
+      setPreview(data?.data?.url ?? null);
+    } catch {
+      setMessage("Network error while uploading profile image.");
+    } finally {
+      setUploading(false);
+    }
+  };
 
   return (
     <form className="space-y-4" onSubmit={handleSubmit} noValidate>
@@ -199,6 +236,32 @@ export const RegisterForm = () => {
         <span>I am 18+ and cleared for esports tournaments.</span>
       </label>
       {errors.ageVerified && <p className="text-xs text-red-400">{errors.ageVerified}</p>}
+
+      <div className="space-y-2">
+        <div className="flex items-center justify-between text-sm font-semibold text-[var(--text-primary)]">
+          <span>Profile Picture (optional)</span>
+          {uploading && <span className="text-xs text-[var(--text-secondary)]">Uploading...</span>}
+        </div>
+        <div className="flex items-center gap-4">
+          <label className="flex h-24 w-24 cursor-pointer items-center justify-center overflow-hidden rounded-xl border border-dashed border-[var(--border-subtle)] bg-[var(--card-bg)] text-xs text-[var(--text-secondary)] hover:border-[var(--accent-primary)]">
+            {preview ? (
+              <Image src={preview} alt="Profile preview" width={96} height={96} className="h-full w-full object-cover" />
+            ) : (
+              <span>{uploading ? "Uploading..." : "Select"}</span>
+            )}
+            <input
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={(e) => handleProfileUpload(e.target.files?.[0] ?? null)}
+              disabled={uploading}
+            />
+          </label>
+          <div className="text-xs text-[var(--text-secondary)]">
+            JPG/PNG, up to 5MB. If not provided, a placeholder is used.
+          </div>
+        </div>
+      </div>
 
       {helperText && <p className="text-sm text-red-400">{helperText}</p>}
 

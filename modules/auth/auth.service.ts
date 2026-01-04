@@ -66,6 +66,7 @@ export const registerUser = async (
         password: passwordHash,
         role: UserRole.USER,
         ageVerified: input.ageVerified,
+        profileFileId: input.profileFileId,
       })
     ).toObject();
   } catch (error: any) {

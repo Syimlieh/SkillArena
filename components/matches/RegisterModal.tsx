@@ -31,6 +31,8 @@ const RegisterModal = ({ match, isOpen, onClose }: Props) => {
   const [teamName, setTeamName] = useState("");
 
   const defaultTeamName = state.user?.name ?? "";
+  console.log('state', state.user);
+  console.log("Default Team Name:", defaultTeamName);
 
   useEffect(() => {
     if (isOpen && !teamName && defaultTeamName) {

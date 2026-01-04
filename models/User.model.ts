@@ -8,6 +8,7 @@ const UserSchema = new Schema<User>(
     email: { type: String, required: true, unique: true, lowercase: true, trim: true },
     password: { type: String, required: true, select: false },
     phone: { type: String, required: true, unique: true, trim: true },
+    profileFileId: { type: String },
     role: { type: String, enum: Object.values(UserRole), default: UserRole.USER },
     ageVerified: { type: Boolean, default: false, required: true },
   },

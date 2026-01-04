@@ -7,6 +7,7 @@ export interface RegisterPayload {
   phone: string;
   password: string;
   ageVerified: boolean;
+  profileFileId?: string;
 }
 
 export interface LoginPayload {
