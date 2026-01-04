@@ -57,6 +57,39 @@ export const createMatch = async (input: MatchInput, actor: AuthContext): Promis
   return doc.toObject();
 };
 
+const serializeId = (id: any): string | undefined => {
+  if (!id) return undefined;
+  return typeof id === "string" ? id : id.toString();
+};
+
+const sanitizeMatch = <T extends Match>(match: T | null): T | null => {
+  if (!match) return null;
+  const winner = match.winner
+    ? {
+        ...match.winner,
+        submissionId: serializeId((match.winner as any).submissionId),
+        userId: serializeId((match.winner as any).userId),
+      }
+    : undefined;
+
+  const matchResults = match.matchResults?.map((result: any) => {
+    const { _id: unusedId, ...rest } = result ?? {};
+    return {
+      ...rest,
+      teamId: serializeId(result?.teamId),
+      userId: serializeId(result?.userId),
+      submissionId: serializeId(result?.submissionId),
+    };
+  });
+
+  return {
+    ...match,
+    _id: serializeId((match as any)._id),
+    winner,
+    matchResults,
+  } as T;
+};
+
 export const listMatches = async (status?: MatchStatus, createdBy?: string): Promise<Match[]> => {
   await connectDb();
   const query: Record<string, any> = {};
@@ -79,11 +112,13 @@ export const listMatches = async (status?: MatchStatus, createdBy?: string): Pro
   const regCountMap = new Map<string, number>(regCounts.map((c) => [c._id, c.count]));
   const pendingResultMap = new Map<string, number>(pendingResults.map((c) => [c._id, c.count]));
 
-  return matches.map((m) => ({
-    ...m,
-    registrationCount: regCountMap.get(m.matchId) ?? 0,
-    pendingResultCount: pendingResultMap.get(m.matchId) ?? 0,
-  })) as Match[];
+  return matches.map((m) =>
+    sanitizeMatch({
+      ...m,
+      registrationCount: regCountMap.get(m.matchId) ?? 0,
+      pendingResultCount: pendingResultMap.get(m.matchId) ?? 0,
+    }) as Match
+  ) as Match[];
 };
 
 export const getMatchBySlug = async (slug?: string | null, userId?: string | null): Promise<(Match & { isRegistered?: boolean }) | null> => {
@@ -112,7 +147,13 @@ export const getMatchBySlug = async (slug?: string | null, userId?: string | nul
       }).lean();
       isRegistered = !!registration;
     }
-    return { ...match, registrationCount, pendingResultCount, isRegistered, teamName: firstTeam?.teamName };
+    return sanitizeMatch({
+      ...match,
+      registrationCount,
+      pendingResultCount,
+      isRegistered,
+      teamName: firstTeam?.teamName,
+    });
   };
 
   const bySlug = await MatchModel.findOne({ slug: normalizedSlug }).lean<Match>();
@@ -139,5 +180,74 @@ export const startMatch = async (matchId: string, actor: AuthContext): Promise<M
     return match;
   }
   await MatchModel.updateOne({ matchId: match.matchId }, { $set: { status: MatchStatus.ONGOING } });
-  return { ...match, status: MatchStatus.ONGOING };
+  return sanitizeMatch({ ...match, status: MatchStatus.ONGOING }) as Match;
+};
+
+export const closeMatchWithWinner = async (matchId: string, submissionId: string, actor: AuthContext): Promise<Match | null> => {
+  await connectDb();
+  const normalizedId = matchId.toUpperCase();
+  const match = await MatchModel.findOne({ matchId: { $in: [matchId, normalizedId, matchId.toLowerCase()] } }).lean<Match>();
+  if (!match) return null;
+  const isOwner = match.createdBy === actor.userId;
+  const isAdmin = actor.role === UserRole.ADMIN;
+  if (!isOwner && !isAdmin) {
+    throw new Error("Forbidden");
+  }
+  // Make sure the referenced submission exists and belongs to this match
+  const submission = await MatchResultSubmissionModel.findById(submissionId).lean();
+  if (!submission || submission.matchId !== match.matchId) {
+    throw new Error("Submission not found");
+  }
+
+  // Gather all verified submissions and order by score rules
+  const verifiedSubs = await MatchResultSubmissionModel.find({ matchId: match.matchId, status: ResultStatus.VERIFIED })
+    .sort({ totalScore: -1, kills: -1, placement: 1, createdAt: 1 })
+    .lean();
+  if (!verifiedSubs.length) {
+    throw new Error("No verified submissions found");
+  }
+
+  const placementPoints: Record<number, number> = { 1: 15, 2: 12, 3: 10, 4: 8, 5: 6, 6: 4, 7: 2, 8: 1 };
+  const calcScore = (placement?: number, kills?: number) => {
+    const placementScore = placement && placement > 0 ? placementPoints[placement] ?? 0 : 0;
+    const killScore = kills && kills > 0 ? kills : 0;
+    return placementScore + killScore;
+  };
+
+  const userIds = verifiedSubs.map((s) => s.userId);
+  const regs = await RegistrationModel.find({
+    matchId: match.matchId,
+    userId: { $in: userIds },
+    status: { $in: ACTIVE_REG_STATUSES },
+  }).lean();
+  const regByUser = new Map(regs.map((r) => [r.userId, r]));
+
+  const matchResults = verifiedSubs.map((sub, idx) => {
+    const reg = regByUser.get(sub.userId);
+    const score = sub.totalScore ?? calcScore(sub.placement, sub.kills);
+    return {
+      position: idx + 1,
+      userId: sub.userId,
+      submissionId: sub._id?.toString(),
+      teamName: sub.teamName || reg?.teamName,
+      teamId: reg?._id?.toString(),
+      totalScore: score,
+    };
+  });
+
+  const winner = matchResults[0];
+
+  const matchClosed = await MatchModel.findOneAndUpdate(
+    { matchId: match.matchId },
+    {
+      $set: {
+        status: MatchStatus.COMPLETED,
+        winner,
+        matchResults,
+      },
+    },
+    { new: true }
+  ).lean<Match | null>();
+
+  return sanitizeMatch(matchClosed);
 };

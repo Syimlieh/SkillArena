@@ -58,6 +58,7 @@ export const POST = async (req: NextRequest, { params }: { params: { matchId: st
       matchId: match.matchId,
       screenshotUrl: fileMeta.url,
       fileId,
+      teamName: registration.teamName,
       status: ResultStatus.SUBMITTED,
     });
 

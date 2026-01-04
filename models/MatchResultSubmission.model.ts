@@ -13,6 +13,7 @@ const MatchResultSubmissionSchema = new Schema<MatchResultSubmission>(
     kills: { type: Number },
     totalScore: { type: Number },
     reviewerId: { type: String },
+    teamName: { type: String },
   },
   { timestamps: { createdAt: true, updatedAt: false } }
 );

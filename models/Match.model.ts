@@ -27,6 +27,22 @@ const MatchSchema = new Schema<Match>(
     status: { type: String, enum: Object.values(MatchStatus), default: MatchStatus.UPCOMING, required: true },
     type: { type: String, enum: Object.values(MatchType), default: MatchType.OFFICIAL, required: true },
     createdBy: { type: String, required: true },
+    winner: {
+      teamName: { type: String },
+      userId: { type: String },
+      submissionId: { type: String },
+      totalScore: { type: Number },
+    },
+    matchResults: [
+      {
+        position: { type: Number, required: true },
+        teamName: { type: String },
+        teamId: { type: String },
+        userId: { type: String },
+        submissionId: { type: String },
+        totalScore: { type: Number },
+      },
+    ],
   },
   { timestamps: true }
 );

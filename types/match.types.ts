@@ -25,6 +25,20 @@ export interface Match {
   createdBy: string;
   registrationCount?: number;
   pendingResultCount?: number;
+  winner?: {
+    teamName?: string;
+    userId?: string;
+    submissionId?: string;
+    totalScore?: number;
+  };
+  matchResults?: {
+    position: number;
+    teamName?: string;
+    teamId?: string;
+    userId?: string;
+    submissionId?: string;
+    totalScore?: number;
+  }[];
   createdAt?: Date;
   updatedAt?: Date;
 }

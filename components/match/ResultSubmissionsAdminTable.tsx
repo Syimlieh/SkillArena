@@ -48,6 +48,8 @@ export const ResultSubmissionsAdminTable = ({ submissions, matchId }: Props) => 
   const [rows, setRows] = useState(submissions);
   const [error, setError] = useState<string | null>(null);
   const [savingId, setSavingId] = useState<string | null>(null);
+  const [matchClosed, setMatchClosed] = useState(false);
+  const [closing, setClosing] = useState(false);
 
   const handleSave = async (row: SubmissionRow, nextStatus: ResultStatus) => {
     if (!row.submissionId) return;
@@ -197,7 +199,41 @@ export const ResultSubmissionsAdminTable = ({ submissions, matchId }: Props) => 
           </tbody>
         </table>
       </div>
-      {error && <p className="mt-2 text-sm text-rose-500">{error}</p>}
+      <div className="mt-4 flex items-center justify-between">
+        {error && <p className="text-sm text-rose-500">{error}</p>}
+        <div className="flex flex-1 justify-end">
+          {rows.length > 0 && rows.every((r) => r.status === ResultStatus.VERIFIED) && (
+            <button
+              onClick={async () => {
+                setClosing(true);
+                setError(null);
+                try {
+                  const res = await fetch(`/api/matches/${encodeURIComponent(matchId)}/close`, { method: "POST" });
+                  const data = await res.json();
+                  if (!res.ok || data?.success === false) {
+                    setError(data?.error?.message || "Unable to close match.");
+                  } else {
+                    setMatchClosed(true);
+                  }
+                } catch {
+                  setError("Network error while closing match.");
+                } finally {
+                  setClosing(false);
+                }
+              }}
+              disabled={closing || matchClosed}
+              className={clsx(
+                "rounded-md px-4 py-2 text-sm font-semibold",
+                "bg-[var(--accent-primary)] text-[var(--bg-primary)] hover:bg-[var(--accent-secondary)]",
+                (closing || matchClosed) && "opacity-60"
+              )}
+            >
+              {closing ? "Closing..." : matchClosed ? "Match Closed" : "Close Match & Declare Winner"}
+            </button>
+          )}
+        </div>
+      </div>
+      {matchClosed && <p className="mt-2 text-sm text-[var(--text-primary)]">Match closed and winner set.</p>}
     </div>
   );
 };

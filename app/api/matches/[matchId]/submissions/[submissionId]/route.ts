@@ -4,6 +4,7 @@ import { requireAdmin } from "@/lib/auth.server";
 import { connectDb } from "@/lib/db";
 import { MatchResultSubmissionModel } from "@/models/MatchResultSubmission.model";
 import { ResultStatus } from "@/enums/ResultStatus.enum";
+// Match closing is handled by a separate endpoint; this route only updates the submission.
 
 const placementPoints: Record<number, number> = {
   1: 15,
@@ -44,7 +45,7 @@ export const PATCH = async (req: NextRequest, { params }: { params: { matchId: s
     doc.reviewerId = admin.userId;
     await doc.save();
 
-    return successResponse({
+    const responsePayload: any = {
       submission: {
         submissionId: doc._id?.toString(),
         status: doc.status,
@@ -55,7 +56,9 @@ export const PATCH = async (req: NextRequest, { params }: { params: { matchId: s
         totalScore: doc.totalScore,
         userId: doc.userId,
       },
-    });
+    };
+
+    return successResponse(responsePayload);
   } catch (err: any) {
     if (err?.message === "Unauthorized") return errorResponse("Unauthorized", 401);
     if (err?.message === "Forbidden") return errorResponse("Forbidden", 403);

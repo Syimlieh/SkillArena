@@ -12,6 +12,7 @@ export interface MatchResultSubmission {
   kills?: number;
   totalScore?: number;
   reviewerId?: string;
+  teamName?: string;
   createdAt?: Date | string;
 }
 
@@ -24,4 +25,5 @@ export interface ResultSubmissionResponse {
   placement?: number;
   kills?: number;
   totalScore?: number;
+  teamName?: string;
 }
