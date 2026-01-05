@@ -43,6 +43,7 @@ export interface AuthContextValue {
   logout: () => void;
   isAdmin: boolean;
   isAuthenticated: boolean;
+  refreshProfile: () => Promise<void>;
 }
 
 export interface AuthResult {

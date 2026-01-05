@@ -10,6 +10,7 @@ export interface User {
   role: UserRole;
   ageVerified: boolean;
   profileFileId?: string;
+  avatarUrl?: string;
   createdAt?: Date;
   updatedAt?: Date;
 }

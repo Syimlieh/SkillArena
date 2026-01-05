@@ -1,6 +1,7 @@
 "use client";
 
-import { ReactNode, useEffect, useRef } from "react";
+import { ReactNode, useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import clsx from "clsx";
 
 interface ModalProps {
@@ -13,6 +14,11 @@ interface ModalProps {
 
 const Modal = ({ isOpen, onClose, children, title, disableBackdropClose = false }: ModalProps) => {
   const dialogRef = useRef<HTMLDivElement | null>(null);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -31,16 +37,23 @@ const Modal = ({ isOpen, onClose, children, title, disableBackdropClose = false 
     };
   }, [isOpen, onClose, disableBackdropClose]);
 
-  if (!isOpen) return null;
+  if (!isOpen || !mounted) return null;
 
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center">
-      <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
+  const modalContent = (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+      <div
+        className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+        onClick={() => {
+          if (!disableBackdropClose) onClose?.();
+        }}
+      />
       <div
         ref={dialogRef}
         tabIndex={-1}
+        onClick={(e) => e.stopPropagation()}
         className={clsx(
           "relative z-10 w-full max-w-lg rounded-2xl border border-[#1f2937] bg-[#0c111a] p-6 shadow-2xl outline-none",
+          "max-h-[80vh] overflow-y-auto",
           "focus:outline-none focus-visible:outline-none"
         )}
       >
@@ -49,6 +62,8 @@ const Modal = ({ isOpen, onClose, children, title, disableBackdropClose = false 
       </div>
     </div>
   );
+
+  return createPortal(modalContent, document.body);
 };
 
 export default Modal;

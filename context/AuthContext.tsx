@@ -72,8 +72,10 @@ const shapeProfileToUser = (profile: Profile) =>
     name: profile.name,
     email: profile.email,
     role: profile.role,
-    phone: "",
+    phone: profile.phone ?? "",
     ageVerified: false,
+    profileFileId: profile.profileFileId,
+    avatarUrl: profile.avatarUrl,
   } as const);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
@@ -148,6 +150,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     logout,
     isAdmin,
     isAuthenticated,
+    refreshProfile: hydrateProfile,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
