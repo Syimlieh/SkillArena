@@ -15,6 +15,16 @@ export interface LoginPayload {
   password: string;
 }
 
+export interface ResetRequestPayload {
+  email: string;
+}
+
+export interface ResetPasswordPayload {
+  token: string;
+  password: string;
+  confirmPassword?: string;
+}
+
 export interface AuthSuccessResponse {
   user: SafeUser;
   token?: string;

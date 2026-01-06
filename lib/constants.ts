@@ -17,6 +17,8 @@ export const API_ROUTES = {
   phonepeWebhook: "/api/webhooks/phonepe",
   authLogin: "/api/auth/login",
   authRegister: "/api/auth/register",
+  authResetRequest: "/api/auth/reset/request",
+  authResetConfirm: "/api/auth/reset/confirm",
   adminMatches: "/api/admin/matches",
   hostMatches: "/api/host/matches",
   profile: "/api/profile",

@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { FormEvent, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { AuthStatus } from "@/enums/AuthStatus.enum";
@@ -104,6 +105,12 @@ export const LoginForm = () => {
           required
         />
         {errors.password && <p className="text-xs text-red-400">{errors.password}</p>}
+      </div>
+
+      <div className="text-right text-sm">
+        <Link href="/auth/forgot" className="text-[var(--accent-primary)] hover:underline">
+          Forgot password?
+        </Link>
       </div>
 
       {helperText && <p className="text-sm text-red-400">{helperText}</p>}

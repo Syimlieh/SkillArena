@@ -7,7 +7,7 @@ import { UserModel } from "@/models/User.model";
 import { LoginInput, RegisterInput } from "@/modules/auth/auth.validator";
 import { SafeUser, User } from "@/types/user.types";
 
-const SALT_ROUNDS = 10;
+export const SALT_ROUNDS = 10;
 
 type TokenPayload = {
   userId: string;

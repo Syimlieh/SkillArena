@@ -18,5 +18,29 @@ export const loginSchema = z.object({
   password: z.string().min(8).max(64),
 });
 
+export const passwordResetRequestSchema = z.object({
+  email: z.string().email().trim().toLowerCase(),
+});
+
+const passwordSchema = z.string().min(8).max(64);
+
+export const passwordResetConfirmSchema = z.object({
+  token: z.string().min(10),
+  password: passwordSchema,
+});
+
+export const passwordResetFormSchema = z
+  .object({
+    token: z.string().min(10, "Reset link is invalid"),
+    password: passwordSchema,
+    confirmPassword: passwordSchema,
+  })
+  .refine((val) => val.password === val.confirmPassword, {
+    path: ["confirmPassword"],
+    message: "Passwords do not match",
+  });
+
 export type RegisterInput = z.infer<typeof registerSchema>;
 export type LoginInput = z.infer<typeof loginSchema>;
+export type PasswordResetRequestInput = z.infer<typeof passwordResetRequestSchema>;
+export type PasswordResetConfirmInput = z.infer<typeof passwordResetConfirmSchema>;
