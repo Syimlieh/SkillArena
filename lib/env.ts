@@ -13,6 +13,7 @@ const envSchema = z.object({
   SMTP_HOST: z.string().optional(),
   SMTP_PORT: z
     .string()
+    .optional()
     .transform((val) => (val ? Number(val) : undefined))
     .pipe(z.number().optional()),
   SMTP_USER: z.string().optional(),
@@ -20,6 +21,7 @@ const envSchema = z.object({
   SMTP_FROM: z.string().email().optional(),
   SMTP_SECURE: z
     .string()
+    .optional()
     .transform((val) => (val ? val === "true" : undefined))
     .pipe(z.boolean().optional()),
 });
