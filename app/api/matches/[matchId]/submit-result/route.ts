@@ -12,7 +12,7 @@ import { FileMetadataModel } from "@/models/FileMetadata.model";
 
 export const dynamic = "force-dynamic";
 
-export const POST = async (req: NextRequest, { params }: { params: { matchId: string } }) => {
+export const POST = async (req: NextRequest, { params }: { params: Promise<{ matchId: string }> }) => {
   try {
     const user = await requireUser();
     await connectDb();

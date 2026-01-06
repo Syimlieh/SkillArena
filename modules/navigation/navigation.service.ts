@@ -1,5 +1,5 @@
 import { AppRoute, buildScrimDetailRoute } from "@/lib/routes";
-import { AppRouterInstance } from "next/navigation";
+import type { AppRouterInstance } from "next/dist/shared/lib/app-router-context.shared-runtime";
 import { UserRole } from "@/enums/UserRole.enum";
 
 const buildLoginRedirect = (redirectTo: string) =>

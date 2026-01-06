@@ -23,7 +23,7 @@ const calculateScore = (placement?: number, kills?: number) => {
   return placementScore + killScore;
 };
 
-export const PATCH = async (req: NextRequest, { params }: { params: { matchId: string; submissionId: string } }) => {
+export const PATCH = async (req: NextRequest, { params }: { params: Promise<{ matchId: string; submissionId: string }> }) => {
   try {
     const admin = await requireAdmin();
     await connectDb();

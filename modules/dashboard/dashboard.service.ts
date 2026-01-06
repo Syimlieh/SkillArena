@@ -18,17 +18,17 @@ const markConfirmed = (scrim: Scrim): DashboardScrim => ({
 const serializeScrim = (scrim: Scrim): Scrim => ({
   ...scrim,
   _id: scrim._id ? (scrim._id as any).toString() : undefined,
-  startTime: scrim.startTime ? new Date(scrim.startTime).toISOString() : scrim.startTime,
-  createdAt: scrim.createdAt ? new Date(scrim.createdAt).toISOString() as any : undefined,
-  updatedAt: scrim.updatedAt ? new Date(scrim.updatedAt).toISOString() as any : undefined,
+  startTime: scrim.startTime ? new Date(scrim.startTime) : scrim.startTime,
+  createdAt: scrim.createdAt ? (new Date(scrim.createdAt) as any) : undefined,
+  updatedAt: scrim.updatedAt ? (new Date(scrim.updatedAt) as any) : undefined,
 });
 
 const serializeMatch = (match: Match): Match => ({
   ...match,
   _id: match._id ? (match._id as any).toString() : undefined,
-  startTime: match.startTime ? new Date(match.startTime).toISOString() : match.startTime,
-  createdAt: match.createdAt ? new Date(match.createdAt).toISOString() as any : undefined,
-  updatedAt: match.updatedAt ? new Date(match.updatedAt).toISOString() as any : undefined,
+  startTime: match.startTime ? new Date(match.startTime) : match.startTime,
+  createdAt: match.createdAt ? (new Date(match.createdAt) as any) : undefined,
+  updatedAt: match.updatedAt ? (new Date(match.updatedAt) as any) : undefined,
 });
 
 const toRegisteredMatch = (match: Match, regStatus: RegistrationStatus): RegisteredMatch => {

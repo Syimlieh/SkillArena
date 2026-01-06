@@ -29,7 +29,7 @@ export const POST = async (req: NextRequest) => {
       folder ||
       (fileType === FileType.PROFILE ? "profiles" : fileType === FileType.RESULT_SCREENSHOT ? "results" : "uploads");
 
-    const uploaded = await uploadToSpaces(file, targetFolder);
+    const uploaded = await uploadToSpaces(file, targetFolder, fileType);
 
     await connectDb();
     await FileMetadataModel.create({

@@ -19,8 +19,10 @@ const formatTime = (date: Date | string) =>
     timeZone: "Asia/Kolkata",
   }).format(new Date(date));
 
-const mapTone = (map?: MatchMap) => (map === MatchMap.LIVIK ? "warning" : "success") as const;
-const typeTone = (type?: MatchType) => (type === MatchType.COMMUNITY ? "neutral" : "success");
+const mapTone = (map?: MatchMap): "warning" | "success" =>
+  map === MatchMap.LIVIK ? "warning" : "success";
+const typeTone = (type?: MatchType): "neutral" | "success" =>
+  type === MatchType.COMMUNITY ? "neutral" : "success";
 
 export const UpcomingMatchesTable = ({ matches }: Props) => (
   <div className="glass-panel rounded-2xl p-4">

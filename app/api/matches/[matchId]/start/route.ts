@@ -5,7 +5,7 @@ import { startMatch } from "@/modules/matches/match.service";
 
 export const dynamic = "force-dynamic";
 
-export const POST = async (_req: NextRequest, { params }: { params: { matchId: string } }) => {
+export const POST = async (_req: NextRequest, { params }: { params: Promise<{ matchId: string }> }) => {
   try {
     const actor = await requireMatchCreator();
     const { matchId } = await params;

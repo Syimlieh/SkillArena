@@ -7,11 +7,11 @@ import { getMatchBySlug } from "@/modules/matches/match.service";
 
 export const dynamic = "force-dynamic";
 
-export const GET = async (_req: NextRequest, { params }: { params: { matchId: string } }) => {
+export const GET = async (_req: NextRequest, { params }: { params: Promise<{ matchId: string }> }) => {
   try {
     const user = await requireUser();
     await connectDb();
-    const matchId = params.matchId;
+    const { matchId } = await params;
     const match = await getMatchBySlug(matchId, user.userId);
     if (!match) {
       return errorResponse("Match not found", 404);

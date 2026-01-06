@@ -16,7 +16,8 @@ const formatTime = (date: Date | string) =>
     timeZone: "Asia/Kolkata",
   }).format(new Date(date));
 
-const mapTone = (map?: ScrimMap) => (map === ScrimMap.LIVIK ? "warning" : "success") as const;
+const mapTone = (map?: ScrimMap): "warning" | "success" =>
+  map === ScrimMap.LIVIK ? "warning" : "success";
 
 export const MatchHistory = ({ scrims }: Props) => (
   <div className="space-y-3">

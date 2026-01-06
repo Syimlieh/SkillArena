@@ -14,8 +14,10 @@ const withDefaults = (scrim: Scrim): Scrim => ({
 
 export const listScrims = async (): Promise<Scrim[]> => {
   await connectDb();
-  const scrims = await ScrimModel.find().sort({ startTime: 1 }).lean<Scrim>();
-  return scrims.map(withDefaults);
+  const scrims = await ScrimModel.find().sort({ startTime: 1 }).lean();
+
+  if (!scrims.length) return [];
+  return scrims.map((scrim) => withDefaults(scrim));
 };
 
 export const getScrimBySlug = async (slug: string): Promise<Scrim | null> => {

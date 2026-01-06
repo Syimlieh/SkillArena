@@ -26,7 +26,9 @@ const reducer = (state: ScrimState, action: ScrimAction): ScrimState => {
     case "UPDATE_STATUS":
       return {
         scrims: state.scrims.map((scrim) =>
-          scrim._id === action.payload.id ? { ...scrim, status: action.payload.status } : scrim
+          (scrim._id?.toString?.() ?? scrim._id) === action.payload.id
+            ? { ...scrim, status: action.payload.status }
+            : scrim
         ),
       };
     default:

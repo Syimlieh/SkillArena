@@ -8,11 +8,11 @@ import { closeMatchWithWinner } from "@/modules/matches/match.service";
 
 export const dynamic = "force-dynamic";
 
-export const POST = async (_req: NextRequest, { params }: { params: { matchId: string } }) => {
+export const POST = async (_req: NextRequest, { params }: { params: Promise<{ matchId: string }> }) => {
   try {
     const admin = await requireAdmin();
     await connectDb();
-    const { matchId } = params;
+    const { matchId } = await params;
     if (!matchId) return errorResponse("Match not found", 404);
 
     const total = await MatchResultSubmissionModel.countDocuments({ matchId }).lean();

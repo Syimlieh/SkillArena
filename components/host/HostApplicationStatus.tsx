@@ -2,10 +2,10 @@
 
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { HostApplicationStatus } from "@/enums/HostApplicationStatus.enum";
+import { HostApplicationStatus as HostStatusEnum } from "@/enums/HostApplicationStatus.enum";
 
 interface Props {
-  status?: HostApplicationStatus;
+  status?: HostStatusEnum;
   adminComment?: string;
 }
 
@@ -13,18 +13,18 @@ const HostApplicationStatus = ({ status, adminComment }: Props) => {
   const router = useRouter();
 
   useEffect(() => {
-    if (status === HostApplicationStatus.APPROVED) {
+    if (status === HostStatusEnum.APPROVED) {
       router.push("/dashboard/host");
     }
   }, [status, router]);
 
   if (!status) return null;
 
-  if (status === HostApplicationStatus.PENDING) {
+  if (status === HostStatusEnum.PENDING) {
     return <div className="rounded-xl border border-[#1f2937] bg-[#0c111a] p-4 text-sm text-slate-200">Status: Waiting for admin approval.</div>;
   }
 
-  if (status === HostApplicationStatus.REJECTED) {
+  if (status === HostStatusEnum.REJECTED) {
     return (
       <div className="rounded-xl border border-[#1f2937] bg-[#0c111a] p-4 text-sm text-red-300">
         Status: Rejected

@@ -34,6 +34,8 @@ export const findOrCreateUser = async (
 
 export const listPlayers = async (): Promise<SafeUser[]> => {
   await connectDb();
-  const users = await UserModel.find().lean<User>();
+  const users = await UserModel.find().lean();
+
+  if (!users.length) return [];
   return users.map(toSafeUser);
 };

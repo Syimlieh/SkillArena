@@ -2,7 +2,7 @@ import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
 import { randomUUID } from "crypto";
 import path from "path";
 import { getEnv } from "@/lib/env";
-import { FileMetadata } from "@/types/file.types";
+import { FileMetadata, FileType } from "@/types/file.types";
 
 const { DO_SPACES_REGION, DO_SPACES_ORIGIN_ENDPOINT, DO_SPACES_ACCESS_TOKEN, DO_SPACES_KEY, DO_SPACES_BUCKET } = getEnv();
 
@@ -19,7 +19,11 @@ const spacesClient = new S3Client({
   forcePathStyle: false,
 });
 
-export const uploadToSpaces = async (file: File, folder = "profiles"): Promise<FileMetadata> => {
+export const uploadToSpaces = async (
+  file: File,
+  folder = "profiles",
+  type: FileType = FileType.PROFILE
+): Promise<FileMetadata> => {
   const buffer = Buffer.from(await file.arrayBuffer());
   const ext = path.extname(file.name || "") || ".png";
   const fileId = randomUUID();
@@ -41,5 +45,6 @@ export const uploadToSpaces = async (file: File, folder = "profiles"): Promise<F
     url: `${normalizedEndpoint}/${DO_SPACES_BUCKET}/${key}`,
     format: ext.replace(".", ""),
     bytes: buffer.byteLength,
+    type,
   };
 };
