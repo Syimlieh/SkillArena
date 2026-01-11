@@ -11,7 +11,8 @@ type MailPayload = {
 
 const buildTransporter = () => {
   const env = getEnv();
-  const hasSmtp = env.SMTP_HOST && env.SMTP_PORT && env.SMTP_USER && env.SMTP_PASS;
+  const smtpPass = env.SMTP_PASS ?? env.SMTP_PASSWORD;
+  const hasSmtp = env.SMTP_HOST && env.SMTP_PORT && env.SMTP_USERNAME && smtpPass;
 
   if (!hasSmtp) {
     // Fallback to JSON transport so local/dev does not throw
@@ -25,8 +26,8 @@ const buildTransporter = () => {
     port: env.SMTP_PORT,
     secure: env.SMTP_SECURE ?? false,
     auth: {
-      user: env.SMTP_USER,
-      pass: env.SMTP_PASS,
+      user: env.SMTP_USERNAME,
+      pass: smtpPass,
     },
   });
 };
@@ -35,15 +36,21 @@ const transporter = buildTransporter();
 
 const sendMail = async ({ to, subject, html, text }: MailPayload) => {
   const env = getEnv();
-  const from = env.SMTP_FROM || env.SMTP_USER || "no-reply@skillarena.gg";
+  const from = env.SMTP_USERNAME;
 
-  return transporter.sendMail({
-    from,
-    to,
-    subject,
-    html,
-    text,
-  });
+  try {
+    const info = await transporter.sendMail({
+      from,
+      to,
+      subject,
+      html,
+      text,
+    });
+    return info;
+  } catch (error) {
+    console.error("Email send failed", error);
+    throw error;
+  }
 };
 
 export const sendResetPasswordEmail = async (to: string, params: EmailTemplate["resetPassword"]) => {

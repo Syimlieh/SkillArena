@@ -16,7 +16,8 @@ const envSchema = z.object({
     .optional()
     .transform((val) => (val ? Number(val) : undefined))
     .pipe(z.number().optional()),
-  SMTP_USER: z.string().optional(),
+  SMTP_USERNAME: z.string().optional(),
+  SMTP_PASSWORD: z.string().optional(),
   SMTP_PASS: z.string().optional(),
   SMTP_FROM: z.string().email().optional(),
   SMTP_SECURE: z
@@ -42,7 +43,8 @@ export const getEnv = (): Env => {
     DO_SPACES_KEY: process.env.DO_SPACES_KEY,
     SMTP_HOST: process.env.SMTP_HOST,
     SMTP_PORT: process.env.SMTP_PORT,
-    SMTP_USER: process.env.SMTP_USER,
+    SMTP_USERNAME: process.env.SMTP_USERNAME,
+    SMTP_PASSWORD: process.env.SMTP_PASSWORD,
     SMTP_PASS: process.env.SMTP_PASS,
     SMTP_FROM: process.env.SMTP_FROM,
     SMTP_SECURE: process.env.SMTP_SECURE,

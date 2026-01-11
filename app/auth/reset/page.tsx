@@ -4,12 +4,12 @@ import { ResetPasswordForm } from "@/components/auth/ResetPasswordForm";
 import { Navbar } from "@/components/layout/Navbar";
 
 type ResetPageProps = {
-  searchParams?: { token?: string };
+   searchParams?: Promise<{ token?: string }>;
 };
 
-const ResetPasswordPage = ({ searchParams }: ResetPageProps) => {
-  const token = searchParams?.token;
-
+const ResetPasswordPage = async ({ searchParams }: ResetPageProps) => {
+  const { token } = (await searchParams) ?? {};
+  
   return (
     <>
       <Navbar variant="public" />
