@@ -49,7 +49,7 @@ const ProfileDropdown = () => {
     <div className="relative" ref={containerRef}>
       <button
         onClick={() => setOpen((o) => !o)}
-        className="flex items-center gap-2 rounded-full border border-[#1f2937] bg-[#0c111a] px-3 py-2 text-sm text-white"
+        className="flex items-center gap-2 rounded-full border border-[var(--border-subtle)] bg-[var(--card-bg)] px-3 py-2 text-sm text-[var(--text-primary)]"
       >
         {avatarUrl ? (
           <Image
@@ -64,21 +64,21 @@ const ProfileDropdown = () => {
             {initials}
           </div>
         )}
-        <span className="hidden sm:inline text-xs uppercase tracking-wide text-slate-300">
+        <span className="hidden sm:inline text-xs uppercase tracking-wide text-[var(--text-secondary)]">
           {state.user?.name ?? "Player"}
         </span>
       </button>
       {open && (
-        <div className="absolute right-0 mt-2 w-48 rounded-xl border border-[#1f2937] bg-[#0c111a] p-2 shadow-lg">
+        <div className="absolute right-0 mt-2 w-48 rounded-xl border border-[var(--border-subtle)] bg-[var(--card-bg)] p-2 shadow-lg">
           <Link
             href={dashboardHref}
-            className="block rounded-lg px-3 py-2 text-sm text-white hover:bg-[#111827]"
+            className="block rounded-lg px-3 py-2 text-sm text-[var(--text-primary)] hover:bg-[var(--bg-secondary)]"
             onClick={() => setOpen(false)}
           >
             Dashboard
           </Link>
           <button
-            className="mt-1 block w-full rounded-lg px-3 py-2 text-left text-sm text-white hover:bg-[#111827]"
+            className="mt-1 block w-full rounded-lg px-3 py-2 text-left text-sm text-[var(--text-primary)] hover:bg-[var(--bg-secondary)]"
             onClick={() => {
               setOpen(false);
               setProfileOpen(true);
@@ -89,7 +89,7 @@ const ProfileDropdown = () => {
           {isHost && (
             <Link
               href="/dashboard/host/matches"
-              className="mt-1 block rounded-lg px-3 py-2 text-sm text-white hover:bg-[#111827]"
+              className="mt-1 block rounded-lg px-3 py-2 text-sm text-[var(--text-primary)] hover:bg-[var(--bg-secondary)]"
               onClick={() => setOpen(false)}
             >
               Your Matches
@@ -97,7 +97,7 @@ const ProfileDropdown = () => {
           )}
           <button
             onClick={handleLogout}
-            className="mt-1 w-full rounded-lg px-3 py-2 text-left text-sm text-red-300 hover:bg-[#111827]"
+            className="mt-1 w-full rounded-lg px-3 py-2 text-left text-sm text-red-400 hover:bg-[var(--bg-secondary)]"
           >
             Logout
           </button>

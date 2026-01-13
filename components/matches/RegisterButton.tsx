@@ -44,7 +44,7 @@ const RegisterButton = ({ match, registrationStatus, isRegistered }: Props) => {
       ) : (
         <button
           onClick={handleClick}
-          className="w-full rounded-xl bg-[var(--primary)] px-4 py-3 text-center text-sm font-semibold text-black hover:bg-[#63ff9b]"
+        className="w-full rounded-xl bg-[var(--primary)] px-4 py-3 text-center text-sm font-semibold text-white hover:bg-[var(--accent-secondary)]"
         >
           {isAuthenticated ? "Register" : "Login to Register"}
         </button>

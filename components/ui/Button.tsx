@@ -19,7 +19,7 @@ export const Button = ({ variant = "primary", size = "md", className, icon, chil
     sm: "px-3 py-1.5 text-xs uppercase tracking-wide",
   };
   const styles: Record<ButtonVariant, string> = {
-    primary: "bg-[var(--primary)] text-black hover:bg-[#63ff9b]",
+    primary: "bg-[var(--primary)] text-white hover:bg-[var(--accent-secondary)]",
     secondary: "bg-[#111827] text-white border border-[#1f2937] hover:border-[var(--primary)]",
     ghost: "text-[var(--ghost-text)] border border-[var(--ghost-border)] hover:border-[var(--primary)]",
   };

@@ -14,9 +14,9 @@
   --panel-bg: linear-gradient(135deg, rgba(12, 17, 26, 0.9), rgba(12, 17, 26, 0.75));
   --panel-border: rgba(99, 255, 155, 0.12);
   --panel-shadow: 0 10px 60px rgba(0, 0, 0, 0.35), 0 0 35px rgba(99, 255, 155, 0.08);
-  --primary: #63ff9b;
-  --accent-primary: #63ff9b;
-  --accent-secondary: #1d9a6f;
+  --primary: #25c86f;
+  --accent-primary: #25c86f;
+  --accent-secondary: #1faa60;
   --border-subtle: #1f2937;
   --badge-bg: rgba(99, 255, 155, 0.12);
   --hero-image: url("/images/hero-dark.jpg");

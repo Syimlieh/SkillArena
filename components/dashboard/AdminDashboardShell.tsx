@@ -28,7 +28,7 @@ const AdminDashboardShell = async () => {
       <PreviousMatchesTable />
       <div className="flex justify-center">
         <Link href="/dashboard/admin/create-match" className="inline-flex">
-          <span className="rounded-xl bg-[var(--primary)] px-4 py-2 text-sm font-semibold text-black hover:bg-[#63ff9b]">
+          <span className="rounded-xl bg-[var(--primary)] px-4 py-2 text-sm font-semibold text-white hover:bg-[var(--accent-secondary)]">
             Create New Match
           </span>
         </Link>

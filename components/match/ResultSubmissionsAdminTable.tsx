@@ -224,7 +224,7 @@ export const ResultSubmissionsAdminTable = ({ submissions, matchId }: Props) => 
               disabled={closing || matchClosed}
               className={clsx(
                 "rounded-md px-4 py-2 text-sm font-semibold",
-                "bg-[var(--accent-primary)] text-[var(--bg-primary)] hover:bg-[var(--accent-secondary)]",
+              "bg-[var(--accent-primary)] text-white hover:bg-[var(--accent-secondary)]",
                 (closing || matchClosed) && "opacity-60"
               )}
             >

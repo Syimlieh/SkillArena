@@ -52,12 +52,12 @@ const Modal = ({ isOpen, onClose, children, title, disableBackdropClose = false 
         tabIndex={-1}
         onClick={(e) => e.stopPropagation()}
         className={clsx(
-          "relative z-10 w-full max-w-lg rounded-2xl border border-[#1f2937] bg-[#0c111a] p-6 shadow-2xl outline-none",
+          "relative z-10 w-full max-w-lg rounded-2xl border border-[var(--border-subtle)] bg-[var(--card-bg)] p-6 shadow-2xl outline-none text-[var(--text-primary)]",
           "max-h-[80vh] overflow-y-auto",
           "focus:outline-none focus-visible:outline-none"
         )}
       >
-        {title && <div className="mb-3 text-lg font-semibold text-white">{title}</div>}
+        {title && <div className="mb-3 text-lg font-semibold text-[var(--text-primary)]">{title}</div>}
         {children}
       </div>
     </div>

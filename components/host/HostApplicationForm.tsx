@@ -57,16 +57,16 @@ export const HostApplicationForm = () => {
   };
 
   const inputBase =
-    "w-full rounded-xl border border-[#1f2937] bg-[#0c111a] px-4 py-3 text-sm text-white focus:border-[var(--primary)] focus:outline-none placeholder:text-slate-500";
+    "w-full rounded-xl border border-[var(--border-subtle)] bg-[var(--card-bg)] px-4 py-3 text-sm text-[var(--text-primary)] focus:border-[var(--accent-primary)] focus:outline-none placeholder:text-[var(--text-secondary)]";
 
   return (
-    <form onSubmit={handleSubmit} className="glass-panel rounded-2xl p-6 text-white space-y-4">
+    <form onSubmit={handleSubmit} className="glass-panel rounded-2xl p-6 space-y-4">
       <div>
-        <h1 className="text-2xl font-bold">Become a Host</h1>
-        <p className="text-sm text-slate-400">Apply to host skill-based matches. Admins will review your request.</p>
+        <h1 className="text-2xl font-bold text-[var(--text-primary)]">Become a Host</h1>
+        <p className="text-sm text-[var(--text-secondary)]">Apply to host skill-based matches. Admins will review your request.</p>
       </div>
       <div className="space-y-2">
-        <label className="text-sm font-semibold text-slate-200">Display Name</label>
+        <label className="text-sm font-semibold text-[var(--text-primary)]">Display Name</label>
         <input
           value={form.displayName}
           onChange={(e) => setForm((prev) => ({ ...prev, displayName: e.target.value }))}
@@ -76,7 +76,7 @@ export const HostApplicationForm = () => {
         />
       </div>
       <div className="space-y-2">
-        <label className="text-sm font-semibold text-slate-200">Why do you want to host?</label>
+        <label className="text-sm font-semibold text-[var(--text-primary)]">Why do you want to host?</label>
         <textarea
           value={form.description}
           onChange={(e) => setForm((prev) => ({ ...prev, description: e.target.value }))}
@@ -86,7 +86,7 @@ export const HostApplicationForm = () => {
         />
       </div>
       <div className="space-y-2">
-        <label className="text-sm font-semibold text-slate-200">Contact Email</label>
+        <label className="text-sm font-semibold text-[var(--text-primary)]">Contact Email</label>
         <input
           type="email"
           value={form.contactEmail}

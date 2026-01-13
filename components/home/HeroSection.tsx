@@ -13,7 +13,7 @@ export const HeroSection = () => (
       <div className="flex flex-col items-center justify-center gap-3 sm:flex-row sm:justify-center">
         <Link
           href="/dashboard"
-          className="w-full rounded-xl bg-[var(--accent-primary)] px-5 py-3 text-sm font-semibold text-[var(--bg-primary)] transition hover:bg-[var(--accent-secondary)] sm:w-auto"
+          className="w-full rounded-xl bg-[var(--accent-primary)] px-5 py-3 text-sm font-semibold text-white transition hover:bg-[var(--accent-secondary)] sm:w-auto"
         >
           Join Next Match
         </Link>

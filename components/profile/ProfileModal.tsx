@@ -166,7 +166,7 @@ const ProfileModal = ({ isOpen, onClose }: Props) => {
                 Cancel
               </button>
               <button
-                className="rounded-xl bg-[var(--primary)] px-4 py-2 text-sm font-semibold text-black hover:bg-[#63ff9b]"
+                className="rounded-xl bg-[var(--primary)] px-4 py-2 text-sm font-semibold text-white hover:bg-[var(--accent-secondary)]"
                 onClick={handleSave}
                 disabled={saving}
               >

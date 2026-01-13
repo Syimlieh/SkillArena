@@ -31,14 +31,11 @@ const RegisterModal = ({ match, isOpen, onClose }: Props) => {
   const [teamName, setTeamName] = useState("");
 
   const defaultTeamName = state.user?.name ?? "";
-  console.log('state', state.user);
-  console.log("Default Team Name:", defaultTeamName);
 
   useEffect(() => {
-    if (isOpen && !teamName && defaultTeamName) {
-      setTeamName("");
-    }
-  }, [isOpen, defaultTeamName, teamName]);
+    if (!isOpen) return;
+    setTeamName((prev) => (prev ? prev : defaultTeamName));
+  }, [isOpen, defaultTeamName]);
 
   const handleProceed = async () => {
     if (!agree) {
@@ -75,36 +72,36 @@ const RegisterModal = ({ match, isOpen, onClose }: Props) => {
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} title="Confirm Registration" disableBackdropClose>
-      <div className="space-y-3 text-white">
-        <div className="rounded-xl border border-[#1f2937] bg-[#0c111a] p-3 text-sm">
+      <div className="space-y-3 text-[var(--text-primary)]">
+        <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--card-bg)] p-3 text-sm">
           <div className="text-xs uppercase text-[var(--primary)]">Match</div>
           <div className="font-semibold">{match.title}</div>
-          <div className="text-slate-300">ID: {match.matchId}</div>
+          <div className="text-[var(--text-secondary)]">ID: {match.matchId}</div>
         </div>
-        <div className="grid gap-3 md:grid-cols-2 text-sm text-slate-200">
-          <div className="rounded-xl border border-[#1f2937] bg-[#0c111a] p-3">
+        <div className="grid gap-3 md:grid-cols-2 text-sm text-[var(--text-secondary)]">
+          <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--card-bg)] p-3">
             <div className="text-xs uppercase text-[var(--primary)]">Date & Time</div>
-            <div className="font-semibold">{formatTime(match.startTime)}</div>
+            <div className="font-semibold text-[var(--text-primary)]">{formatTime(match.startTime)}</div>
           </div>
-          <div className="rounded-xl border border-[#1f2937] bg-[#0c111a] p-3">
+          <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--card-bg)] p-3">
             <div className="text-xs uppercase text-[var(--primary)]">Entry Fee</div>
-            <div className="font-semibold">₹{match.entryFee}</div>
+            <div className="font-semibold text-[var(--text-primary)]">₹{match.entryFee}</div>
           </div>
         </div>
-        <div className="rounded-xl border border-[#1f2937] bg-[#0c111a] p-3 text-sm text-slate-200">
+        <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--card-bg)] p-3 text-sm text-[var(--text-secondary)]">
           <div className="text-xs uppercase text-[var(--primary)]">Prize Breakdown</div>
           <div className="mt-2 grid grid-cols-3 gap-3">
             <div>
-              <div className="font-semibold text-white">1st</div>
-              <div className="text-slate-300">₹1370</div>
+              <div className="font-semibold text-[var(--text-primary)]">1st</div>
+              <div className="text-[var(--text-secondary)]">₹1370</div>
             </div>
             <div>
-              <div className="font-semibold text-white">2nd</div>
-              <div className="text-slate-300">₹150</div>
+              <div className="font-semibold text-[var(--text-primary)]">2nd</div>
+              <div className="text-[var(--text-secondary)]">₹150</div>
             </div>
             <div>
-              <div className="font-semibold text-white">3rd</div>
-              <div className="text-slate-300">₹80</div>
+              <div className="font-semibold text-[var(--text-primary)]">3rd</div>
+              <div className="text-[var(--text-secondary)]">₹80</div>
             </div>
           </div>
         </div>
@@ -125,11 +122,11 @@ const RegisterModal = ({ match, isOpen, onClose }: Props) => {
             value={teamName}
             onChange={(e) => setTeamName(e.target.value)}
             placeholder="Your team name"
-            className="w-full rounded-xl border border-[#1f2937] bg-[#0c111a] px-3 py-2 text-sm text-[var(--text-primary)] focus:border-[var(--primary)] focus:outline-none"
+            className="w-full rounded-xl border border-[var(--border-subtle)] bg-[var(--card-bg)] px-3 py-2 text-sm text-[var(--text-primary)] focus:border-[var(--accent-primary)] focus:outline-none placeholder:text-[var(--text-secondary)]"
             disabled={loading}
           />
         </div>
-        <label className="flex items-center gap-2 text-sm text-slate-200">
+        <label className="flex items-center gap-2 text-sm text-[var(--text-secondary)]">
           <input
             type="checkbox"
             checked={agree}
@@ -144,14 +141,14 @@ const RegisterModal = ({ match, isOpen, onClose }: Props) => {
           <button
             onClick={handleProceed}
             disabled={!agree || loading}
-            className="w-full rounded-xl bg-[var(--primary)] px-4 py-3 text-sm font-semibold text-black hover:bg-[#63ff9b] disabled:opacity-60"
+            className="w-full rounded-xl bg-[var(--primary)] px-4 py-3 text-sm font-semibold text-white hover:bg-[var(--accent-secondary)] disabled:opacity-60"
           >
             {loading ? "Processing..." : "Proceed to Payment"}
           </button>
           <button
             onClick={onClose}
             disabled={loading}
-            className="rounded-xl border border-[#1f2937] px-4 py-3 text-sm text-slate-200 hover:border-[var(--primary)]"
+            className="rounded-xl border border-[var(--border-subtle)] px-4 py-3 text-sm text-[var(--text-primary)] hover:border-[var(--accent-primary)]"
           >
             Cancel
           </button>
