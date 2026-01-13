@@ -2,8 +2,16 @@ import Link from "next/link";
 import { Badge } from "@/components/ui/Badge";
 import { ForgotPasswordForm } from "@/components/auth/ForgotPasswordForm";
 import { Navbar } from "@/components/layout/Navbar";
+import { redirect } from "next/navigation";
+import { requireUser } from "@/lib/auth.server";
+import { resolveDashboardRoute } from "@/modules/navigation/navigation.service";
 
-const ForgotPasswordPage = () => {
+const ForgotPasswordPage = async () => {
+  const user = await requireUser().catch(() => null);
+  if (user) {
+    redirect(resolveDashboardRoute(user.role));
+  }
+
   return (
     <>
       <Navbar variant="public" />
