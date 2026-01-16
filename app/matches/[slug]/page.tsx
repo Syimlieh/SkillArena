@@ -19,6 +19,9 @@ import ResultSubmissionsAdminTable from "@/components/match/ResultSubmissionsAdm
 import { RegistrationModel } from "@/models/Registration.model";
 import { ACTIVE_REG_STATUSES } from "@/modules/registrations/registration.service";
 import { UserModel } from "@/models/User.model";
+import { FileMetadataModel } from "@/models/FileMetadata.model";
+import { createPresignedDownload } from "@/lib/spaces";
+import { FileType } from "@/types/file.types";
 
 const MatchDetailsPage = async ({ params }: { params: { slug: string } }) => {
   const { slug } = await params;
@@ -60,18 +63,32 @@ const MatchDetailsPage = async ({ params }: { params: { slug: string } }) => {
       const teamByUser = new Map(regDocs.map((r) => [r.userId, r.teamName]));
       const users = await UserModel.find({ _id: { $in: userIds } }).lean();
       const nameByUser = new Map(users.map((u: any) => [u._id?.toString?.() ?? "", u.name]));
+      const fileIds = records.map((r) => r.fileId).filter(Boolean) as string[];
+      const fileMetaDocs = fileIds.length
+        ? await FileMetadataModel.find({ fileId: { $in: fileIds } }).lean()
+        : [];
+      const fileMetaById = new Map(fileMetaDocs.map((doc) => [doc.fileId, doc]));
 
-      submissions = records.map((r) => ({
-        submissionId: r._id?.toString(),
-        userId: r.userId,
-        teamName: teamByUser.get(r.userId) || nameByUser.get(r.userId),
-        status: r.status as ResultStatus,
-        screenshotUrl: r.screenshotUrl,
-        submittedAt: r.createdAt ? new Date(r.createdAt).toISOString() : new Date().toISOString(),
-        placement: r.placement,
-        kills: r.kills,
-        totalScore: r.totalScore,
-      }));
+      submissions = await Promise.all(
+        records.map(async (r) => {
+          const fileMeta = r.fileId ? fileMetaById.get(r.fileId) : undefined;
+          const screenshotUrl =
+            fileMeta?.publicId && fileMeta.type === FileType.RESULT_SCREENSHOT
+              ? await createPresignedDownload(fileMeta.publicId, 300)
+              : r.screenshotUrl;
+          return {
+            submissionId: r._id?.toString(),
+            userId: r.userId,
+            teamName: teamByUser.get(r.userId) || nameByUser.get(r.userId),
+            status: r.status as ResultStatus,
+            screenshotUrl,
+            submittedAt: r.createdAt ? new Date(r.createdAt).toISOString() : new Date().toISOString(),
+            placement: r.placement,
+            kills: r.kills,
+            totalScore: r.totalScore,
+          };
+        })
+      );
     } catch {
       submissions = [];
     }

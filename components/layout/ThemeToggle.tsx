@@ -6,13 +6,24 @@ import clsx from "clsx";
 
 export const ThemeToggle = () => {
   const [theme, setTheme] = useState<"dark" | "light">("dark");
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
     const current = document.documentElement.getAttribute("data-theme");
     if (current === "light" || current === "dark") {
       setTheme(current);
     }
+    setMounted(true);
   }, []);
+
+  if (!mounted) {
+    return (
+      <div
+        className="flex h-9 w-9 items-center justify-center rounded-full border border-[var(--toggle-border)] bg-[var(--card-bg)]"
+        aria-hidden="true"
+      />
+    );
+  }
 
   const toggle = () => {
     const next = theme === "dark" ? "light" : "dark";

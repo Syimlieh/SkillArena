@@ -1,12 +1,13 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import Image from "next/image";
 import clsx from "clsx";
 import Modal from "@/components/ui/Modal";
 import { useAuth } from "@/context/AuthContext";
 import apiClient from "@/lib/apiClient";
 import { Profile } from "@/types/profile.types";
+import { uploadImageDirect } from "@/lib/presigned-upload";
+import { FileType } from "@/types/file.types";
 
 interface Props {
   isOpen: boolean;
@@ -51,6 +52,15 @@ const ProfileModal = ({ isOpen, onClose }: Props) => {
     void load();
   }, [isOpen]);
 
+  useEffect(
+    () => () => {
+      if (preview && preview.startsWith("blob:")) {
+        URL.revokeObjectURL(preview);
+      }
+    },
+    [preview]
+  );
+
   const handleUpload = async (file?: File | null) => {
     if (!file) return;
     if (!file.type.startsWith("image/")) {
@@ -63,18 +73,12 @@ const ProfileModal = ({ isOpen, onClose }: Props) => {
     }
     setError(null);
     try {
-      const formData = new FormData();
-      formData.append("file", file);
-      formData.append("folder", "profiles");
-      formData.append("type", "PROFILE");
-      const res = await apiClient.post("/api/uploads", formData, {
-        headers: { "Content-Type": "multipart/form-data" },
-      });
-      const uploaded = res.data?.data;
-      setProfileFileId(uploaded?.fileId);
-      setPreview(uploaded?.url ?? null);
-    } catch {
-      setError("Upload failed. Please try again.");
+      const localPreview = URL.createObjectURL(file);
+      setPreview(localPreview);
+      const uploaded = await uploadImageDirect(file, { type: FileType.PROFILE, folder: "profiles" });
+      setProfileFileId(uploaded.fileId);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Upload failed. Please try again.");
     }
   };
 
@@ -119,7 +123,7 @@ const ProfileModal = ({ isOpen, onClose }: Props) => {
             <div className="flex items-center gap-4">
               <label className="flex h-16 w-16 cursor-pointer items-center justify-center overflow-hidden rounded-full border border-dashed border-[var(--border-subtle)] bg-[var(--card-bg)] text-xs text-[var(--text-secondary)] hover:border-[var(--accent-primary)]">
                 {preview ? (
-                  <Image src={preview} alt="Profile preview" width={64} height={64} className="h-full w-full object-cover" />
+                  <img src={preview} alt="Profile preview" className="h-full w-full object-cover" />
                 ) : (
                   <span>{avatarLabel}</span>
                 )}

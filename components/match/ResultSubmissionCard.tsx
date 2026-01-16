@@ -7,6 +7,8 @@ import { MatchStatus } from "@/enums/MatchStatus.enum";
 import { ResultStatus } from "@/enums/ResultStatus.enum";
 import { ResultSubmissionResponse } from "@/types/result";
 import apiClient from "@/lib/apiClient";
+import { uploadImageDirect } from "@/lib/presigned-upload";
+import { FileType } from "@/types/file.types";
 
 interface Props {
   matchId: string;
@@ -105,24 +107,10 @@ export const ResultSubmissionCard = ({ matchId, matchStatus, isRegistered }: Pro
     setSubmitting(true);
     setError(null);
     try {
-      // Upload screenshot first
-      const uploadData = new FormData();
-      uploadData.append("file", file);
-      uploadData.append("type", "RESULT_SCREENSHOT");
-      uploadData.append("folder", "results");
-      const uploadRes = await apiClient.post("/api/uploads", uploadData, {
-        headers: { "Content-Type": "multipart/form-data" },
-      });
-      const fileId = uploadRes.data?.data?.fileId as string | undefined;
-      const screenshotUrl = uploadRes.data?.data?.url as string | undefined;
-      if (!fileId || !screenshotUrl) {
-        setError("Upload failed. Please try again.");
-        setSubmitting(false);
-        return;
-      }
+      const uploaded = await uploadImageDirect(file, { type: FileType.RESULT_SCREENSHOT, folder: "results" });
 
       const submitRes = await apiClient.post(`/api/matches/${matchId}/submit-result`, {
-        fileId,
+        fileId: uploaded.fileId,
       });
       const submission: ResultSubmissionResponse | undefined = submitRes.data?.data?.submission;
       if (submission) {

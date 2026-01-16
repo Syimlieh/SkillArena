@@ -4,6 +4,9 @@ import { requireUser } from "@/lib/auth.server";
 import { connectDb } from "@/lib/db";
 import { MatchResultSubmissionModel } from "@/models/MatchResultSubmission.model";
 import { getMatchBySlug } from "@/modules/matches/match.service";
+import { FileMetadataModel } from "@/models/FileMetadata.model";
+import { createPresignedDownload } from "@/lib/spaces";
+import { FileType } from "@/types/file.types";
 
 export const dynamic = "force-dynamic";
 
@@ -22,10 +25,20 @@ export const GET = async (_req: NextRequest, { params }: { params: Promise<{ mat
       return errorResponse("No submission found", 404);
     }
 
+    let screenshotUrl = submission.screenshotUrl;
+    if (submission.fileId) {
+      const fileMeta = await FileMetadataModel.findOne({ fileId: submission.fileId }).lean();
+      if (fileMeta?.publicId && fileMeta.type === FileType.RESULT_SCREENSHOT) {
+        screenshotUrl = await createPresignedDownload(fileMeta.publicId, 300);
+      } else if (fileMeta?.url) {
+        screenshotUrl = fileMeta.url;
+      }
+    }
+
     return successResponse({
       submission: {
         status: submission.status,
-        screenshotUrl: submission.screenshotUrl,
+        screenshotUrl,
         submittedAt: submission.createdAt ?? new Date().toISOString(),
       },
     });

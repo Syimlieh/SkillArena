@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useMemo, useState } from "react";
+import { FormEvent, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { AuthStatus } from "@/enums/AuthStatus.enum";
 import { useAuth } from "@/context/AuthContext";
@@ -10,7 +10,8 @@ import { Button } from "@/components/ui/Button";
 import { consumePostLoginRedirect } from "@/lib/auth";
 import { AppRoute } from "@/lib/routes";
 import { resolveDashboardRoute } from "@/modules/navigation/navigation.service";
-import Image from "next/image";
+import { uploadImageDirect } from "@/lib/presigned-upload";
+import { FileType } from "@/types/file.types";
 
 type FieldErrors = Record<string, string>;
 
@@ -100,6 +101,15 @@ export const RegisterForm = () => {
     return undefined;
   }, [message, state.error]);
 
+  useEffect(
+    () => () => {
+      if (preview && preview.startsWith("blob:")) {
+        URL.revokeObjectURL(preview);
+      }
+    },
+    [preview]
+  );
+
   const handleProfileUpload = async (file?: File | null) => {
     if (!file) return;
     if (!file.type.startsWith("image/")) {
@@ -110,23 +120,15 @@ export const RegisterForm = () => {
       setMessage("Profile image must be under 5MB.");
       return;
     }
+    const localPreview = URL.createObjectURL(file);
+    setPreview(localPreview);
     setUploading(true);
     setMessage(undefined);
     try {
-      const formData = new FormData();
-      formData.append("file", file);
-      formData.append("folder", "profiles");
-      const res = await fetch("/api/uploads", { method: "POST", body: formData });
-      const data = await res.json();
-      if (!res.ok || data?.success === false) {
-        setMessage(data?.error?.message || "Unable to upload image.");
-        setUploading(false);
-        return;
-      }
-      setField("profileFileId", data?.data?.fileId);
-      setPreview(data?.data?.url ?? null);
-    } catch {
-      setMessage("Network error while uploading profile image.");
+      const uploaded = await uploadImageDirect(file, { type: FileType.PROFILE, folder: "profiles" });
+      setField("profileFileId", uploaded.fileId);
+    } catch (err) {
+      setMessage(err instanceof Error ? err.message : "Network error while uploading profile image.");
     } finally {
       setUploading(false);
     }
@@ -245,7 +247,7 @@ export const RegisterForm = () => {
         <div className="flex items-center gap-4">
           <label className="flex h-24 w-24 cursor-pointer items-center justify-center overflow-hidden rounded-xl border border-dashed border-[var(--border-subtle)] bg-[var(--card-bg)] text-xs text-[var(--text-secondary)] hover:border-[var(--accent-primary)]">
             {preview ? (
-              <Image src={preview} alt="Profile preview" width={96} height={96} className="h-full w-full object-cover" />
+              <img src={preview} alt="Profile preview" className="h-full w-full object-cover" />
             ) : (
               <span>{uploading ? "Uploading..." : "Select"}</span>
             )}

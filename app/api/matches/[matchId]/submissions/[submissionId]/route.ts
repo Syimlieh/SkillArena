@@ -3,6 +3,9 @@ import { errorResponse, successResponse } from "@/lib/api-response";
 import { requireAdmin } from "@/lib/auth.server";
 import { connectDb } from "@/lib/db";
 import { MatchResultSubmissionModel } from "@/models/MatchResultSubmission.model";
+import { FileMetadataModel } from "@/models/FileMetadata.model";
+import { createPresignedDownload } from "@/lib/spaces";
+import { FileType } from "@/types/file.types";
 import { ResultStatus } from "@/enums/ResultStatus.enum";
 // Match closing is handled by a separate endpoint; this route only updates the submission.
 
@@ -45,11 +48,21 @@ export const PATCH = async (req: NextRequest, { params }: { params: Promise<{ ma
     doc.reviewerId = admin.userId;
     await doc.save();
 
+    let screenshotUrl = doc.screenshotUrl;
+    if (doc.fileId) {
+      const fileMeta = await FileMetadataModel.findOne({ fileId: doc.fileId }).lean();
+      if (fileMeta?.publicId && fileMeta.type === FileType.RESULT_SCREENSHOT) {
+        screenshotUrl = await createPresignedDownload(fileMeta.publicId, 300);
+      } else if (fileMeta?.url) {
+        screenshotUrl = fileMeta.url;
+      }
+    }
+
     const responsePayload: any = {
       submission: {
         submissionId: doc._id?.toString(),
         status: doc.status,
-        screenshotUrl: doc.screenshotUrl,
+        screenshotUrl,
         submittedAt: doc.createdAt ?? new Date().toISOString(),
         placement: doc.placement,
         kills: doc.kills,

@@ -1,4 +1,5 @@
-import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
+import { S3Client, PutObjectCommand, GetObjectCommand } from "@aws-sdk/client-s3";
+import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { randomUUID } from "crypto";
 import path from "path";
 import { getEnv } from "@/lib/env";
@@ -42,9 +43,76 @@ export const uploadToSpaces = async (
   return {
     fileId,
     publicId: key,
-    url: `${normalizedEndpoint}/${DO_SPACES_BUCKET}/${key}`,
+    url: getSpacesPublicUrl(key),
     format: ext.replace(".", ""),
     bytes: buffer.byteLength,
     type,
   };
 };
+
+const inferExtension = (fileName: string, contentType?: string) => {
+  const ext = path.extname(fileName || "");
+  if (ext) return ext;
+  switch (contentType) {
+    case "image/jpeg":
+    case "image/jpg":
+      return ".jpg";
+    case "image/png":
+      return ".png";
+    case "image/webp":
+      return ".webp";
+    default:
+      return ".png";
+  }
+};
+
+export const getSpacesPublicUrl = (key: string) => {
+  const safeKey = key.replace(/^\/+/, "");
+  const endpointUrl = new URL(normalizedEndpoint);
+  const host = `${DO_SPACES_BUCKET}.${endpointUrl.host}`;
+  return `${endpointUrl.protocol}//${host}/${safeKey}`;
+};
+
+export const createPresignedUpload = async ({
+  fileName,
+  contentType,
+  folder = "uploads",
+  type = FileType.OTHER,
+  expiresIn = 300,
+}: {
+  fileName: string;
+  contentType: string;
+  folder?: string;
+  type?: FileType;
+  expiresIn?: number;
+}) => {
+  const ext = inferExtension(fileName, contentType);
+  const fileId = randomUUID();
+  const key = `${folder}/${fileId}${ext}`.replace(/^\/+/, "");
+  const isProfile = type === FileType.PROFILE;
+  const command = new PutObjectCommand({
+    Bucket: DO_SPACES_BUCKET,
+    Key: key,
+    ContentType: contentType,
+    ...(isProfile ? { ACL: "public-read" } : {}),
+  });
+  const uploadUrl = await getSignedUrl(spacesClient, command, { expiresIn });
+  return {
+    fileId,
+    key,
+    uploadUrl,
+    url: getSpacesPublicUrl(key),
+    format: ext.replace(".", ""),
+    type,
+  };
+};
+
+export const createPresignedDownload = async (key: string, expiresIn = 300) =>
+  getSignedUrl(
+    spacesClient,
+    new GetObjectCommand({
+      Bucket: DO_SPACES_BUCKET,
+      Key: key.replace(/^\/+/, ""),
+    }),
+    { expiresIn }
+  );

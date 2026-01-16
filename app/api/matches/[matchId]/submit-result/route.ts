@@ -9,6 +9,8 @@ import { RegistrationStatus } from "@/enums/RegistrationStatus.enum";
 import { MatchResultSubmissionModel } from "@/models/MatchResultSubmission.model";
 import { ResultStatus } from "@/enums/ResultStatus.enum";
 import { FileMetadataModel } from "@/models/FileMetadata.model";
+import { createPresignedDownload } from "@/lib/spaces";
+import { FileType } from "@/types/file.types";
 
 export const dynamic = "force-dynamic";
 
@@ -61,13 +63,17 @@ export const POST = async (req: NextRequest, { params }: { params: Promise<{ mat
       teamName: registration.teamName,
       status: ResultStatus.SUBMITTED,
     });
+    const signedUrl =
+      fileMeta.type === FileType.RESULT_SCREENSHOT
+        ? await createPresignedDownload(fileMeta.publicId, 300)
+        : fileMeta.url;
 
     return successResponse(
       {
         submission: {
           submissionId: doc._id?.toString(),
           status: doc.status,
-          screenshotUrl: doc.screenshotUrl,
+          screenshotUrl: signedUrl,
           submittedAt: doc.createdAt ?? new Date().toISOString(),
           fileId,
         },
