@@ -76,6 +76,7 @@ const shapeProfileToUser = (profile: Profile) =>
     ageVerified: false,
     profileFileId: profile.profileFileId,
     avatarUrl: profile.avatarUrl,
+    emailVerified: profile.emailVerified ?? false,
   } as const);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {

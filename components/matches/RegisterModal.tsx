@@ -38,6 +38,10 @@ const RegisterModal = ({ match, isOpen, onClose }: Props) => {
   }, [isOpen, defaultTeamName]);
 
   const handleProceed = async () => {
+    if (state.user && !state.user.emailVerified) {
+      setMessage("Please verify your email before joining a match.");
+      return;
+    }
     if (!agree) {
       setMessage("Please agree to the rules and fair-play policy.");
       return;

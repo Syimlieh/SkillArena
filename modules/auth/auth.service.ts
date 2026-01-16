@@ -4,6 +4,7 @@ import { UserRole } from "@/enums/UserRole.enum";
 import { getEnv } from "@/lib/env";
 import { connectDb } from "@/lib/db";
 import { UserModel } from "@/models/User.model";
+import { requestEmailVerification } from "@/modules/auth/email-verification.service";
 import { LoginInput, RegisterInput } from "@/modules/auth/auth.validator";
 import { SafeUser, User } from "@/types/user.types";
 
@@ -39,7 +40,8 @@ const signToken = (payload: TokenPayload): string => {
 };
 
 export const registerUser = async (
-  input: RegisterInput
+  input: RegisterInput,
+  origin: string
 ): Promise<{ user: SafeUser; token: string }> => {
   await connectDb();
   const email = input.email.trim().toLowerCase();
@@ -85,6 +87,8 @@ export const registerUser = async (
     role: safeUser.role,
     email: safeUser.email,
   });
+
+  await requestEmailVerification(created._id?.toString() ?? "", origin);
 
   return { user: safeUser, token };
 };

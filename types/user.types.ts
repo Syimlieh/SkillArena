@@ -13,6 +13,8 @@ export interface User {
   avatarUrl?: string;
   phoneLocked?: boolean;
   hostApprovedAt?: Date;
+  emailVerified?: boolean;
+  emailVerifiedAt?: Date;
   createdAt?: Date;
   updatedAt?: Date;
 }

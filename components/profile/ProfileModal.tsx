@@ -27,6 +27,8 @@ const ProfileModal = ({ isOpen, onClose }: Props) => {
   const [phone, setPhone] = useState("");
   const [profileFileId, setProfileFileId] = useState<string | undefined>(undefined);
   const [preview, setPreview] = useState<string | null>(null);
+  const [verifySending, setVerifySending] = useState(false);
+  const [verifyMessage, setVerifyMessage] = useState<string | null>(null);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -108,6 +110,24 @@ const ProfileModal = ({ isOpen, onClose }: Props) => {
     }
   };
 
+  const handleVerifyEmail = async () => {
+    setVerifySending(true);
+    setVerifyMessage(null);
+    setError(null);
+    try {
+      await apiClient.post("/api/auth/verify/request");
+      setVerifyMessage("Verification email sent. Check your inbox.");
+    } catch (err: any) {
+      const message =
+        err?.response?.data?.error ||
+        err?.response?.data?.message ||
+        "Unable to send verification email right now.";
+      setError(message);
+    } finally {
+      setVerifySending(false);
+    }
+  };
+
   const avatarLabel = useMemo(() => {
     if (preview) return "Change";
     return "Upload";
@@ -147,6 +167,22 @@ const ProfileModal = ({ isOpen, onClose }: Props) => {
             <div className="space-y-2">
               <label className="text-sm font-semibold text-[var(--text-primary)]">Email</label>
               <input value={profile?.email ?? ""} disabled className={clsx(inputClass, "opacity-70")} />
+              {profile?.emailVerified ? (
+                <p className="text-xs text-[var(--text-secondary)]">Email verified.</p>
+              ) : (
+                <div className="flex items-center justify-between text-xs text-[var(--text-secondary)]">
+                  <span>Email not verified.</span>
+                  <button
+                    type="button"
+                    onClick={handleVerifyEmail}
+                    className="text-[var(--accent-primary)] hover:underline"
+                    disabled={verifySending}
+                  >
+                    {verifySending ? "Sending..." : "Resend verification"}
+                  </button>
+                </div>
+              )}
+              {verifyMessage && <p className="text-xs text-[var(--accent-primary)]">{verifyMessage}</p>}
             </div>
 
             <div className="space-y-2">

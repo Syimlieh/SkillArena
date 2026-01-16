@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { headers } from "next/headers";
 import { SECURITY } from "@/lib/constants";
 import { successResponse, errorResponse } from "@/lib/api-response";
 import { AuthServiceError, registerUser } from "@/modules/auth/auth.service";
@@ -26,7 +27,9 @@ export const POST = async (req: Request) => {
   }
 
   try {
-    const { user, token } = await registerUser(parsed.data);
+    const hdrs = await headers();
+    const origin = hdrs.get("origin") ?? new URL(req.url).origin;
+    const { user, token } = await registerUser(parsed.data, origin);
     const response = successResponse({ user }, { status: 201 });
     response.cookies.set(buildAuthCookie(token));
     return response;

@@ -1,6 +1,11 @@
 import nodemailer from "nodemailer";
 import { getEnv } from "@/lib/env";
-import { resetPasswordTemplate, matchWinnerTemplate, EmailTemplate } from "@/lib/email/templates";
+import {
+  resetPasswordTemplate,
+  matchWinnerTemplate,
+  verifyEmailTemplate,
+  EmailTemplate,
+} from "@/lib/email/templates";
 
 type MailPayload = {
   to: string;
@@ -63,4 +68,9 @@ export const sendMatchWinnerEmail = async (to: string, params: EmailTemplate["ma
   return sendMail({ to, ...template });
 };
 
-export { resetPasswordTemplate, matchWinnerTemplate };
+export const sendVerifyEmail = async (to: string, params: EmailTemplate["verifyEmail"]) => {
+  const template = verifyEmailTemplate(params);
+  return sendMail({ to, ...template });
+};
+
+export { resetPasswordTemplate, matchWinnerTemplate, verifyEmailTemplate };

@@ -11,6 +11,8 @@ const UserSchema = new Schema<User>(
     profileFileId: { type: String },
     phoneLocked: { type: Boolean, default: false },
     hostApprovedAt: { type: Date },
+    emailVerified: { type: Boolean, default: false },
+    emailVerifiedAt: { type: Date },
     role: { type: String, enum: Object.values(UserRole), default: UserRole.USER },
     ageVerified: { type: Boolean, default: false, required: true },
   },

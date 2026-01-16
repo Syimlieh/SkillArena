@@ -3,6 +3,7 @@ import { RegistrationStatus } from "@/enums/RegistrationStatus.enum";
 import { connectDb } from "@/lib/db";
 import { MatchModel } from "@/models/Match.model";
 import { RegistrationModel } from "@/models/Registration.model";
+import { UserModel } from "@/models/User.model";
 import { Registration } from "@/types/registration.types";
 import { AuthContext } from "@/lib/auth.server";
 import { Match } from "@/types/match.types";
@@ -48,6 +49,13 @@ const ensureNotAlreadyRegistered = async (userId: string, matchId: string) => {
   }
 };
 
+const ensureEmailVerified = async (userId: string) => {
+  const user = await UserModel.findById(userId).lean();
+  if (!user?.emailVerified) {
+    throw new RegistrationError("Please verify your email before joining a match", 403);
+  }
+};
+
 export const registerForMatch = async (matchId: string, userId: string, teamName?: string) => {
   await connectDb();
 
@@ -59,6 +67,7 @@ export const registerForMatch = async (matchId: string, userId: string, teamName
   ensureMatchIsJoinable(match);
   await ensureSlotsAvailable(match.matchId, match.maxSlots);
   await ensureNotAlreadyRegistered(userId, match.matchId);
+  await ensureEmailVerified(userId);
 
   const registration = await RegistrationModel.create({
     userId,
@@ -89,6 +98,7 @@ export const registerForMatchAsAdmin = async (
   ensureMatchIsJoinable(match);
   await ensureSlotsAvailable(match.matchId, match.maxSlots);
   await ensureNotAlreadyRegistered(userId, match.matchId);
+  await ensureEmailVerified(userId);
 
   const registration = await RegistrationModel.create({
     userId,

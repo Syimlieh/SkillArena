@@ -30,6 +30,7 @@ const buildProfileResponse = async (userId: string) => {
     phoneLocked: user.phoneLocked ?? false,
     profileFileId: user.profileFileId,
     avatarUrl,
+    emailVerified: user.emailVerified ?? false,
   };
 };
 

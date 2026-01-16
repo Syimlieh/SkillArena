@@ -10,6 +10,10 @@ export type EmailTemplate = {
     prize?: string | number;
     matchUrl?: string;
   };
+  verifyEmail: {
+    name?: string;
+    verifyUrl: string;
+  };
 };
 
 const baseStyles = {
@@ -75,5 +79,22 @@ export const matchWinnerTemplate = ({
 
   const text = textLines.join("\n");
 
+  return { subject, html, text };
+};
+
+export const verifyEmailTemplate = ({ name, verifyUrl }: EmailTemplate["verifyEmail"]) => {
+  const subject = "Verify your SkillArena email";
+  const greeting = name ? `Hi ${name},` : "Hi there,";
+  const html = `
+    <div style="${baseStyles.body}">
+      <p>${greeting}</p>
+      <p>Please verify your email to unlock match registrations and important updates.</p>
+      <p style="margin:18px 0">
+        <a href="${verifyUrl}" style="${baseStyles.button}">Verify Email</a>
+      </p>
+      <p style="${baseStyles.muted}">If you did not create an account, you can ignore this email.</p>
+    </div>
+  `;
+  const text = `${greeting}\n\nVerify your email:\n${verifyUrl}\n\nIf you did not create an account, ignore this email.`;
   return { subject, html, text };
 };
