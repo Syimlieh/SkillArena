@@ -40,9 +40,6 @@ export const POST = async (req: NextRequest, { params }: { params: Promise<{ mat
     }
 
     const existing = await MatchResultSubmissionModel.findOne({ userId: user.userId, matchId: match.matchId }).lean();
-    if (existing) {
-      return errorResponse("Result already submitted for this match.", 409);
-    }
 
     const body = await req.json().catch(() => null);
     const fileId = body?.fileId as string | undefined;
@@ -55,14 +52,46 @@ export const POST = async (req: NextRequest, { params }: { params: Promise<{ mat
       return errorResponse("Uploaded screenshot not found.", 400);
     }
 
-    const doc = await MatchResultSubmissionModel.create({
-      userId: user.userId,
-      matchId: match.matchId,
-      screenshotUrl: fileMeta.url,
-      fileId,
-      teamName: registration.teamName,
-      status: ResultStatus.SUBMITTED,
-    });
+    const canResubmit = !!existing && (existing.status === ResultStatus.REJECTED || existing.hostRejected);
+    if (existing && !canResubmit) {
+      return errorResponse("Result already submitted for this match.", 409);
+    }
+
+    const now = new Date();
+    const doc = existing
+      ? await MatchResultSubmissionModel.findOneAndUpdate(
+          { _id: existing._id, matchId: match.matchId },
+          {
+            $set: {
+              screenshotUrl: fileMeta.url,
+              fileId,
+              teamName: registration.teamName,
+              status: ResultStatus.SUBMITTED,
+              hostApproved: false,
+              hostRejected: false,
+              hostRejectReason: undefined,
+              hostApprovedAt: undefined,
+              hostApprovedBy: undefined,
+              adminRejectReason: undefined,
+              reviewerId: undefined,
+              createdAt: now,
+            },
+            $unset: {
+              placement: "",
+              kills: "",
+              totalScore: "",
+            },
+          },
+          { new: true }
+        )
+      : await MatchResultSubmissionModel.create({
+          userId: user.userId,
+          matchId: match.matchId,
+          screenshotUrl: fileMeta.url,
+          fileId,
+          teamName: registration.teamName,
+          status: ResultStatus.SUBMITTED,
+        });
     const signedUrl =
       fileMeta.type === FileType.RESULT_SCREENSHOT
         ? await createPresignedDownload(fileMeta.publicId, 300)
@@ -71,16 +100,17 @@ export const POST = async (req: NextRequest, { params }: { params: Promise<{ mat
     return successResponse(
       {
         submission: {
-          submissionId: doc._id?.toString(),
-          status: doc.status,
+          submissionId: doc?._id?.toString(),
+          status: doc?.status,
           screenshotUrl: signedUrl,
-          submittedAt: doc.createdAt ?? new Date().toISOString(),
+          submittedAt: doc?.createdAt ?? now.toISOString(),
           fileId,
-          hostApproved: doc.hostApproved,
-          hostRejected: doc.hostRejected,
-          hostRejectReason: doc.hostRejectReason,
-          hostApprovedAt: doc.hostApprovedAt,
-          hostApprovedBy: doc.hostApprovedBy,
+          hostApproved: doc?.hostApproved,
+          hostRejected: doc?.hostRejected,
+          hostRejectReason: doc?.hostRejectReason,
+          hostApprovedAt: doc?.hostApprovedAt,
+          hostApprovedBy: doc?.hostApprovedBy,
+          adminRejectReason: doc?.adminRejectReason,
         },
       },
       { status: 201 }

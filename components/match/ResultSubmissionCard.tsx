@@ -116,6 +116,8 @@ export const ResultSubmissionCard = ({ matchId, matchStatus, isRegistered }: Pro
       if (submission) {
         setExisting(submission);
         setPreviewUrl(submission.screenshotUrl);
+        setFile(null);
+        setConfirm(false);
       }
     } catch (err: any) {
       const msg =
@@ -135,6 +137,8 @@ export const ResultSubmissionCard = ({ matchId, matchStatus, isRegistered }: Pro
     if (!canSubmit && !existing)
       return <p className="text-sm text-[var(--text-secondary)]">Result submission opens once the match starts.</p>;
     if (existing) {
+      const isRejected = existing.status === ResultStatus.REJECTED || existing.hostRejected;
+      const canResubmit = isRejected && canSubmit;
       const statusTone =
         existing.status === ResultStatus.REJECTED
           ? "bg-rose-500/15 text-rose-700 dark:text-rose-200"
@@ -157,12 +161,56 @@ export const ResultSubmissionCard = ({ matchId, matchStatus, isRegistered }: Pro
             </span>
             <span className="text-sm">Screenshot submitted</span>
           </div>
+          {(existing.adminRejectReason || existing.hostRejectReason) && (
+            <p className="text-xs text-rose-300">
+              {existing.adminRejectReason || existing.hostRejectReason}
+            </p>
+          )}
           {existing.screenshotUrl && (
             <div className="overflow-hidden rounded-xl border border-[var(--border-subtle)] bg-[var(--card-bg)]">
               <img src={existing.screenshotUrl} alt="Submitted screenshot" className="w-full max-h-80 object-cover" />
             </div>
           )}
           <p className="text-xs text-[var(--text-secondary)]">Submitted at: {new Date(existing.submittedAt).toLocaleString()}</p>
+          {canResubmit ? (
+            <div className="flex flex-col gap-4 pt-2">
+              <Button type="button" onClick={() => fileInputRef.current?.click()} className="w-fit">
+                Upload New Screenshot
+              </Button>
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/png,image/jpeg"
+                className="hidden"
+                onChange={(e) => handleFileChange(e.target.files?.[0] ?? null)}
+              />
+              <div
+                className={clsx(
+                  "rounded-xl border border-dashed p-4 transition",
+                  file ? "border-[var(--primary)] bg-[var(--card-bg)]" : "border-[var(--border-subtle)] bg-[var(--card-bg)]/60"
+                )}
+              >
+                {previewUrl ? (
+                  <img src={previewUrl} alt="Screenshot preview" className="w-full max-h-80 rounded-lg object-cover" />
+                ) : (
+                  <p className="text-sm text-[var(--text-secondary)]">PNG or JPG up to 5MB.</p>
+                )}
+              </div>
+              <label className="flex items-start gap-2 text-sm text-[var(--text-secondary)]">
+                <input
+                  type="checkbox"
+                  className="mt-1"
+                  checked={confirm}
+                  onChange={(e) => setConfirm(e.target.checked)}
+                />
+                <span>This screenshot is unedited and genuine.</span>
+              </label>
+              {error && <p className="text-sm text-rose-600 dark:text-rose-300">{error}</p>}
+              <Button type="button" onClick={handleSubmit} disabled={submitting} className="w-fit">
+                {submitting ? "Submitting..." : "Resubmit Result"}
+              </Button>
+            </div>
+          ) : null}
         </div>
       );
     }

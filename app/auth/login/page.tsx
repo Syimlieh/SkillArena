@@ -9,6 +9,7 @@ import { resolveDashboardRoute } from "@/modules/navigation/navigation.service";
 
 const LoginPage = async () => {
   const user = await requireUser().catch(() => null);
+  console.log('user', user)
   if (user) {
     redirect(resolveDashboardRoute(user.role));
   }

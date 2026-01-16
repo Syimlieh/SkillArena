@@ -110,9 +110,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       }
       dispatch({ type: "SET_USER", payload: result.user });
       dispatch({ type: "SET_STATUS", payload: AuthStatus.AUTHENTICATED });
+      await hydrateProfile();
       return { success: true, message: "Logged in", user: result.user };
     },
-    []
+    [hydrateProfile]
   );
 
   const register = useCallback(
@@ -127,9 +128,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       }
       dispatch({ type: "SET_USER", payload: result.user });
       dispatch({ type: "SET_STATUS", payload: AuthStatus.AUTHENTICATED });
+      await hydrateProfile();
       return { success: true, message: "Registered", user: result.user };
     },
-    []
+    [hydrateProfile]
   );
 
   const logout = useCallback(() => {

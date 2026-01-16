@@ -45,6 +45,7 @@ export const GET = async (_req: NextRequest, { params }: { params: Promise<{ mat
         hostRejectReason: submission.hostRejectReason,
         hostApprovedAt: submission.hostApprovedAt,
         hostApprovedBy: submission.hostApprovedBy,
+        adminRejectReason: submission.adminRejectReason,
       },
     });
   } catch (err) {
