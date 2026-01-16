@@ -1,6 +1,5 @@
 import Link from "next/link";
 import { Badge } from "@/components/ui/Badge";
-import { Navbar } from "@/components/layout/Navbar";
 import { VerifyEmailStatus } from "@/components/auth/VerifyEmailStatus";
 
 type VerifyPageProps = {
@@ -12,7 +11,6 @@ const VerifyEmailPage = async ({ searchParams }: VerifyPageProps) => {
 
   return (
     <>
-      <Navbar variant="public" />
       <div className="mx-auto flex min-h-screen max-w-6xl items-center px-6 py-12 text-[var(--text-primary)]">
         <div className="grid w-full items-start gap-10 md:grid-cols-[1.05fr_0.95fr]">
           <div className="space-y-4">

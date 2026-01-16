@@ -1,7 +1,7 @@
 import { ReactNode } from "react";
 import { redirect } from "next/navigation";
-import { Navbar } from "@/components/layout/Navbar";
 import { requireUser } from "@/lib/auth.server";
+import NavigationShell from "@/components/navigation/NavigationShell";
 
 const DashboardLayout = async ({ children }: { children: ReactNode }) => {
   try {
@@ -11,10 +11,7 @@ const DashboardLayout = async ({ children }: { children: ReactNode }) => {
   }
 
   return (
-    <>
-      <Navbar variant="app" />
-      {children}
-    </>
+    <NavigationShell variant="app">{children}</NavigationShell>
   );
 };
 

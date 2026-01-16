@@ -4,7 +4,6 @@ import { RULES_PAGE_META, RULES_SECTIONS, PENALTY_TABLE } from "@/lib/rules.cons
 import RulesSection from "@/components/rules/RulesSection";
 import RulesTable from "@/components/rules/RulesTable";
 import { Badge } from "@/components/ui/Badge";
-import { Navbar } from "@/components/layout/Navbar";
 
 export const metadata: Metadata = {
   title: RULES_PAGE_META.title,
@@ -35,7 +34,6 @@ const toc = [
 const RulesPage = () => {
   return (
     <div className="min-h-screen bg-[var(--bg-primary)] text-[var(--text-primary)]">
-      <Navbar variant="public" />
       <div className="mx-auto flex w-full max-w-6xl flex-col gap-6 px-6 py-12 md:flex-row">
         <aside className="md:sticky md:top-24 md:w-64 md:self-start">
           <div className="mb-4 text-xs uppercase tracking-[0.2em] text-[var(--primary)]">Rules</div>

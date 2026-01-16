@@ -116,7 +116,7 @@ export const MatchRequestsSection = ({ initialRequests }: Props) => {
   };
 
   return (
-    <section className="space-y-4">
+    <section id="match-requests" className="space-y-4">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="space-y-1">
           <h2 className="text-2xl font-bold text-[var(--text-primary)]">Match Requests</h2>

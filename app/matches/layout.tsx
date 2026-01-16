@@ -1,12 +1,9 @@
 import { ReactNode } from "react";
-import { Navbar } from "@/components/layout/Navbar";
+import NavigationShell from "@/components/navigation/NavigationShell";
 
 const MatchesLayout = ({ children }: { children: ReactNode }) => {
   return (
-    <>
-      <Navbar variant="app" />
-      {children}
-    </>
+    <NavigationShell variant="public">{children}</NavigationShell>
   );
 };
 

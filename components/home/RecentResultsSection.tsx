@@ -95,7 +95,7 @@ export const RecentResultsSection = ({ results }: Props) => {
                     Winner
                   </span>
                 </div>
-                <div className="relative mt-4 grid gap-20 text-xs text-[var(--text-secondary)] sm:grid-cols-2">
+                <div className="relative mt-4 grid gap-6 text-xs text-[var(--text-secondary)] sm:grid-cols-2">
                   <span>Map: {result.map}</span>
                   {typeof result.winnerPosition === "number" ? <span>Pos: {result.winnerPosition}</span> : null}
                   {typeof result.winnerTotalScore === "number" ? <span>Total Points: {result.winnerTotalScore}</span> : null}
