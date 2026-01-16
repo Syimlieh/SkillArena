@@ -50,31 +50,39 @@ const MatchDetailsPage = async ({ params }: { params: { slug: string } }) => {
   const canStart = (userId && match.createdBy === userId) || userRole === UserRole.ADMIN;
   const showStartButton = canStart && match.status === MatchStatus.UPCOMING;
   const isAdmin = userRole === UserRole.ADMIN;
+  const isHostOwner = !!userId && match.createdBy === userId;
+  const canReviewResults = isAdmin || isHostOwner;
 
-  let submissions: { userId?: string; teamName?: string; status: ResultStatus; screenshotUrl: string; submittedAt: string; submissionId?: string; placement?: number; kills?: number; totalScore?: number }[] = [];
+  let submissions: { userId?: string; teamName?: string; status: ResultStatus; screenshotUrl: string; submittedAt: string; submissionId?: string; placement?: number; kills?: number; totalScore?: number; hostApproved?: boolean; hostRejected?: boolean; hostRejectReason?: string; hostApprovedAt?: string; adminRejectReason?: string }[] = [];
   let registeredUsers: { userId?: string; name?: string; email?: string; teamName?: string; status: RegistrationStatus; paymentAmount?: number; paymentMethod?: string; paymentReference?: string; registeredAt?: string }[] = [];
-  if (isAdmin) {
+  if (canReviewResults) {
     try {
-      const registrations = await RegistrationModel.find({ matchId: match.matchId }).lean();
-      const registeredUserIds = registrations.map((r) => r.userId).filter(Boolean) as string[];
-      const users = registeredUserIds.length
-        ? await UserModel.find({ _id: { $in: registeredUserIds } }).lean()
-        : [];
-      const nameByUser = new Map(users.map((u: any) => [u._id?.toString?.() ?? "", u.name]));
-      const emailByUser = new Map(users.map((u: any) => [u._id?.toString?.() ?? "", u.email]));
-      const teamByUser = new Map(registrations.map((r) => [r.userId, r.teamName]));
+      const nameByUser = new Map<string, string>();
+      const teamByUser = new Map<string, string>();
+      if (isAdmin) {
+        const registrations = await RegistrationModel.find({ matchId: match.matchId }).lean();
+        const registeredUserIds = registrations.map((r) => r.userId).filter(Boolean) as string[];
+        const users = registeredUserIds.length
+          ? await UserModel.find({ _id: { $in: registeredUserIds } }).lean()
+          : [];
+        const nameMap = new Map(users.map((u: any) => [u._id?.toString?.() ?? "", u.name]));
+        const emailByUser = new Map(users.map((u: any) => [u._id?.toString?.() ?? "", u.email]));
+        const teamMap = new Map(registrations.map((r) => [r.userId, r.teamName]));
+        nameMap.forEach((value, key) => nameByUser.set(key, value));
+        teamMap.forEach((value, key) => teamByUser.set(key, value));
 
-      registeredUsers = registrations.map((r) => ({
-        userId: r.userId,
-        name: nameByUser.get(r.userId),
-        email: emailByUser.get(r.userId),
-        teamName: r.teamName,
-        status: r.status as RegistrationStatus,
-        paymentAmount: r.paymentAmount,
-        paymentMethod: r.paymentMethod,
-        paymentReference: r.paymentReference,
-        registeredAt: r.createdAt ? new Date(r.createdAt).toISOString() : undefined,
-      }));
+        registeredUsers = registrations.map((r) => ({
+          userId: r.userId,
+          name: nameMap.get(r.userId),
+          email: emailByUser.get(r.userId),
+          teamName: r.teamName,
+          status: r.status as RegistrationStatus,
+          paymentAmount: r.paymentAmount,
+          paymentMethod: r.paymentMethod,
+          paymentReference: r.paymentReference,
+          registeredAt: r.createdAt ? new Date(r.createdAt).toISOString() : undefined,
+        }));
+      }
 
       const records = await MatchResultSubmissionModel.find({ matchId: match.matchId }).lean();
       const fileIds = records.map((r) => r.fileId).filter(Boolean) as string[];
@@ -93,10 +101,15 @@ const MatchDetailsPage = async ({ params }: { params: { slug: string } }) => {
           return {
             submissionId: r._id?.toString(),
             userId: r.userId,
-            teamName: teamByUser.get(r.userId) || nameByUser.get(r.userId),
+            teamName: r.teamName || teamByUser.get(r.userId) || nameByUser.get(r.userId),
             status: r.status as ResultStatus,
             screenshotUrl,
             submittedAt: r.createdAt ? new Date(r.createdAt).toISOString() : new Date().toISOString(),
+            hostApproved: r.hostApproved ?? false,
+            hostRejected: r.hostRejected ?? false,
+            hostRejectReason: r.hostRejectReason,
+            hostApprovedAt: r.hostApprovedAt ? new Date(r.hostApprovedAt).toISOString() : undefined,
+            adminRejectReason: r.adminRejectReason,
             placement: r.placement,
             kills: r.kills,
             totalScore: r.totalScore,
@@ -113,17 +126,19 @@ const MatchDetailsPage = async ({ params }: { params: { slug: string } }) => {
     <div className="mx-auto max-w-5xl px-6 py-10 space-y-6 text-[var(--text-primary)]">
       <MatchHeader match={clientMatch} />
       <MatchDetailsCard match={clientMatch} />
-      {isAdmin ? (
+      {canReviewResults ? (
         <>
-          <RegisteredUsersAdminTable users={registeredUsers} />
-          <ResultSubmissionsAdminTable submissions={submissions} matchId={match.matchId} />
+          {isAdmin && <RegisteredUsersAdminTable users={registeredUsers} />}
+          <ResultSubmissionsAdminTable submissions={submissions} matchId={match.matchId} isAdmin={isAdmin} />
         </>
       ) : (
         <ResultSubmissionCard matchId={match.matchId} matchStatus={match.status} isRegistered={isRegistered} />
       )}
       <div className="space-y-3">
         {showStartButton && <StartMatchButton matchId={match.matchId} />}
-        <RegisterButton match={clientMatch} registrationStatus={registrationStatus} isRegistered={isRegistered} />
+        {!isHostOwner && (
+          <RegisterButton match={clientMatch} registrationStatus={registrationStatus} isRegistered={isRegistered} />
+        )}
         <div className="flex justify-center">
           <div className="w-full max-w-xl">
             <AdminManualRegisterButton matchId={match.matchId} buttonVariant="primary" fullWidth />

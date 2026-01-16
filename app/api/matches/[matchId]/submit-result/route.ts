@@ -76,6 +76,11 @@ export const POST = async (req: NextRequest, { params }: { params: Promise<{ mat
           screenshotUrl: signedUrl,
           submittedAt: doc.createdAt ?? new Date().toISOString(),
           fileId,
+          hostApproved: doc.hostApproved,
+          hostRejected: doc.hostRejected,
+          hostRejectReason: doc.hostRejectReason,
+          hostApprovedAt: doc.hostApprovedAt,
+          hostApprovedBy: doc.hostApprovedBy,
         },
       },
       { status: 201 }

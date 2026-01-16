@@ -7,6 +7,12 @@ export interface MatchResultSubmission {
   userId: string;
   fileId?: string;
   screenshotUrl: string;
+  hostApproved?: boolean;
+  hostRejected?: boolean;
+  hostRejectReason?: string;
+  hostApprovedAt?: Date | string;
+  hostApprovedBy?: string;
+  adminRejectReason?: string;
   status: ResultStatus;
   placement?: number;
   kills?: number;
@@ -20,6 +26,12 @@ export interface ResultSubmissionResponse {
   status: ResultStatus;
   fileId?: string;
   screenshotUrl: string;
+  hostApproved?: boolean;
+  hostRejected?: boolean;
+  hostRejectReason?: string;
+  hostApprovedAt?: Date | string;
+  hostApprovedBy?: string;
+  adminRejectReason?: string;
   submittedAt: string;
   submissionId?: string;
   placement?: number;

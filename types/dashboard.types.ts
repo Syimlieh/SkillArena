@@ -14,6 +14,7 @@ export interface DashboardData {
   history: DashboardScrim[];
   nextJoinable?: Scrim;
   availableMatches: Match[];
+  hostedMatches: Match[];
   registeredMatches: RegisteredMatch[];
 }
 

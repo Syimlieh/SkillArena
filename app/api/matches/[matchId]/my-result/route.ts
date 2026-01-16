@@ -40,6 +40,11 @@ export const GET = async (_req: NextRequest, { params }: { params: Promise<{ mat
         status: submission.status,
         screenshotUrl,
         submittedAt: submission.createdAt ?? new Date().toISOString(),
+        hostApproved: submission.hostApproved,
+        hostRejected: submission.hostRejected,
+        hostRejectReason: submission.hostRejectReason,
+        hostApprovedAt: submission.hostApprovedAt,
+        hostApprovedBy: submission.hostApprovedBy,
       },
     });
   } catch (err) {

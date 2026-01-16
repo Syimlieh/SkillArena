@@ -35,6 +35,7 @@ export const PATCH = async (req: NextRequest, { params }: { params: Promise<{ ma
     const placement = typeof body.placement === "number" ? body.placement : undefined;
     const kills = typeof body.kills === "number" ? body.kills : undefined;
     const status = body.status as ResultStatus | undefined;
+    const rejectReason = typeof body.rejectReason === "string" ? body.rejectReason.trim() : "";
 
     const doc = await MatchResultSubmissionModel.findOne({ _id: submissionId, matchId });
     if (!doc) return errorResponse("Submission not found", 404);
@@ -43,6 +44,11 @@ export const PATCH = async (req: NextRequest, { params }: { params: Promise<{ ma
     if (kills !== undefined) doc.kills = kills;
     if (status && Object.values(ResultStatus).includes(status)) {
       doc.status = status;
+      if (status === ResultStatus.REJECTED) {
+        doc.adminRejectReason = rejectReason || undefined;
+      } else {
+        doc.adminRejectReason = undefined;
+      }
     }
     doc.totalScore = calculateScore(doc.placement, doc.kills);
     doc.reviewerId = admin.userId;
@@ -64,6 +70,12 @@ export const PATCH = async (req: NextRequest, { params }: { params: Promise<{ ma
         status: doc.status,
         screenshotUrl,
         submittedAt: doc.createdAt ?? new Date().toISOString(),
+        hostApproved: doc.hostApproved,
+        hostRejected: doc.hostRejected,
+        hostRejectReason: doc.hostRejectReason,
+        hostApprovedAt: doc.hostApprovedAt,
+        hostApprovedBy: doc.hostApprovedBy,
+        adminRejectReason: doc.adminRejectReason,
         placement: doc.placement,
         kills: doc.kills,
         totalScore: doc.totalScore,

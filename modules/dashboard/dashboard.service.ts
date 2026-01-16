@@ -45,6 +45,7 @@ export const getDashboardData = async (userId?: string): Promise<DashboardData> 
   const relevantMap = new Map(relevantMatches.map((m) => [m.matchId, m]));
 
   let registeredMatches: RegisteredMatch[] = [];
+  let hostedMatches: Match[] = [];
   if (userId) {
     const regs = await RegistrationModel.find({ userId }).lean();
     const matchIds = regs.map((r) => r.matchId);
@@ -56,10 +57,14 @@ export const getDashboardData = async (userId?: string): Promise<DashboardData> 
         return toRegisteredMatch(match, reg?.status ?? RegistrationStatus.NONE);
       })
       .filter(Boolean) as RegisteredMatch[];
+    hostedMatches = relevantMatches.filter((match) => match.createdBy === userId);
   }
 
   const registeredIds = registeredMatches.map((r) => r.match.matchId);
-  const availableMatches = upcomingMatches.filter((m) => !registeredIds.includes(m.matchId));
+  const hostedIds = hostedMatches.map((m) => m.matchId);
+  const availableMatches = upcomingMatches.filter(
+    (m) => !registeredIds.includes(m.matchId) && !hostedIds.includes(m.matchId)
+  );
 
   // Placeholder: assumes all UPCOMING/COMPLETED scrims in DB are joined by the user.
   const upcoming = scrims
@@ -76,6 +81,7 @@ export const getDashboardData = async (userId?: string): Promise<DashboardData> 
     history,
     nextJoinable,
     availableMatches,
+    hostedMatches,
     registeredMatches,
   };
 };

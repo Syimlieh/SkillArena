@@ -43,7 +43,7 @@ export const RegisteredMatches = ({ matches }: Props) => {
   if (!matches.length) return null;
   return (
     <div className="space-y-3">
-      <div className="text-sm uppercase text-[var(--text-secondary)]">My Matches</div>
+      <div className="text-sm uppercase text-[var(--text-secondary)]">Registered Matches</div>
       <div className="grid gap-3 md:grid-cols-2">
         {matches.map((item) => {
           const { match, registrationStatus, paymentStatus } = item;
