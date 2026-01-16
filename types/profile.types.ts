@@ -6,6 +6,7 @@ export interface Profile {
   email: string;
   phone?: string;
   role: UserRole;
+  phoneLocked?: boolean;
   profileFileId?: string;
   avatarUrl?: string;
 }

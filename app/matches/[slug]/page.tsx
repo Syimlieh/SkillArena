@@ -17,11 +17,11 @@ import { MatchResultSubmissionModel } from "@/models/MatchResultSubmission.model
 import { ResultStatus } from "@/enums/ResultStatus.enum";
 import ResultSubmissionsAdminTable from "@/components/match/ResultSubmissionsAdminTable";
 import { RegistrationModel } from "@/models/Registration.model";
-import { ACTIVE_REG_STATUSES } from "@/modules/registrations/registration.service";
 import { UserModel } from "@/models/User.model";
 import { FileMetadataModel } from "@/models/FileMetadata.model";
 import { createPresignedDownload } from "@/lib/spaces";
 import { FileType } from "@/types/file.types";
+import RegisteredUsersAdminTable from "@/components/match/RegisteredUsersAdminTable";
 
 const MatchDetailsPage = async ({ params }: { params: { slug: string } }) => {
   const { slug } = await params;
@@ -52,17 +52,31 @@ const MatchDetailsPage = async ({ params }: { params: { slug: string } }) => {
   const isAdmin = userRole === UserRole.ADMIN;
 
   let submissions: { userId?: string; teamName?: string; status: ResultStatus; screenshotUrl: string; submittedAt: string; submissionId?: string; placement?: number; kills?: number; totalScore?: number }[] = [];
+  let registeredUsers: { userId?: string; name?: string; email?: string; teamName?: string; status: RegistrationStatus; paymentAmount?: number; paymentMethod?: string; paymentReference?: string; registeredAt?: string }[] = [];
   if (isAdmin) {
     try {
-      const records = await MatchResultSubmissionModel.find({ matchId: match.matchId }).lean();
-      const userIds = records.map((r) => r.userId).filter(Boolean) as string[];
-      const regDocs = await RegistrationModel.find({
-        matchId: match.matchId,
-        userId: { $in: userIds },
-      }).lean();
-      const teamByUser = new Map(regDocs.map((r) => [r.userId, r.teamName]));
-      const users = await UserModel.find({ _id: { $in: userIds } }).lean();
+      const registrations = await RegistrationModel.find({ matchId: match.matchId }).lean();
+      const registeredUserIds = registrations.map((r) => r.userId).filter(Boolean) as string[];
+      const users = registeredUserIds.length
+        ? await UserModel.find({ _id: { $in: registeredUserIds } }).lean()
+        : [];
       const nameByUser = new Map(users.map((u: any) => [u._id?.toString?.() ?? "", u.name]));
+      const emailByUser = new Map(users.map((u: any) => [u._id?.toString?.() ?? "", u.email]));
+      const teamByUser = new Map(registrations.map((r) => [r.userId, r.teamName]));
+
+      registeredUsers = registrations.map((r) => ({
+        userId: r.userId,
+        name: nameByUser.get(r.userId),
+        email: emailByUser.get(r.userId),
+        teamName: r.teamName,
+        status: r.status as RegistrationStatus,
+        paymentAmount: r.paymentAmount,
+        paymentMethod: r.paymentMethod,
+        paymentReference: r.paymentReference,
+        registeredAt: r.createdAt ? new Date(r.createdAt).toISOString() : undefined,
+      }));
+
+      const records = await MatchResultSubmissionModel.find({ matchId: match.matchId }).lean();
       const fileIds = records.map((r) => r.fileId).filter(Boolean) as string[];
       const fileMetaDocs = fileIds.length
         ? await FileMetadataModel.find({ fileId: { $in: fileIds } }).lean()
@@ -91,6 +105,7 @@ const MatchDetailsPage = async ({ params }: { params: { slug: string } }) => {
       );
     } catch {
       submissions = [];
+      registeredUsers = [];
     }
   }
 
@@ -99,7 +114,10 @@ const MatchDetailsPage = async ({ params }: { params: { slug: string } }) => {
       <MatchHeader match={clientMatch} />
       <MatchDetailsCard match={clientMatch} />
       {isAdmin ? (
-        <ResultSubmissionsAdminTable submissions={submissions} matchId={match.matchId} />
+        <>
+          <RegisteredUsersAdminTable users={registeredUsers} />
+          <ResultSubmissionsAdminTable submissions={submissions} matchId={match.matchId} />
+        </>
       ) : (
         <ResultSubmissionCard matchId={match.matchId} matchStatus={match.status} isRegistered={isRegistered} />
       )}

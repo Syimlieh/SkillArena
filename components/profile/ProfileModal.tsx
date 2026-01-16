@@ -156,7 +156,11 @@ const ProfileModal = ({ isOpen, onClose }: Props) => {
                 onChange={(e) => setPhone(e.target.value)}
                 className={inputClass}
                 placeholder="+91 9876543210"
+                disabled={profile?.phoneLocked}
               />
+              {profile?.phoneLocked && (
+                <p className="text-xs text-[var(--text-secondary)]">Phone number is locked for hosts.</p>
+              )}
             </div>
 
             {error && <p className="text-sm text-red-400">{error}</p>}

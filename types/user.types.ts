@@ -11,6 +11,8 @@ export interface User {
   ageVerified: boolean;
   profileFileId?: string;
   avatarUrl?: string;
+  phoneLocked?: boolean;
+  hostApprovedAt?: Date;
   createdAt?: Date;
   updatedAt?: Date;
 }

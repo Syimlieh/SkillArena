@@ -8,6 +8,7 @@ import { MatchType } from "@/enums/MatchType.enum";
 import { RegistrationStatus } from "@/enums/RegistrationStatus.enum";
 import { PaymentStatus } from "@/enums/PaymentStatus.enum";
 import { buildMatchDetailRoute } from "@/lib/routes";
+import { MatchStatus } from "@/enums/MatchStatus.enum";
 
 interface Props {
   matches: RegisteredMatch[];
@@ -25,6 +26,11 @@ const formatTime = (date: Date | string) =>
 
 const mapTone = (map?: MatchMap) => (map === MatchMap.LIVIK ? "warning" : "success");
 const typeTone = (type?: MatchType) => (type === MatchType.COMMUNITY ? "neutral" : "success");
+const formatMatchStatus = (status?: MatchStatus) => {
+  if (!status) return "Unknown";
+  if (status === MatchStatus.AWAITING_RESULTS) return "Awaiting Results";
+  return status.toLowerCase().replace(/_/g, " ");
+};
 
 const statusLabel = (reg: RegistrationStatus, pay: PaymentStatus) => {
   if (reg === RegistrationStatus.PENDING_PAYMENT) return { text: "Awaiting Payment", tone: "warning" as const };
@@ -52,7 +58,10 @@ export const RegisteredMatches = ({ matches }: Props) => {
                 <Badge tone={mapTone(match.map)}>{match.map}</Badge>
               </div>
               <div className="text-xs text-[var(--text-secondary)]">Match ID: {match.matchId}</div>
-              <div className="text-sm text-[var(--text-secondary)]">Start: {formatTime(match.startTime)}</div>
+              <div className="flex items-center justify-between text-sm text-[var(--text-secondary)]">
+                <span>Start: {formatTime(match.startTime)}</span>
+                <span className="text-[var(--accent-primary)] font-semibold">{formatMatchStatus(match.status)}</span>
+              </div>
               <div className="text-sm text-[var(--text-secondary)]">Entry: ₹{match.entryFee} • Prize Pool: ₹{match.prizePool}</div>
               <div className="flex items-center justify-between">
                 <Badge tone={label.tone}>{label.text}</Badge>

@@ -3,6 +3,7 @@ import { z } from "zod";
 import { requireUser } from "@/lib/auth.server";
 import { connectDb } from "@/lib/db";
 import { UserModel } from "@/models/User.model";
+import { UserRole } from "@/enums/UserRole.enum";
 import { FileMetadataModel } from "@/models/FileMetadata.model";
 
 const updateProfileSchema = z.object({
@@ -26,6 +27,7 @@ const buildProfileResponse = async (userId: string) => {
     email: user.email,
     phone: user.phone,
     role: user.role,
+    phoneLocked: user.phoneLocked ?? false,
     profileFileId: user.profileFileId,
     avatarUrl,
   };
@@ -53,6 +55,12 @@ export const PATCH = async (req: Request) => {
     }
 
     await connectDb();
+    if (parsed.data.phone !== undefined) {
+      const existing = await UserModel.findById(user.userId).lean();
+      if (existing?.phoneLocked || existing?.role === UserRole.HOST) {
+        return NextResponse.json({ error: "Phone number is locked" }, { status: 403 });
+      }
+    }
     const updates: Record<string, unknown> = {};
     if (parsed.data.name !== undefined) updates.name = parsed.data.name;
     if (parsed.data.phone !== undefined) updates.phone = parsed.data.phone;

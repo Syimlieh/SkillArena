@@ -1,16 +1,41 @@
 "use client";
 
-import { FormEvent, useState } from "react";
+import { FormEvent, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { hostApplicationSchema } from "@/modules/host/host.validator";
 import { Button } from "@/components/ui/Button";
+import { useAuth } from "@/context/AuthContext";
 
 export const HostApplicationForm = () => {
   const router = useRouter();
-  const [form, setForm] = useState({ displayName: "", description: "", contactEmail: "" });
+  const { state } = useAuth();
+  const [form, setForm] = useState({
+    displayName: "",
+    description: "",
+    contactEmail: "",
+    hasHostedBefore: false,
+    understandsRules: false,
+    agreesFairPlay: false,
+    understandsBan: false,
+    agreesCoordinate: false,
+    confirmsPayouts: false,
+    confirmsMobile: false,
+  });
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<string | undefined>();
   const [success, setSuccess] = useState(false);
+
+  const allConfirmed = useMemo(
+    () =>
+      form.hasHostedBefore &&
+      form.understandsRules &&
+      form.agreesFairPlay &&
+      form.understandsBan &&
+      form.agreesCoordinate &&
+      form.confirmsPayouts &&
+      form.confirmsMobile,
+    [form]
+  );
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -47,7 +72,18 @@ export const HostApplicationForm = () => {
       }
       setSuccess(true);
       setMessage("Your host application has been submitted for review.");
-      setForm({ displayName: "", description: "", contactEmail: "" });
+      setForm({
+        displayName: "",
+        description: "",
+        contactEmail: "",
+        hasHostedBefore: false,
+        understandsRules: false,
+        agreesFairPlay: false,
+        understandsBan: false,
+        agreesCoordinate: false,
+        confirmsPayouts: false,
+        confirmsMobile: false,
+      });
       router.refresh();
     } catch {
       setMessage("Network error. Please try again.");
@@ -58,6 +94,8 @@ export const HostApplicationForm = () => {
 
   const inputBase =
     "w-full rounded-xl border border-[var(--border-subtle)] bg-[var(--card-bg)] px-4 py-3 text-sm text-[var(--text-primary)] focus:border-[var(--accent-primary)] focus:outline-none placeholder:text-[var(--text-secondary)]";
+  const checkboxBase =
+    "flex items-start gap-3 rounded-xl border border-[var(--border-subtle)] bg-[var(--card-bg)] px-4 py-3 text-sm text-[var(--text-secondary)]";
 
   return (
     <form onSubmit={handleSubmit} className="glass-panel rounded-2xl p-6 space-y-4">
@@ -96,8 +134,80 @@ export const HostApplicationForm = () => {
           required
         />
       </div>
+      <div className="space-y-2">
+        <label className="text-sm font-semibold text-[var(--text-primary)]">Host Declarations</label>
+        <label className={checkboxBase}>
+          <input
+            type="checkbox"
+            checked={form.hasHostedBefore}
+            onChange={(e) => setForm((prev) => ({ ...prev, hasHostedBefore: e.target.checked }))}
+            className="mt-1 h-4 w-4 accent-[var(--primary)]"
+          />
+          <span>I have previously hosted BGMI / PUBG / esports scrims or tournaments.</span>
+        </label>
+        <label className={checkboxBase}>
+          <input
+            type="checkbox"
+            checked={form.understandsRules}
+            onChange={(e) => setForm((prev) => ({ ...prev, understandsRules: e.target.checked }))}
+            className="mt-1 h-4 w-4 accent-[var(--primary)]"
+          />
+          <span>I understand SkillArena match rules, scoring systems, and result verification.</span>
+        </label>
+        <label className={checkboxBase}>
+          <input
+            type="checkbox"
+            checked={form.agreesFairPlay}
+            onChange={(e) => setForm((prev) => ({ ...prev, agreesFairPlay: e.target.checked }))}
+            className="mt-1 h-4 w-4 accent-[var(--primary)]"
+          />
+          <span>I agree to run fair lobbies and never favor any team or player.</span>
+        </label>
+        <label className={checkboxBase}>
+          <input
+            type="checkbox"
+            checked={form.understandsBan}
+            onChange={(e) => setForm((prev) => ({ ...prev, understandsBan: e.target.checked }))}
+            className="mt-1 h-4 w-4 accent-[var(--primary)]"
+          />
+          <span>I understand that submitting incorrect or manipulated results can lead to permanent host ban.</span>
+        </label>
+        <label className={checkboxBase}>
+          <input
+            type="checkbox"
+            checked={form.agreesCoordinate}
+            onChange={(e) => setForm((prev) => ({ ...prev, agreesCoordinate: e.target.checked }))}
+            className="mt-1 h-4 w-4 accent-[var(--primary)]"
+          />
+          <span>I agree to coordinate with admins if disputes, no-shows, or issues occur.</span>
+        </label>
+        <label className={checkboxBase}>
+          <input
+            type="checkbox"
+            checked={form.confirmsPayouts}
+            onChange={(e) => setForm((prev) => ({ ...prev, confirmsPayouts: e.target.checked }))}
+            className="mt-1 h-4 w-4 accent-[var(--primary)]"
+          />
+          <span>I confirm that payouts are released only after admin approval.</span>
+        </label>
+        <label className={checkboxBase}>
+          <input
+            type="checkbox"
+            checked={form.confirmsMobile}
+            onChange={(e) => setForm((prev) => ({ ...prev, confirmsMobile: e.target.checked }))}
+            className="mt-1 h-4 w-4 accent-[var(--primary)]"
+          />
+          <span>
+            I confirm this is my active mobile number{" "}
+            <span className="font-semibold text-[var(--accent-primary)]">
+              ({state.user?.phone ?? "not set"})
+            </span>{" "}
+            and I can be contacted by SkillArena admins.
+          </span>
+        </label>
+      </div>
       {message && <p className={success ? "text-sm text-[var(--primary)]" : "text-sm text-red-400"}>{message}</p>}
-      <Button type="submit" disabled={loading}>
+      <Button type="submit" disabled={loading || !allConfirmed}>
         {loading ? "Submitting..." : "Submit Application"}
       </Button>
     </form>

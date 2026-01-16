@@ -20,6 +20,11 @@ export const applyForHost = async (userId: string, role: UserRole, input: HostAp
     throw new HostApplicationError("Only players can apply to host", 403);
   }
 
+  const user = await UserModel.findById(userId).lean();
+  if (!user?.phone) {
+    throw new HostApplicationError("A valid mobile number is required to apply", 400);
+  }
+
   const existingPending = await HostApplicationModel.findOne({
     userId,
     status: HostApplicationStatus.PENDING,
@@ -33,6 +38,13 @@ export const applyForHost = async (userId: string, role: UserRole, input: HostAp
     displayName: input.displayName,
     description: input.description,
     contactEmail: input.contactEmail,
+    hasHostedBefore: input.hasHostedBefore,
+    understandsRules: input.understandsRules,
+    agreesFairPlay: input.agreesFairPlay,
+    understandsBan: input.understandsBan,
+    agreesCoordinate: input.agreesCoordinate,
+    confirmsPayouts: input.confirmsPayouts,
+    confirmsMobile: input.confirmsMobile,
     status: HostApplicationStatus.PENDING,
   });
 
@@ -64,7 +76,10 @@ export const approveApplication = async (id: string): Promise<HostApplication> =
   if (!app) throw new HostApplicationError("Application not found", 404);
 
   // promote user to HOST
-  await UserModel.findOneAndUpdate({ _id: app.userId }, { role: UserRole.HOST });
+  await UserModel.findOneAndUpdate(
+    { _id: app.userId },
+    { role: UserRole.HOST, phoneLocked: true, hostApprovedAt: new Date() }
+  );
 
   return app;
 };
