@@ -57,7 +57,7 @@ export const getDashboardData = async (userId?: string): Promise<DashboardData> 
         return toRegisteredMatch(match, reg?.status ?? RegistrationStatus.NONE);
       })
       .filter(Boolean) as RegisteredMatch[];
-    hostedMatches = relevantMatches.filter((match) => match.createdBy === userId);
+    hostedMatches = (await listMatches(undefined, userId)).map(serializeMatch);
   }
 
   const registeredIds = registeredMatches.map((r) => r.match.matchId);

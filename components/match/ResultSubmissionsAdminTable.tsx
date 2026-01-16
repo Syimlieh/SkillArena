@@ -18,6 +18,7 @@ interface Props {
   submissions: SubmissionRow[];
   matchId: string;
   isAdmin?: boolean;
+  winnerSubmissionId?: string;
 }
 
 const toneForStatus = (status: ResultStatus) => {
@@ -46,7 +47,12 @@ const formatDate = (value: string) =>
     hour12: false,
   }).format(new Date(value));
 
-export const ResultSubmissionsAdminTable = ({ submissions, matchId, isAdmin = false }: Props) => {
+export const ResultSubmissionsAdminTable = ({
+  submissions,
+  matchId,
+  isAdmin = false,
+  winnerSubmissionId,
+}: Props) => {
   const [rows, setRows] = useState(submissions);
   const [error, setError] = useState<string | null>(null);
   const [savingId, setSavingId] = useState<string | null>(null);
@@ -176,7 +182,7 @@ export const ResultSubmissionsAdminTable = ({ submissions, matchId, isAdmin = fa
         <table className="min-w-full text-left text-sm text-[var(--text-primary)]">
           <thead className="text-xs uppercase text-[var(--text-secondary)]">
             <tr>
-              <th className="pb-2 pr-4">User</th>
+              <th className="pb-2 pr-4">{isAdmin ? "User" : "Team"}</th>
               <th className="pb-2 pr-4">Status</th>
               <th className="pb-2 pr-4">Host Review</th>
               <th className="pb-2 pr-4">Submitted</th>
@@ -192,8 +198,19 @@ export const ResultSubmissionsAdminTable = ({ submissions, matchId, isAdmin = fa
               <tr key={submission.submissionId ?? submission.screenshotUrl} className="align-top">
                 <td className="py-2 pr-4 text-[var(--text-secondary)] text-xs">
                   <div className="flex flex-col">
-                    <span className="font-semibold text-[var(--text-primary)]">{submission.teamName || "Unnamed Team"}</span>
-                    <span className="text-[var(--text-secondary)] text-[11px]">{submission.userId ?? "Unknown user"}</span>
+                    <div className="flex items-center gap-2">
+                      <span className="font-semibold text-[var(--text-primary)]">{submission.teamName || "Unnamed Team"}</span>
+                      {winnerSubmissionId && submission.submissionId === winnerSubmissionId && (
+                        <span
+                          className="inline-flex h-2.5 w-2.5 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.7)]"
+                          title="Winner"
+                          aria-label="Winner"
+                        />
+                      )}
+                    </div>
+                    {isAdmin && (
+                      <span className="text-[var(--text-secondary)] text-[11px]">{submission.userId ?? "Unknown user"}</span>
+                    )}
                   </div>
                 </td>
                 <td className="py-2 pr-4">
@@ -342,7 +359,7 @@ export const ResultSubmissionsAdminTable = ({ submissions, matchId, isAdmin = fa
       <div className="mt-4 flex items-center justify-between">
         {error && <p className="text-sm text-rose-500">{error}</p>}
         <div className="flex flex-1 justify-end">
-          {rows.length > 0 && rows.every((r) => r.status === ResultStatus.VERIFIED) && (
+          {isAdmin && rows.length > 0 && rows.every((r) => r.status === ResultStatus.VERIFIED) && (
             <button
               onClick={async () => {
                 setClosing(true);
@@ -364,7 +381,7 @@ export const ResultSubmissionsAdminTable = ({ submissions, matchId, isAdmin = fa
               disabled={closing || matchClosed}
               className={clsx(
                 "rounded-md px-4 py-2 text-sm font-semibold",
-              "bg-[var(--accent-primary)] text-white hover:bg-[var(--accent-secondary)]",
+                "bg-[var(--accent-primary)] text-white hover:bg-[var(--accent-secondary)]",
                 (closing || matchClosed) && "opacity-60"
               )}
             >
@@ -373,7 +390,7 @@ export const ResultSubmissionsAdminTable = ({ submissions, matchId, isAdmin = fa
           )}
         </div>
       </div>
-      {matchClosed && <p className="mt-2 text-sm text-[var(--text-primary)]">Match closed and winner set.</p>}
+      {isAdmin && matchClosed && <p className="mt-2 text-sm text-[var(--text-primary)]">Match closed and winner set.</p>}
       <Modal isOpen={adminRejectOpen} onClose={closeAdminRejectModal} title="Reject Submission">
         <div className="space-y-4">
           <p className="text-sm text-[var(--text-secondary)]">

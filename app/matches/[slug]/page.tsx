@@ -67,9 +67,11 @@ const MatchDetailsPage = async ({ params }: { params: { slug: string } }) => {
           : [];
         const nameMap = new Map(users.map((u: any) => [u._id?.toString?.() ?? "", u.name]));
         const emailByUser = new Map(users.map((u: any) => [u._id?.toString?.() ?? "", u.email]));
-        const teamMap = new Map(registrations.map((r) => [r.userId, r.teamName]));
+        const teamMap = new Map<string, string | undefined>(registrations.map((r) => [r.userId, r.teamName]));
         nameMap.forEach((value, key) => nameByUser.set(key, value));
-        teamMap.forEach((value, key) => teamByUser.set(key, value));
+        teamMap.forEach((value, key) => {
+          if (value) teamByUser.set(key, value);
+        });
 
         registeredUsers = registrations.map((r) => ({
           userId: r.userId,
@@ -100,8 +102,8 @@ const MatchDetailsPage = async ({ params }: { params: { slug: string } }) => {
               : r.screenshotUrl;
           return {
             submissionId: r._id?.toString(),
-            userId: r.userId,
-            teamName: r.teamName || teamByUser.get(r.userId) || nameByUser.get(r.userId),
+            userId: isAdmin ? r.userId : undefined,
+            teamName: r.teamName || (isAdmin ? teamByUser.get(r.userId) || nameByUser.get(r.userId) : undefined),
             status: r.status as ResultStatus,
             screenshotUrl,
             submittedAt: r.createdAt ? new Date(r.createdAt).toISOString() : new Date().toISOString(),
@@ -129,7 +131,12 @@ const MatchDetailsPage = async ({ params }: { params: { slug: string } }) => {
       {canReviewResults ? (
         <>
           {isAdmin && <RegisteredUsersAdminTable users={registeredUsers} />}
-          <ResultSubmissionsAdminTable submissions={submissions} matchId={match.matchId} isAdmin={isAdmin} />
+          <ResultSubmissionsAdminTable
+            submissions={submissions}
+            matchId={match.matchId}
+            isAdmin={isAdmin}
+            winnerSubmissionId={match.winner?.submissionId}
+          />
         </>
       ) : (
         <ResultSubmissionCard matchId={match.matchId} matchStatus={match.status} isRegistered={isRegistered} />

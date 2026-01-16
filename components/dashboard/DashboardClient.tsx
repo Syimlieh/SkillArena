@@ -10,7 +10,7 @@ import { UpcomingMatches } from "@/components/dashboard/UpcomingMatches";
 import { MatchHistory } from "@/components/dashboard/MatchHistory";
 import { AvailableMatches } from "@/components/dashboard/AvailableMatches";
 import { RegisteredMatches } from "@/components/dashboard/RegisteredMatches";
-import { HostedMatches } from "@/components/dashboard/HostedMatches";
+import { HostedMatchesTable } from "@/components/dashboard/HostedMatchesTable";
 import { useAuth } from "@/context/AuthContext";
 import { rememberPostLoginRedirect } from "@/lib/auth";
 import { buildMatchDetailRoute } from "@/lib/routes";
@@ -76,8 +76,8 @@ const DashboardClient = ({ data }: Props) => {
 
     return (
       <div className="space-y-8">
+        {data.hostedMatches.length > 0 && <HostedMatchesTable matches={data.hostedMatches} />}
         {data.registeredMatches.length > 0 && <RegisteredMatches matches={data.registeredMatches} />}
-        {data.hostedMatches.length > 0 && <HostedMatches matches={data.hostedMatches} />}
         {data.availableMatches.length > 0 && <AvailableMatches matches={data.availableMatches} />}
         {data.upcoming.length > 0 && <UpcomingMatches scrims={data.upcoming} />}
         {data.history.length > 0 && <MatchHistory scrims={data.history} />}
