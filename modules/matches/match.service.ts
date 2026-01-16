@@ -14,6 +14,8 @@ import { RegistrationStatus } from "@/enums/RegistrationStatus.enum";
 import { MatchResultSubmissionModel } from "@/models/MatchResultSubmission.model";
 import { ResultStatus } from "@/enums/ResultStatus.enum";
 import { ACTIVE_REG_STATUSES } from "@/modules/registrations/registration.service";
+import { UserModel } from "@/models/User.model";
+import { FileMetadataModel } from "@/models/FileMetadata.model";
 
 const buildTitle = (input: MatchInput, matchId: string): string => {
   if (input.title) return input.title;
@@ -119,6 +121,78 @@ export const listMatches = async (status?: MatchStatus, createdBy?: string): Pro
       pendingResultCount: pendingResultMap.get(m.matchId) ?? 0,
     }) as Match
   ) as Match[];
+};
+
+type RecentMatchResult = {
+  matchId: string;
+  slug?: string;
+  map: string;
+  title: string;
+  startTime: Date | string;
+  prizePool: number;
+  winnerTeam?: string;
+  winnerUserId?: string;
+  winnerAvatarUrl?: string;
+  winnerKills?: number;
+  winnerPosition?: number;
+  winnerTotalScore?: number;
+};
+
+export const listRecentMatchResults = async (limit = 6): Promise<RecentMatchResult[]> => {
+  await connectDb();
+  const matches = await MatchModel.find({
+    status: MatchStatus.COMPLETED,
+    winner: { $exists: true, $ne: null },
+  })
+    .sort({ startTime: -1 })
+    .limit(limit)
+    .lean<Match[]>();
+
+  const winners = matches
+    .map((match) => match.winner)
+    .filter(Boolean) as { userId?: string; teamName?: string; submissionId?: string }[];
+  const userIds = winners.map((winner) => winner.userId).filter(Boolean) as string[];
+  const submissionIds = winners.map((winner) => winner.submissionId).filter(Boolean) as string[];
+
+  const users = userIds.length ? await UserModel.find({ _id: { $in: userIds } }).lean() : [];
+  const userMap = new Map(users.map((user: any) => [user._id?.toString?.() ?? "", user]));
+
+  const avatarFileIds = users
+    .map((user: any) => user.profileFileId)
+    .filter(Boolean) as string[];
+  const avatarFiles = avatarFileIds.length
+    ? await FileMetadataModel.find({ fileId: { $in: avatarFileIds } }).lean()
+    : [];
+  const avatarMap = new Map(avatarFiles.map((file: any) => [file.fileId, file.url]));
+
+  const submissions = submissionIds.length
+    ? await MatchResultSubmissionModel.find({ _id: { $in: submissionIds } }).lean()
+    : [];
+  const submissionMap = new Map(submissions.map((sub: any) => [sub._id?.toString?.() ?? "", sub]));
+
+  return matches.map((match) => {
+    const winner = match.winner as { userId?: string; teamName?: string; submissionId?: string } | undefined;
+    const winnerPosition = (match.winner as any)?.position;
+    const winnerUserId = winner?.userId;
+    const winnerUser = winnerUserId ? userMap.get(winnerUserId) : undefined;
+    const winnerTeam = winner?.teamName || winnerUser?.name;
+    const avatarUrl = winnerUser?.profileFileId ? avatarMap.get(winnerUser.profileFileId) : undefined;
+    const submission = winner?.submissionId ? submissionMap.get(winner.submissionId) : undefined;
+    return {
+      matchId: match.matchId,
+      slug: match.slug,
+      map: match.map,
+      title: match.title ?? match.matchId,
+      startTime: match.startTime ?? new Date(),
+      prizePool: match.prizePool ?? 0,
+      winnerTeam: winnerTeam ?? "Winner",
+      winnerUserId,
+      winnerAvatarUrl: avatarUrl,
+      winnerKills: submission?.kills,
+      winnerPosition: typeof winnerPosition === "number" ? winnerPosition : undefined,
+      winnerTotalScore: submission?.totalScore,
+    };
+  });
 };
 
 export const getMatchBySlug = async (slug?: string | null, userId?: string | null): Promise<(Match & { isRegistered?: boolean }) | null> => {

@@ -10,6 +10,21 @@ export type HomeMatch = {
   href?: string;
 };
 
+export type HomeResult = {
+  id: string;
+  title: string;
+  map: string;
+  dateLabel: string;
+  prizePool: string;
+  status: string;
+  matchId?: string;
+  winnerTeam: string;
+  winnerAvatarUrl?: string;
+  winnerKills?: number;
+  winnerPosition?: number;
+  winnerTotalScore?: number;
+};
+
 export const UPCOMING_MATCHES: HomeMatch[] = [
   {
     id: "match-1",
