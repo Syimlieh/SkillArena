@@ -1,11 +1,14 @@
 import HeroSection from "@/components/home/HeroSection";
 import UpcomingMatchesSection from "@/components/home/UpcomingMatchesSection";
 import RecentResultsSection from "@/components/home/RecentResultsSection";
+import MatchRequestsSection from "@/components/home/MatchRequestsSection";
 import FeaturesSection from "@/components/home/FeaturesSection";
 import { listMatches, listRecentMatchResults } from "@/modules/matches/match.service";
 import { MatchStatus } from "@/enums/MatchStatus.enum";
 import { Match } from "@/types/match.types";
 import { HomeMatch, HomeResult } from "@/lib/home.content";
+import { listMatchRequests } from "@/modules/match-requests/match-request.service";
+import { MatchRequestPublic } from "@/types/match-request.types";
 
 const formatTime = (date: Date | string) =>
   new Intl.DateTimeFormat("en-IN", {
@@ -65,11 +68,13 @@ const PublicHome = async () => {
   const topMatches = matches.slice(0, 6).map(toHomeMatch);
   const results = await listRecentMatchResults(6);
   const recentResults = results.map(toHomeResult);
+  const matchRequests = (await listMatchRequests()) as MatchRequestPublic[];
 
   return (
     <div className="mx-auto flex max-w-6xl flex-col gap-10 px-6 py-10">
       <HeroSection />
       <RecentResultsSection results={recentResults} />
+      <MatchRequestsSection initialRequests={matchRequests} />
       <UpcomingMatchesSection matches={topMatches} />
       <FeaturesSection />
     </div>

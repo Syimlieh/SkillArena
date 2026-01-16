@@ -30,7 +30,7 @@ export const Navbar = ({ variant = "public" }: NavbarProps) => {
   return (
     <header className="sticky top-0 z-30 border-b border-[var(--border-subtle)] bg-[var(--bg-primary)]/85 backdrop-blur">
       <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3 md:px-6">
-        <Link href={variant === "public" ? "/" : dashboardHref} className="flex items-center gap-2">
+        <Link href="/" className="flex items-center gap-2">
           <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[var(--accent-primary)]/18 text-lg font-black text-[var(--accent-primary)]">
             BG
           </div>
@@ -58,6 +58,11 @@ export const Navbar = ({ variant = "public" }: NavbarProps) => {
 
         <div className="flex items-center gap-3">
           <ThemeToggle />
+          {isAuthenticated && (
+            <Link href={dashboardHref}>
+              <Button variant="ghost">Dashboard</Button>
+            </Link>
+          )}
           {isAuthenticated && !isAdmin && (
             isHost ? (
               <>

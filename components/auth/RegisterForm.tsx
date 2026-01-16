@@ -9,7 +9,6 @@ import { RegisterPayload } from "@/types/auth.types";
 import { Button } from "@/components/ui/Button";
 import { consumePostLoginRedirect } from "@/lib/auth";
 import { AppRoute } from "@/lib/routes";
-import { resolveDashboardRoute } from "@/modules/navigation/navigation.service";
 import { uploadImageDirect } from "@/lib/presigned-upload";
 import { FileType } from "@/types/file.types";
 
@@ -90,9 +89,8 @@ export const RegisterForm = () => {
       return;
     }
 
-    const redirectTarget =
-      consumePostLoginRedirect() ?? resolveDashboardRoute(result.user?.role ?? state.user?.role);
-    router.push(redirectTarget || AppRoute.DASHBOARD_MY_MATCHES);
+    const redirectTarget = consumePostLoginRedirect() ?? "/";
+    router.push(redirectTarget || AppRoute.HOME);
   };
 
   const helperText = useMemo(() => {

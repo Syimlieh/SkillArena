@@ -5,13 +5,12 @@ import { LoginForm } from "@/components/auth/LoginForm";
 import { Navbar } from "@/components/layout/Navbar";
 import { redirect } from "next/navigation";
 import { requireUser } from "@/lib/auth.server";
-import { resolveDashboardRoute } from "@/modules/navigation/navigation.service";
 
 const LoginPage = async () => {
   const user = await requireUser().catch(() => null);
   console.log('user', user)
   if (user) {
-    redirect(resolveDashboardRoute(user.role));
+    redirect("/");
   }
 
   return (
