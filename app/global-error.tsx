@@ -1,6 +1,4 @@
-"use client"
-
-import Link from "next/link";
+"use client";
 
 const GlobalError = ({ error }: { error: Error & { digest?: string } }) => {
   return (
@@ -11,12 +9,12 @@ const GlobalError = ({ error }: { error: Error & { digest?: string } }) => {
           <p className="text-sm text-[var(--text-secondary)]">
             We hit an unexpected error. Please try again.
           </p>
-          <Link
+          <a
             href="/"
             className="rounded-xl bg-[var(--accent-primary)] px-4 py-2 text-sm font-semibold text-white hover:bg-[var(--accent-secondary)]"
           >
             Back to Home
-          </Link>
+          </a>
           {error?.digest ? <p className="text-xs text-[var(--text-secondary)]">Ref: {error.digest}</p> : null}
         </div>
       </body>
