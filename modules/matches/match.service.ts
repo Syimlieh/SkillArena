@@ -240,7 +240,18 @@ export const getMatchBySlug = async (slug?: string | null, userId?: string | nul
   return attachCount(byId);
 };
 
-export const startMatch = async (matchId: string, actor: AuthContext): Promise<Match | null> => {
+type StartMatchOptions = {
+  roomId?: string;
+  roomPassword?: string;
+  message?: string;
+  origin?: string | null;
+};
+
+export const startMatch = async (
+  matchId: string,
+  actor: AuthContext,
+  options?: StartMatchOptions
+): Promise<Match | null> => {
   await connectDb();
   const normalizedId = matchId.toUpperCase();
   const match = await MatchModel.findOne({ matchId: { $in: [matchId, normalizedId, matchId.toLowerCase()] } }).lean<Match>();
@@ -253,6 +264,41 @@ export const startMatch = async (matchId: string, actor: AuthContext): Promise<M
   if (match.status !== MatchStatus.UPCOMING) {
     return match;
   }
+
+  const roomId = options?.roomId?.trim();
+  const roomPassword = options?.roomPassword?.trim();
+  const matchUrl =
+    options?.origin && (match.slug || match.matchId)
+      ? `${options.origin}/matches/${(match.slug ?? match.matchId).toLowerCase()}`
+      : undefined;
+
+  if (roomId && roomPassword) {
+    const registrations = await RegistrationModel.find({
+      matchId: match.matchId,
+      status: { $in: ACTIVE_REG_STATUSES },
+    }).lean();
+    const userIds = registrations.map((reg) => reg.userId).filter(Boolean) as string[];
+    const users = userIds.length ? await UserModel.find({ _id: { $in: userIds } }).lean() : [];
+    const usersById = new Map(users.map((user: any) => [user._id?.toString?.() ?? "", user]));
+    const { sendMatchRoomEmail } = await import("@/lib/email/mailer");
+
+    await Promise.allSettled(
+      registrations.map((reg) => {
+        const user = usersById.get(reg.userId);
+        const email = user?.email;
+        if (!email) return Promise.resolve();
+        return sendMatchRoomEmail(email, {
+          name: user?.name,
+          matchName: match.title ?? match.matchId,
+          roomId,
+          roomPassword,
+          matchUrl,
+          message: options?.message?.trim() || undefined,
+        });
+      })
+    );
+  }
+
   await MatchModel.updateOne({ matchId: match.matchId }, { $set: { status: MatchStatus.ONGOING } });
   return sanitizeMatch({ ...match, status: MatchStatus.ONGOING }) as Match;
 };

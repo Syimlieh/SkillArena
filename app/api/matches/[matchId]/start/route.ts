@@ -5,14 +5,20 @@ import { startMatch } from "@/modules/matches/match.service";
 
 export const dynamic = "force-dynamic";
 
-export const POST = async (_req: NextRequest, { params }: { params: Promise<{ matchId: string }> }) => {
+export const POST = async (req: NextRequest, { params }: { params: Promise<{ matchId: string }> }) => {
   try {
     const actor = await requireMatchCreator();
     const { matchId } = await params;
     if (!matchId) {
       return errorResponse("Match not found", 404);
     }
-    const updated = await startMatch(matchId, actor);
+    const payload = await req.json().catch(() => ({}));
+    const updated = await startMatch(matchId, actor, {
+      roomId: typeof payload?.roomId === "string" ? payload.roomId : undefined,
+      roomPassword: typeof payload?.roomPassword === "string" ? payload.roomPassword : undefined,
+      message: typeof payload?.message === "string" ? payload.message : undefined,
+      origin: req.headers.get("origin") ?? `${req.headers.get("x-forwarded-proto") || "https"}://${req.headers.get("host") || ""}`,
+    });
     if (!updated) {
       return errorResponse("Match not found", 404);
     }

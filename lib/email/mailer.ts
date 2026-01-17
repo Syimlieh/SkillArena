@@ -4,6 +4,7 @@ import {
   resetPasswordTemplate,
   matchWinnerTemplate,
   verifyEmailTemplate,
+  matchRoomDetailsTemplate,
   EmailTemplate,
 } from "@/lib/email/templates";
 
@@ -73,4 +74,9 @@ export const sendVerifyEmail = async (to: string, params: EmailTemplate["verifyE
   return sendMail({ to, ...template });
 };
 
-export { resetPasswordTemplate, matchWinnerTemplate, verifyEmailTemplate };
+export const sendMatchRoomEmail = async (to: string, params: EmailTemplate["matchRoomDetails"]) => {
+  const template = matchRoomDetailsTemplate(params);
+  return sendMail({ to, ...template });
+};
+
+export { resetPasswordTemplate, matchWinnerTemplate, verifyEmailTemplate, matchRoomDetailsTemplate };

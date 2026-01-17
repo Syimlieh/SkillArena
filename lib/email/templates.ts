@@ -14,6 +14,14 @@ export type EmailTemplate = {
     name?: string;
     verifyUrl: string;
   };
+  matchRoomDetails: {
+    name?: string;
+    matchName: string;
+    roomId: string;
+    roomPassword: string;
+    matchUrl?: string;
+    message?: string;
+  };
 };
 
 const baseStyles = {
@@ -97,4 +105,49 @@ export const verifyEmailTemplate = ({ name, verifyUrl }: EmailTemplate["verifyEm
   `;
   const text = `${greeting}\n\nVerify your email:\n${verifyUrl}\n\nIf you did not create an account, ignore this email.`;
   return { subject, html, text };
+};
+
+export const matchRoomDetailsTemplate = ({
+  name,
+  matchName,
+  roomId,
+  roomPassword,
+  matchUrl,
+  message,
+}: EmailTemplate["matchRoomDetails"]) => {
+  const subject = `Room Details: ${matchName}`;
+  const greeting = name ? `Hi ${name},` : "Hi there,";
+  const note = message ? `<p>${message}</p>` : "";
+  const cta = matchUrl
+    ? `<p style="margin:18px 0"><a href="${matchUrl}" style="${baseStyles.button}">Open Match Page</a></p>`
+    : "";
+  const html = `
+    <div style="${baseStyles.body}">
+      <p>${greeting}</p>
+      <p>Your match room is ready. Use the details below to join <strong>${matchName}</strong>:</p>
+      <p>Room ID: <strong>${roomId}</strong></p>
+      <p>Password: <strong>${roomPassword}</strong></p>
+      <p>Please share this info only with your registered teammates.</p>
+      ${note}
+      ${cta}
+      <p style="${baseStyles.muted}">
+        Do not share these details outside your team. Sharing publicly or with unregistered players can lead to disqualification.
+        Good luck and play fair.
+      </p>
+    </div>
+  `;
+  const textLines = [
+    greeting,
+    "",
+    `Room details for ${matchName}:`,
+    `Room ID: ${roomId}`,
+    `Password: ${roomPassword}`,
+    message ? `Note: ${message}` : "",
+    "Share this only with your registered teammates.",
+    matchUrl ? `Match page: ${matchUrl}` : "",
+    "",
+    "Do not share these details outside your team. Sharing publicly or with unregistered players can lead to disqualification.",
+    "Good luck and play fair.",
+  ].filter(Boolean);
+  return { subject, html, text: textLines.join("\n") };
 };
