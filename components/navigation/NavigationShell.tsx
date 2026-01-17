@@ -1,6 +1,6 @@
 "use client";
 
-import { ReactNode, useMemo, useState } from "react";
+import { Children, ReactNode, useMemo, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import { AuthStatus } from "@/enums/AuthStatus.enum";
@@ -26,6 +26,7 @@ const NavigationShell = ({ variant = "public", children }: Props) => {
   const role = state.user?.role ?? null;
   const dashboardHref = useMemo(() => resolveDashboardRoute(state.user?.role), [state.user?.role]);
   const [profileOpen, setProfileOpen] = useState(false);
+  const content = useMemo(() => Children.toArray(children), [children]);
 
   const sections = useMemo(() => filterSectionsByRole(role), [role]);
   const accountItems = useMemo(() => filterAccountItemsByRole(role), [role]);
@@ -72,7 +73,7 @@ const NavigationShell = ({ variant = "public", children }: Props) => {
             onAction={handleAction}
           />
         ) : null}
-        <div className={showSidebar ? "flex-1 min-w-0" : "w-full"}>{children}</div>
+        <div className={showSidebar ? "flex-1 min-w-0" : "w-full"}>{content}</div>
       </div>
 
       {showSidebar ? (
