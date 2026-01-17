@@ -50,8 +50,6 @@ export const CreateMatchForm = ({ onCreated }: Props) => {
     [form.prizeBreakdown]
   );
 
-  console.log("Render CreateMatchForm with form state:");
-
   // Avoid hydration drift: set a deterministic client-side default start time after mount
   useEffect(() => {
     if (!form.startDate || !form.startTime) {
@@ -78,7 +76,6 @@ export const CreateMatchForm = ({ onCreated }: Props) => {
     "w-full rounded-xl border border-[var(--border-subtle)] bg-[var(--card-bg)] px-3 py-2 text-[var(--text-primary)] focus:border-[var(--primary)] focus:outline-none placeholder:text-[var(--text-secondary)]";
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
-    console.log("Submitting form...");
     event.preventDefault();
     setLoading(true);
     setStatusMessage(undefined);
@@ -94,9 +91,7 @@ export const CreateMatchForm = ({ onCreated }: Props) => {
       status: MatchStatus.UPCOMING,
     };
 
-    console.log("Submitting form data:", payload);
     const parsed = matchSchema.safeParse(payload);
-    console.log("Parsed form data:", parsed);
     if (!parsed.success) {
       setLoading(false);
       setStatusMessage("Invalid form data. Please check inputs.");

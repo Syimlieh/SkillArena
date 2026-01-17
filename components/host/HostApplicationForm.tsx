@@ -43,7 +43,6 @@ export const HostApplicationForm = () => {
     setMessage(undefined);
     setSuccess(false);
 
-    console.log("Submitting form data:", form);
     const parsed = hostApplicationSchema.safeParse(form);
     if (!parsed.success) {
       const fieldErrors = parsed.error.flatten().fieldErrors;
