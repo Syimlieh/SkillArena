@@ -61,6 +61,12 @@ const ensureEmailVerified = async (userId: string) => {
   }
 };
 
+const ensureNotMatchOwner = (match: Match, userId: string) => {
+  if (match.createdBy === userId) {
+    throw new RegistrationError("Hosts cannot register for their own match", 403);
+  }
+};
+
 export const registerForMatch = async (
   matchId: string,
   userId: string,
@@ -79,6 +85,7 @@ export const registerForMatch = async (
   }
 
   ensureMatchIsJoinable(match);
+  ensureNotMatchOwner(match, userId);
   await ensureEmailVerified(userId);
 
   const existing = await findExistingRegistration(userId, match.matchId);
