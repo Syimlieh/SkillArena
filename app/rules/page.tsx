@@ -61,7 +61,7 @@ const RulesPage = () => {
             <p className="mt-2 max-w-2xl text-sm text-[var(--text-secondary)]">
               Official rules for BGMI custom matches on SkillArena. Please read carefully before registering for any match.
             </p>
-            <p className="mt-4 text-xs uppercase tracking-wide text-[var(--text-secondary)]">Last updated: March 2025</p>
+            <p className="mt-4 text-xs uppercase tracking-wide text-[var(--text-secondary)]">Last updated: Jan 2026</p>
           </header>
 
           <div className="space-y-5">
