@@ -1,5 +1,6 @@
 import { Match } from "@/types/match.types";
 import { MatchStatus } from "@/enums/MatchStatus.enum";
+import { MatchOccurrence } from "@/enums/MatchOccurrence.enum";
 
 const formatTime = (date: Date | string) =>
   new Intl.DateTimeFormat("en-IN", {
@@ -18,7 +19,7 @@ const statusLabel = (status: MatchStatus) => {
 
 export const MatchDetailsCard = ({ match }: { match: Match }) => (
   <div className="glass-panel rounded-2xl p-4">
-    <div className="grid gap-4 md:grid-cols-3">
+    <div className="grid gap-4 md:grid-cols-4">
         <div className="rounded-2xl border border-[var(--border-subtle)] bg-[var(--card-bg)] p-4 shadow-sm">
           <div className="text-xs uppercase text-[var(--text-secondary)]">Start Time</div>
           <div className="text-lg font-semibold">{formatTime(match.startTime)}</div>
@@ -30,6 +31,12 @@ export const MatchDetailsCard = ({ match }: { match: Match }) => (
         <div className="rounded-2xl border border-[var(--border-subtle)] bg-[var(--card-bg)] p-4 shadow-sm">
           <div className="text-xs uppercase text-[var(--text-secondary)]">Registered Users</div>
           <div className="text-lg font-semibold">{`${match.registrationCount ?? 0}/${match.maxSlots}`}</div>
+        </div>
+        <div className="rounded-2xl border border-[var(--border-subtle)] bg-[var(--card-bg)] p-4 shadow-sm">
+          <div className="text-xs uppercase text-[var(--text-secondary)]">Match Format</div>
+          <div className="text-lg font-semibold">
+            {match.occurrence === MatchOccurrence.MULTI ? "Multiple Matches" : "One-time Match"}
+          </div>
         </div>
       </div>
       <div className="rounded-2xl border border-[var(--border-subtle)] bg-[var(--card-bg)] p-4 shadow-sm">

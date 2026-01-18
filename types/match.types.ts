@@ -2,6 +2,7 @@ import { Types } from "mongoose";
 import { MatchStatus } from "@/enums/MatchStatus.enum";
 import { MatchMap } from "@/enums/MatchMap.enum";
 import { MatchType } from "@/enums/MatchType.enum";
+import { MatchOccurrence } from "@/enums/MatchOccurrence.enum";
 
 export interface PrizeBreakdown {
   first: number;
@@ -22,6 +23,7 @@ export interface Match {
   prizeBreakdown: PrizeBreakdown;
   status: MatchStatus;
   type?: MatchType;
+  occurrence?: MatchOccurrence;
   createdBy: string;
   registrationCount?: number;
   pendingResultCount?: number;
