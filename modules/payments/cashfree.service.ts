@@ -54,7 +54,7 @@ export const createCashfreeOrder = async (input: CreateOrderInput) => {
     matchId: match.matchId,
     status: { $ne: "CANCELLED" },
   }).lean();
-  if (existingReg) {
+  if (existingReg && existingReg.status !== RegistrationStatus.PENDING_PAYMENT) {
     throw new Error("You are already registered for this match");
   }
 

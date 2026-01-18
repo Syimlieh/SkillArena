@@ -18,6 +18,7 @@ interface Props {
     captainIgn?: string;
     squadBgmiIds?: string[];
   } | null;
+  paymentPending?: boolean;
 }
 
 const formatTime = (date: Date | string) =>
@@ -30,7 +31,7 @@ const formatTime = (date: Date | string) =>
     timeZone: "Asia/Kolkata",
   }).format(new Date(date));
 
-const RegisterModal = ({ match, isOpen, onClose, registration }: Props) => {
+const RegisterModal = ({ match, isOpen, onClose, registration, paymentPending }: Props) => {
   const router = useRouter();
   const { state } = useAuth();
   const [agree, setAgree] = useState(false);
@@ -43,6 +44,7 @@ const RegisterModal = ({ match, isOpen, onClose, registration }: Props) => {
 
   const defaultTeamName = state.user?.name ?? "";
   const isEditing = Boolean(registration);
+  const shouldCreateOrder = !isEditing || Boolean(paymentPending);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -102,10 +104,35 @@ const RegisterModal = ({ match, isOpen, onClose, registration }: Props) => {
     setLoading(true);
     setMessage(undefined);
     try {
-      const res = await fetch(`/api/matches/${encodeURIComponent(match.matchId)}/register`, {
+      if (!shouldCreateOrder) {
+        const res = await fetch(`/api/matches/${encodeURIComponent(match.matchId)}/register`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            teamName: teamName.trim(),
+            captainBgmiId: captainId,
+            captainIgn: captainIgn.trim() || undefined,
+            squadBgmiIds: filteredSquad.length ? filteredSquad : undefined,
+          }),
+        });
+        const data = await res.json();
+        if (!res.ok || data?.success === false) {
+          setMessage(data?.error?.message || data?.error || "Unable to update registration.");
+          setLoading(false);
+          return;
+        }
+        setMessage("Registration updated.");
+        setLoading(false);
+        onClose();
+        router.refresh();
+        return;
+      }
+
+      const res = await fetch(`/api/payments/create-order`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
+          matchId: match.matchId,
           teamName: teamName.trim(),
           captainBgmiId: captainId,
           captainIgn: captainIgn.trim() || undefined,
@@ -141,7 +168,12 @@ const RegisterModal = ({ match, isOpen, onClose, registration }: Props) => {
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title={isEditing ? "Edit Registration" : "Confirm Registration"} disableBackdropClose>
+    <Modal
+      isOpen={isOpen}
+      onClose={onClose}
+      title={shouldCreateOrder ? "Confirm Registration" : "Edit Registration"}
+      disableBackdropClose
+    >
       <div className="space-y-3 text-[var(--text-primary)]">
         <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--card-bg)] p-3 text-sm">
           <div className="text-xs uppercase text-[var(--primary)]">Match</div>
@@ -253,7 +285,7 @@ const RegisterModal = ({ match, isOpen, onClose, registration }: Props) => {
             disabled={!agree || loading}
             className="w-full rounded-xl bg-[var(--primary)] px-4 py-3 text-sm font-semibold text-white hover:bg-[var(--accent-secondary)] disabled:opacity-60"
           >
-            {loading ? "Processing..." : isEditing ? "Save Registration" : "Proceed to Payment"}
+            {loading ? "Processing..." : shouldCreateOrder ? "Proceed to Payment" : "Save Registration"}
           </button>
           <button
             onClick={onClose}

@@ -26,17 +26,18 @@ const RegisterButton = ({ match, registrationStatus, isRegistered, registration,
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
 
+  const isPaymentPending = registrationStatus === RegistrationStatus.PENDING_PAYMENT;
   const derivedRegistered =
-    isRegistered || registrationStatus === RegistrationStatus.PENDING_PAYMENT || registrationStatus === RegistrationStatus.CONFIRMED;
+    isRegistered || isPaymentPending || registrationStatus === RegistrationStatus.CONFIRMED;
   const statusLabel =
-    registrationStatus === RegistrationStatus.PENDING_PAYMENT ? "Payment Pending" : derivedRegistered ? "Registered" : null;
+    isPaymentPending ? "Payment Pending" : derivedRegistered ? "Registered" : null;
 
   const handleClick = () => {
     if (!isAuthenticated) {
       router.push(`/auth/login?redirect=${encodeURIComponent(pathname ?? "/")}`);
       return;
     }
-    if (derivedRegistered) return;
+    if (derivedRegistered && !isPaymentPending) return;
     setOpen(true);
   };
 
@@ -46,7 +47,14 @@ const RegisterButton = ({ match, registrationStatus, isRegistered, registration,
     <div className="space-y-3">
       {derivedRegistered ? (
         <div className="space-y-2">
-          {canEdit ? (
+          {isPaymentPending ? (
+            <button
+              onClick={() => setOpen(true)}
+              className="w-full rounded-xl bg-[var(--primary)] px-4 py-3 text-center text-sm font-semibold text-white hover:bg-[var(--accent-secondary)]"
+            >
+              Complete Payment
+            </button>
+          ) : canEdit ? (
             <button
               onClick={() => setOpen(true)}
               className="w-full rounded-xl border border-[var(--border-subtle)] bg-[var(--card-bg)] px-4 py-3 text-center text-sm font-semibold text-[var(--text-primary)] hover:border-[var(--accent-primary)]"
@@ -58,7 +66,7 @@ const RegisterButton = ({ match, registrationStatus, isRegistered, registration,
               {statusLabel ?? "Registered"}
             </div>
           )}
-          {!canEdit && (
+          {!canEdit && !isPaymentPending && (
             <div className="text-center text-xs text-[var(--text-secondary)]">
               Registration updates are locked for this match.
             </div>
@@ -72,7 +80,13 @@ const RegisterButton = ({ match, registrationStatus, isRegistered, registration,
           {isAuthenticated ? "Register" : "Login to Register"}
         </button>
       )}
-      <RegisterModal match={match} isOpen={open} onClose={() => setOpen(false)} registration={registration ?? undefined} />
+      <RegisterModal
+        match={match}
+        isOpen={open}
+        onClose={() => setOpen(false)}
+        registration={registration ?? undefined}
+        paymentPending={isPaymentPending}
+      />
     </div>
   );
 };
