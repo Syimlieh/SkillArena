@@ -1,9 +1,12 @@
 "use client";
 
+import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { Badge } from "@/components/ui/Badge";
 import { RegistrationStatus } from "@/enums/RegistrationStatus.enum";
 
 interface RegisteredUserRow {
+  registrationId?: string;
   userId?: string;
   name?: string;
   email?: string;
@@ -13,9 +16,14 @@ interface RegisteredUserRow {
   paymentMethod?: string;
   paymentReference?: string;
   registeredAt?: string;
+  captainBgmiId?: string;
+  captainIgn?: string;
+  squadBgmiIds?: string[];
+  lockedAt?: string;
 }
 
 interface Props {
+  matchId: string;
   users: RegisteredUserRow[];
 }
 
@@ -46,7 +54,9 @@ const formatDate = (value?: string) => {
   }).format(new Date(value));
 };
 
-export const RegisteredUsersAdminTable = ({ users }: Props) => {
+export const RegisteredUsersAdminTable = ({ matchId, users }: Props) => {
+  const router = useRouter();
+  const [locking, setLocking] = useState<string | null>(null);
   if (!users.length) {
     return (
       <div className="glass-panel rounded-2xl p-4 text-sm text-[var(--text-secondary)]">
@@ -54,6 +64,14 @@ export const RegisteredUsersAdminTable = ({ users }: Props) => {
       </div>
     );
   }
+
+  const lockRegistration = async (registrationId?: string) => {
+    if (!registrationId) return;
+    setLocking(registrationId);
+    await fetch(`/api/matches/${matchId}/registrations/${registrationId}/lock`, { method: "POST" });
+    setLocking(null);
+    router.refresh();
+  };
 
   return (
     <div className="glass-panel rounded-2xl p-4">
@@ -65,10 +83,12 @@ export const RegisteredUsersAdminTable = ({ users }: Props) => {
               <th className="pb-2 pr-4">User</th>
               <th className="pb-2 pr-4">Email</th>
               <th className="pb-2 pr-4">Team</th>
+              <th className="pb-2 pr-4">BGMI IDs</th>
               <th className="pb-2 pr-4">Status</th>
               <th className="pb-2 pr-4">Payment</th>
               <th className="pb-2 pr-4">Reference</th>
               <th className="pb-2 pr-4">Registered</th>
+              <th className="pb-2 pr-4">Lock</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-[var(--border-subtle)]">
@@ -82,6 +102,15 @@ export const RegisteredUsersAdminTable = ({ users }: Props) => {
                 </td>
                 <td className="py-2 pr-4 text-[var(--text-secondary)] text-xs">{user.email ?? "—"}</td>
                 <td className="py-2 pr-4 text-[var(--text-secondary)] text-xs">{user.teamName ?? "—"}</td>
+                <td className="py-2 pr-4 text-[var(--text-secondary)] text-xs">
+                  <div className="flex flex-col">
+                    <span>Captain: {user.captainBgmiId ?? "—"}</span>
+                    {user.captainIgn && <span>IGN: {user.captainIgn}</span>}
+                    {user.squadBgmiIds?.length ? (
+                      <span>Squad: {user.squadBgmiIds.filter(Boolean).join(", ")}</span>
+                    ) : null}
+                  </div>
+                </td>
                 <td className="py-2 pr-4">
                   <Badge tone={toneForStatus(user.status)}>{labelForStatus(user.status)}</Badge>
                 </td>
@@ -91,6 +120,19 @@ export const RegisteredUsersAdminTable = ({ users }: Props) => {
                 </td>
                 <td className="py-2 pr-4 text-[var(--text-secondary)] text-xs">{user.paymentReference ?? "—"}</td>
                 <td className="py-2 pr-4 text-[var(--text-secondary)] text-xs">{formatDate(user.registeredAt)}</td>
+                <td className="py-2 pr-4 text-xs">
+                  {user.lockedAt ? (
+                    <Badge tone="neutral">Locked</Badge>
+                  ) : (
+                    <button
+                      onClick={() => lockRegistration(user.registrationId)}
+                      disabled={locking === user.registrationId}
+                      className="rounded-lg border border-[var(--border-subtle)] px-2 py-1 text-[10px] font-semibold text-[var(--text-primary)] hover:border-[var(--accent-primary)]"
+                    >
+                      {locking === user.registrationId ? "Locking..." : "Lock IDs"}
+                    </button>
+                  )}
+                </td>
               </tr>
             ))}
           </tbody>

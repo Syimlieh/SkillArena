@@ -1,15 +1,22 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import Modal from "@/components/ui/Modal";
 import { Match } from "@/types/match.types";
 import { useAuth } from "@/context/AuthContext";
+import { BGMI_ID_LENGTH } from "@/lib/constants";
 
 interface Props {
   match: Match;
   isOpen: boolean;
   onClose: () => void;
+  registration?: {
+    teamName?: string;
+    captainBgmiId?: string;
+    captainIgn?: string;
+    squadBgmiIds?: string[];
+  } | null;
 }
 
 const formatTime = (date: Date | string) =>
@@ -22,20 +29,40 @@ const formatTime = (date: Date | string) =>
     timeZone: "Asia/Kolkata",
   }).format(new Date(date));
 
-const RegisterModal = ({ match, isOpen, onClose }: Props) => {
+const RegisterModal = ({ match, isOpen, onClose, registration }: Props) => {
   const router = useRouter();
   const { state } = useAuth();
   const [agree, setAgree] = useState(false);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<string | undefined>();
   const [teamName, setTeamName] = useState("");
+  const [captainBgmiId, setCaptainBgmiId] = useState("");
+  const [captainIgn, setCaptainIgn] = useState("");
+  const [squadBgmiIds, setSquadBgmiIds] = useState<string[]>(["", "", ""]);
 
   const defaultTeamName = state.user?.name ?? "";
+  const isEditing = Boolean(registration);
 
   useEffect(() => {
     if (!isOpen) return;
-    setTeamName((prev) => (prev ? prev : defaultTeamName));
-  }, [isOpen, defaultTeamName]);
+    setMessage(undefined);
+    setAgree(false);
+    setTeamName(registration?.teamName?.trim() || defaultTeamName);
+    setCaptainBgmiId(registration?.captainBgmiId ?? "");
+    setCaptainIgn(registration?.captainIgn ?? "");
+    const defaults = registration?.squadBgmiIds?.slice(0, 3) ?? [];
+    setSquadBgmiIds([defaults[0] ?? "", defaults[1] ?? "", defaults[2] ?? ""]);
+  }, [isOpen, defaultTeamName, registration]);
+
+  const normalizedSquadIds = useMemo(
+    () => squadBgmiIds.map((id) => id.replace(/\s+/g, "")),
+    [squadBgmiIds]
+  );
+
+  const validateBgmiId = (id: string) => {
+    if (!/^\d+$/.test(id)) return false;
+    return id.length >= BGMI_ID_LENGTH.min && id.length <= BGMI_ID_LENGTH.max;
+  };
 
   const handleProceed = async () => {
     if (state.user && !state.user.emailVerified) {
@@ -50,13 +77,39 @@ const RegisterModal = ({ match, isOpen, onClose }: Props) => {
       setMessage("Please add a team name.");
       return;
     }
+    const captainId = captainBgmiId.replace(/\s+/g, "");
+    if (!captainId) {
+      setMessage("Captain BGMI ID is required.");
+      return;
+    }
+    if (!validateBgmiId(captainId)) {
+      setMessage(`Captain BGMI ID must be ${BGMI_ID_LENGTH.min}-${BGMI_ID_LENGTH.max} digits.`);
+      return;
+    }
+    const filteredSquad = normalizedSquadIds.filter(Boolean);
+    for (const id of filteredSquad) {
+      if (!validateBgmiId(id)) {
+        setMessage(`All BGMI IDs must be ${BGMI_ID_LENGTH.min}-${BGMI_ID_LENGTH.max} digits.`);
+        return;
+      }
+    }
+    const allIds = [captainId, ...filteredSquad];
+    if (new Set(allIds).size !== allIds.length) {
+      setMessage("BGMI IDs must be unique.");
+      return;
+    }
     setLoading(true);
     setMessage(undefined);
     try {
       const res = await fetch(`/api/matches/${encodeURIComponent(match.matchId)}/register`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ teamName: teamName.trim() }),
+        body: JSON.stringify({
+          teamName: teamName.trim(),
+          captainBgmiId: captainId,
+          captainIgn: captainIgn.trim() || undefined,
+          squadBgmiIds: filteredSquad.length ? filteredSquad : undefined,
+        }),
       });
       const data = await res.json();
       if (!res.ok || data?.success === false) {
@@ -64,7 +117,7 @@ const RegisterModal = ({ match, isOpen, onClose }: Props) => {
         setLoading(false);
         return;
       }
-      setMessage("Registration created. Proceed to payment (coming soon).");
+      setMessage(isEditing ? "Registration updated." : "Registration created. Proceed to payment (coming soon).");
       setLoading(false);
       onClose();
       router.push("/dashboard");
@@ -75,7 +128,7 @@ const RegisterModal = ({ match, isOpen, onClose }: Props) => {
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title="Confirm Registration" disableBackdropClose>
+    <Modal isOpen={isOpen} onClose={onClose} title={isEditing ? "Edit Registration" : "Confirm Registration"} disableBackdropClose>
       <div className="space-y-3 text-[var(--text-primary)]">
         <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--card-bg)] p-3 text-sm">
           <div className="text-xs uppercase text-[var(--primary)]">Match</div>
@@ -130,6 +183,46 @@ const RegisterModal = ({ match, isOpen, onClose }: Props) => {
             disabled={loading}
           />
         </div>
+        <div className="space-y-2">
+          <div className="text-xs uppercase text-[var(--primary)]">Captain Details</div>
+          <label className="space-y-2 text-sm text-[var(--text-secondary)]">
+            <span>Captain BGMI ID</span>
+            <input
+              value={captainBgmiId}
+              onChange={(e) => setCaptainBgmiId(e.target.value)}
+              placeholder="Enter captain BGMI ID"
+              className="w-full rounded-xl border border-[var(--border-subtle)] bg-[var(--card-bg)] px-3 py-2 text-sm text-[var(--text-primary)] focus:border-[var(--accent-primary)] focus:outline-none placeholder:text-[var(--text-secondary)]"
+              disabled={loading}
+            />
+          </label>
+          <label className="space-y-2 text-sm text-[var(--text-secondary)]">
+            <span>Captain IGN (optional)</span>
+            <input
+              value={captainIgn}
+              onChange={(e) => setCaptainIgn(e.target.value)}
+              placeholder="In-game name"
+              className="w-full rounded-xl border border-[var(--border-subtle)] bg-[var(--card-bg)] px-3 py-2 text-sm text-[var(--text-primary)] focus:border-[var(--accent-primary)] focus:outline-none placeholder:text-[var(--text-secondary)]"
+              disabled={loading}
+            />
+          </label>
+        </div>
+        <div className="space-y-2">
+          <div className="text-xs uppercase text-[var(--primary)]">Squad BGMI IDs</div>
+          {normalizedSquadIds.map((value, index) => (
+            <input
+              key={`squad-${index}`}
+              value={squadBgmiIds[index]}
+              onChange={(e) => {
+                const next = [...squadBgmiIds];
+                next[index] = e.target.value;
+                setSquadBgmiIds(next);
+              }}
+              placeholder={`Player ${index + 2} BGMI ID`}
+              className="w-full rounded-xl border border-[var(--border-subtle)] bg-[var(--card-bg)] px-3 py-2 text-sm text-[var(--text-primary)] focus:border-[var(--accent-primary)] focus:outline-none placeholder:text-[var(--text-secondary)]"
+              disabled={loading}
+            />
+          ))}
+        </div>
         <label className="flex items-center gap-2 text-sm text-[var(--text-secondary)]">
           <input
             type="checkbox"
@@ -147,7 +240,7 @@ const RegisterModal = ({ match, isOpen, onClose }: Props) => {
             disabled={!agree || loading}
             className="w-full rounded-xl bg-[var(--primary)] px-4 py-3 text-sm font-semibold text-white hover:bg-[var(--accent-secondary)] disabled:opacity-60"
           >
-            {loading ? "Processing..." : "Proceed to Payment"}
+            {loading ? "Processing..." : isEditing ? "Save Registration" : "Proceed to Payment"}
           </button>
           <button
             onClick={onClose}

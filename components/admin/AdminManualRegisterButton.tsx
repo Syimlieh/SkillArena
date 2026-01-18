@@ -7,6 +7,7 @@ import { useAuth } from "@/context/AuthContext";
 import Modal from "@/components/ui/Modal";
 import { Button } from "@/components/ui/Button";
 import { SafeUser } from "@/types/user.types";
+import { BGMI_ID_LENGTH } from "@/lib/constants";
 
 interface Props {
   matchId: string;
@@ -29,6 +30,10 @@ const AdminManualRegisterButton = ({ matchId, buttonVariant = "secondary", fullW
   const [paymentAmount, setPaymentAmount] = useState<string>("");
   const [paymentMethod, setPaymentMethod] = useState("");
   const [paymentNote, setPaymentNote] = useState("");
+  const [teamName, setTeamName] = useState("");
+  const [captainBgmiId, setCaptainBgmiId] = useState("");
+  const [captainIgn, setCaptainIgn] = useState("");
+  const [squadBgmiIds, setSquadBgmiIds] = useState<string[]>(["", "", ""]);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const searchRef = useRef<HTMLDivElement | null>(null);
 
@@ -86,6 +91,27 @@ const AdminManualRegisterButton = ({ matchId, buttonVariant = "secondary", fullW
       setError("Select a user to register.");
       return;
     }
+    const captainId = captainBgmiId.replace(/\s+/g, "");
+    if (!captainId) {
+      setError("Captain BGMI ID is required.");
+      return;
+    }
+    if (!/^\d+$/.test(captainId) || captainId.length < BGMI_ID_LENGTH.min || captainId.length > BGMI_ID_LENGTH.max) {
+      setError(`Captain BGMI ID must be ${BGMI_ID_LENGTH.min}-${BGMI_ID_LENGTH.max} digits.`);
+      return;
+    }
+    const normalizedSquad = squadBgmiIds.map((id) => id.replace(/\s+/g, "")).filter(Boolean);
+    for (const id of normalizedSquad) {
+      if (!/^\d+$/.test(id) || id.length < BGMI_ID_LENGTH.min || id.length > BGMI_ID_LENGTH.max) {
+        setError(`All BGMI IDs must be ${BGMI_ID_LENGTH.min}-${BGMI_ID_LENGTH.max} digits.`);
+        return;
+      }
+    }
+    const allIds = [captainId, ...normalizedSquad];
+    if (new Set(allIds).size !== allIds.length) {
+      setError("BGMI IDs must be unique.");
+      return;
+    }
     setSubmitting(true);
     setError(null);
     try {
@@ -94,6 +120,10 @@ const AdminManualRegisterButton = ({ matchId, buttonVariant = "secondary", fullW
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           userId: selected._id?.toString?.() ?? selected._id ?? selected.email,
+          teamName: teamName.trim() || undefined,
+          captainBgmiId: captainId,
+          captainIgn: captainIgn.trim() || undefined,
+          squadBgmiIds: normalizedSquad.length ? normalizedSquad : undefined,
           paymentReference: paymentReference || undefined,
           paymentAmount: paymentAmount ? Number(paymentAmount) : undefined,
           paymentMethod: paymentMethod || undefined,
@@ -111,6 +141,10 @@ const AdminManualRegisterButton = ({ matchId, buttonVariant = "secondary", fullW
       setPaymentAmount("");
       setPaymentMethod("");
       setPaymentNote("");
+      setTeamName("");
+      setCaptainBgmiId("");
+      setCaptainIgn("");
+      setSquadBgmiIds(["", "", ""]);
       router.refresh();
     } catch {
       setError("Network error. Please try again.");
@@ -179,6 +213,52 @@ const AdminManualRegisterButton = ({ matchId, buttonVariant = "secondary", fullW
                 </button>
               </div>
             )}
+          </div>
+
+          <div className="grid gap-3 md:grid-cols-2">
+            <label className="text-sm text-slate-300">
+              Team name
+              <input
+                value={teamName}
+                onChange={(e) => setTeamName(e.target.value)}
+                className="mt-1 w-full rounded-xl border border-[#1f2937] bg-[#0f172a] px-3 py-2 text-sm text-white outline-none focus:border-[var(--primary)]"
+                placeholder="Team name"
+              />
+            </label>
+            <label className="text-sm text-slate-300">
+              Captain IGN (optional)
+              <input
+                value={captainIgn}
+                onChange={(e) => setCaptainIgn(e.target.value)}
+                className="mt-1 w-full rounded-xl border border-[#1f2937] bg-[#0f172a] px-3 py-2 text-sm text-white outline-none focus:border-[var(--primary)]"
+                placeholder="Captain IGN"
+              />
+            </label>
+          </div>
+          <label className="text-sm text-slate-300">
+            Captain BGMI ID
+            <input
+              value={captainBgmiId}
+              onChange={(e) => setCaptainBgmiId(e.target.value)}
+              className="mt-1 w-full rounded-xl border border-[#1f2937] bg-[#0f172a] px-3 py-2 text-sm text-white outline-none focus:border-[var(--primary)]"
+              placeholder="Captain BGMI ID"
+            />
+          </label>
+          <div className="space-y-2">
+            <div className="text-sm text-slate-300">Squad BGMI IDs</div>
+            {squadBgmiIds.map((value, index) => (
+              <input
+                key={`squad-${index}`}
+                value={value}
+                onChange={(e) => {
+                  const next = [...squadBgmiIds];
+                  next[index] = e.target.value;
+                  setSquadBgmiIds(next);
+                }}
+                className="w-full rounded-xl border border-[#1f2937] bg-[#0f172a] px-3 py-2 text-sm text-white outline-none focus:border-[var(--primary)]"
+                placeholder={`Player ${index + 2} BGMI ID`}
+              />
+            ))}
           </div>
 
           <div className="grid gap-3 md:grid-cols-2">

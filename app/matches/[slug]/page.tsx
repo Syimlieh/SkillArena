@@ -52,9 +52,51 @@ const MatchDetailsPage = async ({ params }: { params: { slug: string } }) => {
   const isAdmin = userRole === UserRole.ADMIN;
   const isHostOwner = !!userId && match.createdBy === userId;
   const canReviewResults = isAdmin || isHostOwner;
+  let userRegistration:
+    | {
+        teamName?: string;
+        captainBgmiId?: string;
+        captainIgn?: string;
+        squadBgmiIds?: string[];
+        lockedAt?: string;
+      }
+    | null = null;
+  let canEditRegistration = false;
+  if (userId) {
+    const registrationDoc = await RegistrationModel.findOne({
+      userId,
+      matchId: match.matchId,
+      status: { $ne: RegistrationStatus.CANCELLED },
+    }).lean();
+    if (registrationDoc) {
+      userRegistration = {
+        teamName: registrationDoc.teamName,
+        captainBgmiId: registrationDoc.captainBgmiId,
+        captainIgn: registrationDoc.captainIgn,
+        squadBgmiIds: registrationDoc.squadBgmiIds,
+        lockedAt: registrationDoc.lockedAt ? new Date(registrationDoc.lockedAt).toISOString() : undefined,
+      };
+      canEditRegistration = match.status === MatchStatus.UPCOMING && !registrationDoc.lockedAt;
+    }
+  }
 
   let submissions: { userId?: string; teamName?: string; status: ResultStatus; screenshotUrl: string; submittedAt: string; submissionId?: string; placement?: number; kills?: number; totalScore?: number; hostApproved?: boolean; hostRejected?: boolean; hostRejectReason?: string; hostApprovedAt?: string; adminRejectReason?: string }[] = [];
-  let registeredUsers: { userId?: string; name?: string; email?: string; teamName?: string; status: RegistrationStatus; paymentAmount?: number; paymentMethod?: string; paymentReference?: string; registeredAt?: string }[] = [];
+  let registeredUsers: {
+    registrationId?: string;
+    userId?: string;
+    name?: string;
+    email?: string;
+    teamName?: string;
+    status: RegistrationStatus;
+    paymentAmount?: number;
+    paymentMethod?: string;
+    paymentReference?: string;
+    registeredAt?: string;
+    captainBgmiId?: string;
+    captainIgn?: string;
+    squadBgmiIds?: string[];
+    lockedAt?: string;
+  }[] = [];
   if (canReviewResults) {
     try {
       const nameByUser = new Map<string, string>();
@@ -74,6 +116,7 @@ const MatchDetailsPage = async ({ params }: { params: { slug: string } }) => {
         });
 
         registeredUsers = registrations.map((r) => ({
+          registrationId: r._id?.toString?.(),
           userId: r.userId,
           name: nameMap.get(r.userId),
           email: emailByUser.get(r.userId),
@@ -83,6 +126,10 @@ const MatchDetailsPage = async ({ params }: { params: { slug: string } }) => {
           paymentMethod: r.paymentMethod,
           paymentReference: r.paymentReference,
           registeredAt: r.createdAt ? new Date(r.createdAt).toISOString() : undefined,
+          captainBgmiId: r.captainBgmiId,
+          captainIgn: r.captainIgn,
+          squadBgmiIds: r.squadBgmiIds,
+          lockedAt: r.lockedAt ? new Date(r.lockedAt).toISOString() : undefined,
         }));
       }
 
@@ -130,7 +177,7 @@ const MatchDetailsPage = async ({ params }: { params: { slug: string } }) => {
       <MatchDetailsCard match={clientMatch} />
       {canReviewResults ? (
         <>
-          {isAdmin && <RegisteredUsersAdminTable users={registeredUsers} />}
+          {isAdmin && <RegisteredUsersAdminTable matchId={match.matchId} users={registeredUsers} />}
           <ResultSubmissionsAdminTable
             submissions={submissions}
             matchId={match.matchId}
@@ -144,7 +191,39 @@ const MatchDetailsPage = async ({ params }: { params: { slug: string } }) => {
       <div className="space-y-3">
         {showStartButton && <StartMatchButton matchId={match.matchId} />}
         {!isHostOwner && (
-          <RegisterButton match={clientMatch} registrationStatus={registrationStatus} isRegistered={isRegistered} />
+          <RegisterButton
+            match={clientMatch}
+            registrationStatus={registrationStatus}
+            isRegistered={isRegistered}
+            registration={userRegistration}
+            canEdit={canEditRegistration}
+          />
+        )}
+        {userRegistration && (
+          <div className="glass-panel rounded-2xl p-4 text-sm text-[var(--text-secondary)]">
+            <div className="mb-2 text-xs uppercase text-[var(--primary)]">Your BGMI IDs</div>
+            <div className="space-y-1">
+              <div className="text-[var(--text-primary)]">
+                Captain ID: <span className="text-[var(--text-secondary)]">{userRegistration.captainBgmiId ?? "—"}</span>
+              </div>
+              {userRegistration.captainIgn && (
+                <div className="text-[var(--text-primary)]">
+                  Captain IGN: <span className="text-[var(--text-secondary)]">{userRegistration.captainIgn}</span>
+                </div>
+              )}
+              {userRegistration.squadBgmiIds?.length ? (
+                <div className="text-[var(--text-primary)]">
+                  Squad IDs:{" "}
+                  <span className="text-[var(--text-secondary)]">
+                    {userRegistration.squadBgmiIds.filter(Boolean).join(", ")}
+                  </span>
+                </div>
+              ) : null}
+              {userRegistration.lockedAt && (
+                <div className="text-xs text-[var(--text-secondary)]">Registration locked by admin.</div>
+              )}
+            </div>
+          </div>
         )}
         <div className="flex justify-center">
           <div className="w-full max-w-xl">

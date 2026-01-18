@@ -28,6 +28,15 @@ const ensureMatchIsJoinable = (match: Match) => {
   }
 };
 
+const ensureRegistrationEditable = (match: Match, registration: Registration) => {
+  if (match.status !== MatchStatus.UPCOMING) {
+    throw new RegistrationError("Registration is locked for this match", 409);
+  }
+  if (registration.lockedAt) {
+    throw new RegistrationError("Registration updates are locked for this match", 409);
+  }
+};
+
 const ensureSlotsAvailable = async (matchId: string, maxSlots: number) => {
   const activeCount = await RegistrationModel.countDocuments({
     matchId,
@@ -38,16 +47,12 @@ const ensureSlotsAvailable = async (matchId: string, maxSlots: number) => {
   }
 };
 
-const ensureNotAlreadyRegistered = async (userId: string, matchId: string) => {
-  const existing = await RegistrationModel.findOne({
+const findExistingRegistration = async (userId: string, matchId: string) =>
+  RegistrationModel.findOne({
     userId,
     matchId,
     status: { $ne: RegistrationStatus.CANCELLED },
   }).lean();
-  if (existing) {
-    throw new RegistrationError("You are already registered for this match", 409);
-  }
-};
 
 const ensureEmailVerified = async (userId: string) => {
   const user = await UserModel.findById(userId).lean();
@@ -56,7 +61,16 @@ const ensureEmailVerified = async (userId: string) => {
   }
 };
 
-export const registerForMatch = async (matchId: string, userId: string, teamName?: string) => {
+export const registerForMatch = async (
+  matchId: string,
+  userId: string,
+  payload: {
+    teamName?: string;
+    captainBgmiId: string;
+    captainIgn?: string;
+    squadBgmiIds?: string[];
+  }
+) => {
   await connectDb();
 
   const match = await findMatchById(matchId);
@@ -65,20 +79,48 @@ export const registerForMatch = async (matchId: string, userId: string, teamName
   }
 
   ensureMatchIsJoinable(match);
-  await ensureSlotsAvailable(match.matchId, match.maxSlots);
-  await ensureNotAlreadyRegistered(userId, match.matchId);
   await ensureEmailVerified(userId);
+
+  const existing = await findExistingRegistration(userId, match.matchId);
+  if (existing) {
+    ensureRegistrationEditable(match, existing);
+    const registration = await RegistrationModel.findByIdAndUpdate(
+      existing._id,
+      {
+        $set: {
+          teamName: payload.teamName,
+          captainBgmiId: payload.captainBgmiId,
+          captainIgn: payload.captainIgn,
+          squadBgmiIds: payload.squadBgmiIds ?? [],
+        },
+      },
+      { new: true }
+    ).lean<Registration | null>();
+    if (!registration) {
+      throw new RegistrationError("Registration not found", 404);
+    }
+    return {
+      registration,
+      match,
+      updated: true,
+    };
+  }
+  await ensureSlotsAvailable(match.matchId, match.maxSlots);
 
   const registration = await RegistrationModel.create({
     userId,
     matchId: match.matchId,
-    teamName,
+    teamName: payload.teamName,
+    captainBgmiId: payload.captainBgmiId,
+    captainIgn: payload.captainIgn,
+    squadBgmiIds: payload.squadBgmiIds ?? [],
     status: RegistrationStatus.PENDING_PAYMENT,
   });
 
   return {
     registration: registration.toObject(),
     match,
+    updated: false,
   };
 };
 
@@ -86,7 +128,16 @@ export const registerForMatchAsAdmin = async (
   matchId: string,
   userId: string,
   actor: AuthContext,
-  payload?: { reference?: string; amount?: number; method?: string; note?: string; teamName?: string }
+  payload?: {
+    reference?: string;
+    amount?: number;
+    method?: string;
+    note?: string;
+    teamName?: string;
+    captainBgmiId?: string;
+    captainIgn?: string;
+    squadBgmiIds?: string[];
+  }
 ) => {
   await connectDb();
 
@@ -97,13 +148,19 @@ export const registerForMatchAsAdmin = async (
 
   ensureMatchIsJoinable(match);
   await ensureSlotsAvailable(match.matchId, match.maxSlots);
-  await ensureNotAlreadyRegistered(userId, match.matchId);
+  const existing = await findExistingRegistration(userId, match.matchId);
+  if (existing) {
+    throw new RegistrationError("User is already registered for this match", 409);
+  }
   await ensureEmailVerified(userId);
 
   const registration = await RegistrationModel.create({
     userId,
     matchId: match.matchId,
     teamName: payload?.teamName,
+    captainBgmiId: payload?.captainBgmiId,
+    captainIgn: payload?.captainIgn,
+    squadBgmiIds: payload?.squadBgmiIds ?? [],
     status: payload?.amount || payload?.reference ? RegistrationStatus.CONFIRMED : RegistrationStatus.PENDING_PAYMENT,
     paymentReference: payload?.reference,
     paymentAmount: payload?.amount,

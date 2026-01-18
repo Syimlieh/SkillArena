@@ -29,3 +29,8 @@ export const MATCH_DEFAULTS = {
   maxSlots: 25,
   prizes: { first: 1370, second: 150, third: 80 },
 } as const;
+
+export const BGMI_ID_LENGTH = {
+  min: 6,
+  max: 16,
+} as const;

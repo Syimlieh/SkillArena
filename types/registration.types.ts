@@ -7,6 +7,11 @@ export interface Registration {
   matchId: string;
   status: RegistrationStatus;
   teamName?: string;
+  captainBgmiId?: string;
+  captainIgn?: string;
+  squadBgmiIds?: string[];
+  lockedAt?: Date;
+  lockedBy?: string;
   paymentReference?: string;
   paymentAmount?: number;
   paymentMethod?: string;

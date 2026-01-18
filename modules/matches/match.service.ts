@@ -276,14 +276,16 @@ export const startMatch = async (
     const registrations = await RegistrationModel.find({
       matchId: match.matchId,
       status: { $in: ACTIVE_REG_STATUSES },
-    }).lean();
+    })
+      .sort({ createdAt: 1 })
+      .lean();
     const userIds = registrations.map((reg) => reg.userId).filter(Boolean) as string[];
     const users = userIds.length ? await UserModel.find({ _id: { $in: userIds } }).lean() : [];
     const usersById = new Map(users.map((user: any) => [user._id?.toString?.() ?? "", user]));
     const { sendMatchRoomEmail } = await import("@/lib/email/mailer");
 
     await Promise.allSettled(
-      registrations.map((reg) => {
+      registrations.map((reg, index) => {
         const user = usersById.get(reg.userId);
         const email = user?.email;
         if (!email) return Promise.resolve();
@@ -292,6 +294,8 @@ export const startMatch = async (
           matchName: match.title ?? match.matchId,
           roomId,
           roomPassword,
+          teamName: reg.teamName,
+          teamSlot: index + 1,
           matchUrl,
           message: options?.message?.trim() || undefined,
         });

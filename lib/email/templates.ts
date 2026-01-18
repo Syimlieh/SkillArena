@@ -19,6 +19,8 @@ export type EmailTemplate = {
     matchName: string;
     roomId: string;
     roomPassword: string;
+    teamSlot?: number;
+    teamName?: string;
     matchUrl?: string;
     message?: string;
   };
@@ -112,11 +114,15 @@ export const matchRoomDetailsTemplate = ({
   matchName,
   roomId,
   roomPassword,
+  teamSlot,
+  teamName,
   matchUrl,
   message,
 }: EmailTemplate["matchRoomDetails"]) => {
   const subject = `Room Details: ${matchName}`;
   const greeting = name ? `Hi ${name},` : "Hi there,";
+  const slotLine = typeof teamSlot === "number" ? `Team Slot: <strong>${teamSlot}</strong>` : "";
+  const teamLine = teamName ? `Team Name: <strong>${teamName}</strong>` : "";
   const note = message ? `<p>${message}</p>` : "";
   const cta = matchUrl
     ? `<p style="margin:18px 0"><a href="${matchUrl}" style="${baseStyles.button}">Open Match Page</a></p>`
@@ -127,6 +133,8 @@ export const matchRoomDetailsTemplate = ({
       <p>Your match room is ready. Use the details below to join <strong>${matchName}</strong>:</p>
       <p>Room ID: <strong>${roomId}</strong></p>
       <p>Password: <strong>${roomPassword}</strong></p>
+      ${teamLine ? `<p>${teamLine}</p>` : ""}
+      ${slotLine ? `<p>${slotLine}</p>` : ""}
       <p>Please share this info only with your registered teammates.</p>
       ${note}
       ${cta}
@@ -142,6 +150,8 @@ export const matchRoomDetailsTemplate = ({
     `Room details for ${matchName}:`,
     `Room ID: ${roomId}`,
     `Password: ${roomPassword}`,
+    teamName ? `Team Name: ${teamName}` : "",
+    typeof teamSlot === "number" ? `Team Slot: ${teamSlot}` : "",
     message ? `Note: ${message}` : "",
     "Share this only with your registered teammates.",
     matchUrl ? `Match page: ${matchUrl}` : "",

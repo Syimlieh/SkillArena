@@ -4,6 +4,7 @@ import { errorResponse, successResponse } from "@/lib/api-response";
 import {
   adminRegisterPayloadSchema,
   registerMatchParamsSchema,
+  registerMatchPayloadSchema,
 } from "@/modules/registrations/registration.validator";
 import {
   registerForMatch,
@@ -24,11 +25,18 @@ export const handleRegisterMatch = async (req: NextRequest, params: Promise<{ ma
     }
 
     const body = await req.json().catch(() => ({}));
-    const teamName = typeof body?.teamName === "string" ? body.teamName.trim() : undefined;
-    const result = await registerForMatch(parsed.data.matchId, user.userId, teamName);
+    const parsedBody = registerMatchPayloadSchema.safeParse(body);
+    if (!parsedBody.success) {
+      return errorResponse("Invalid payload", 400, {
+        code: "INVALID_INPUT",
+        fieldErrors: parsedBody.error.flatten().fieldErrors,
+      });
+    }
+    const result = await registerForMatch(parsed.data.matchId, user.userId, parsedBody.data);
     return successResponse(
       {
         registrationId: result.registration._id,
+        updated: result.updated,
         match: {
           matchId: result.match.matchId,
           title: result.match.title,
@@ -37,7 +45,7 @@ export const handleRegisterMatch = async (req: NextRequest, params: Promise<{ ma
           startTime: result.match.startTime,
         },
       },
-      { status: 201 }
+      { status: result.updated ? 200 : 201 }
     );
   } catch (error: any) {
     if (error instanceof RegistrationError) {
@@ -80,6 +88,9 @@ export const handleAdminRegisterMatch = async (req: NextRequest, params: Promise
         method: parsedBody.data.paymentMethod,
         note: parsedBody.data.paymentNote,
         teamName: parsedBody.data.teamName,
+        captainBgmiId: parsedBody.data.captainBgmiId,
+        captainIgn: parsedBody.data.captainIgn,
+        squadBgmiIds: parsedBody.data.squadBgmiIds,
       }
     );
 
