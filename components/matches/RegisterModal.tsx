@@ -101,10 +101,35 @@ const RegisterModal = ({ match, isOpen, onClose, registration }: Props) => {
     setLoading(true);
     setMessage(undefined);
     try {
-      const res = await fetch(`/api/matches/${encodeURIComponent(match.matchId)}/register`, {
+      if (isEditing) {
+        const res = await fetch(`/api/matches/${encodeURIComponent(match.matchId)}/register`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            teamName: teamName.trim(),
+            captainBgmiId: captainId,
+            captainIgn: captainIgn.trim() || undefined,
+            squadBgmiIds: filteredSquad.length ? filteredSquad : undefined,
+          }),
+        });
+        const data = await res.json();
+        if (!res.ok || data?.success === false) {
+          setMessage(data?.error?.message || data?.error || "Unable to update registration.");
+          setLoading(false);
+          return;
+        }
+        setMessage("Registration updated.");
+        setLoading(false);
+        onClose();
+        router.refresh();
+        return;
+      }
+
+      const res = await fetch(`/api/payments/create-order`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
+          matchId: match.matchId,
           teamName: teamName.trim(),
           captainBgmiId: captainId,
           captainIgn: captainIgn.trim() || undefined,
@@ -117,10 +142,16 @@ const RegisterModal = ({ match, isOpen, onClose, registration }: Props) => {
         setLoading(false);
         return;
       }
-      setMessage(isEditing ? "Registration updated." : "Registration created. Proceed to payment (coming soon).");
-      setLoading(false);
+      const sessionId = data?.data?.paymentSessionId ?? data?.paymentSessionId;
+      const checkoutUrl = data?.data?.checkoutUrl ?? data?.checkoutUrl;
+      if (!sessionId || !checkoutUrl) {
+        setMessage("Payment session not available. Please try again.");
+        setLoading(false);
+        return;
+      }
+      setMessage(undefined);
       onClose();
-      router.push("/dashboard");
+      window.location.href = checkoutUrl;
     } catch {
       setMessage("Network error. Please try again.");
       setLoading(false);
@@ -240,7 +271,7 @@ const RegisterModal = ({ match, isOpen, onClose, registration }: Props) => {
             disabled={!agree || loading}
             className="w-full rounded-xl bg-[var(--primary)] px-4 py-3 text-sm font-semibold text-white hover:bg-[var(--accent-secondary)] disabled:opacity-60"
           >
-            {loading ? "Processing..." : isEditing ? "Save Registration" : "Proceed to Payment"}
+            {loading ? "Processing..." : isEditing ? "Save Registration" : "Pay & Register"}
           </button>
           <button
             onClick={onClose}
