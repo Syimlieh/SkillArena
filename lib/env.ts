@@ -25,6 +25,9 @@ const envSchema = z.object({
     .optional()
     .transform((val) => (val ? val === "true" : undefined))
     .pipe(z.boolean().optional()),
+  CASHFREE_ENV: z.enum(["TEST", "PROD"]).optional(),
+  CASHFREE_CLIENT_ID: z.string().min(1, "CASHFREE_CLIENT_ID is required"),
+  CASHFREE_CLIENT_SECRET: z.string().min(1, "CASHFREE_CLIENT_SECRET is required"),
 });
 
 export type Env = z.infer<typeof envSchema>;
@@ -48,6 +51,9 @@ export const getEnv = (): Env => {
     SMTP_PASS: process.env.SMTP_PASS,
     SMTP_FROM: process.env.SMTP_FROM,
     SMTP_SECURE: process.env.SMTP_SECURE,
+    CASHFREE_ENV: process.env.CASHFREE_ENV as "TEST" | "PROD" | undefined,
+    CASHFREE_CLIENT_ID: process.env.CASHFREE_CLIENT_ID,
+    CASHFREE_CLIENT_SECRET: process.env.CASHFREE_CLIENT_SECRET,
   });
 
   if (!parsed.success) {
