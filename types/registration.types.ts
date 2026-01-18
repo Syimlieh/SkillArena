@@ -12,6 +12,7 @@ export interface Registration {
   squadBgmiIds?: string[];
   lockedAt?: Date;
   lockedBy?: string;
+  paymentOrderId?: string;
   paymentReference?: string;
   paymentAmount?: number;
   paymentMethod?: string;

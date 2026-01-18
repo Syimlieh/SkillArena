@@ -13,6 +13,7 @@ const RegistrationSchema = new Schema<Registration>(
     squadBgmiIds: { type: [String], default: [] },
     lockedAt: { type: Date },
     lockedBy: { type: String },
+    paymentOrderId: { type: String },
     paymentReference: { type: String },
     paymentAmount: { type: Number },
     paymentMethod: { type: String },

@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
+import { load } from "@cashfreepayments/cashfree-js";
 import Modal from "@/components/ui/Modal";
 import { Match } from "@/types/match.types";
 import { useAuth } from "@/context/AuthContext";
@@ -117,10 +118,22 @@ const RegisterModal = ({ match, isOpen, onClose, registration }: Props) => {
         setLoading(false);
         return;
       }
-      setMessage(isEditing ? "Registration updated." : "Registration created. Proceed to payment (coming soon).");
-      setLoading(false);
+      const sessionId = data?.data?.paymentSessionId ?? data?.paymentSessionId;
+      const checkoutUrl = data?.data?.checkoutUrl ?? data?.checkoutUrl;
+      const cashfreeMode = data?.data?.cashfreeMode ?? data?.cashfreeMode;
+      if (!sessionId || !checkoutUrl) {
+        setMessage("Payment session not available. Please try again.");
+        setLoading(false);
+        return;
+      }
+      setMessage(undefined);
       onClose();
-      router.push("/dashboard");
+      try {
+        const cashfree = await load({ mode: cashfreeMode === "production" ? "production" : "sandbox" });
+        await cashfree.checkout({ paymentSessionId: sessionId, redirectTarget: "_self" });
+      } catch {
+        window.location.href = checkoutUrl;
+      }
     } catch {
       setMessage("Network error. Please try again.");
       setLoading(false);

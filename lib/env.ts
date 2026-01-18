@@ -10,6 +10,9 @@ const envSchema = z.object({
   DO_SPACES_REGION: z.string().min(1, "DO_SPACES_REGION is required"),
   DO_SPACES_ORIGIN_ENDPOINT: z.string().url("DO_SPACES_ORIGIN_ENDPOINT must be a valid URL"),
   DO_SPACES_KEY: z.string().min(1, "DO_SPACES_KEY is required"),
+  CASHFREE_ENV: z.enum(["TEST", "PROD"]).optional(),
+  CASHFREE_CLIENT_ID: z.string().min(1, "CASHFREE_CLIENT_ID is required"),
+  CASHFREE_CLIENT_SECRET: z.string().min(1, "CASHFREE_CLIENT_SECRET is required"),
   SMTP_HOST: z.string().optional(),
   SMTP_PORT: z
     .string()
@@ -41,6 +44,9 @@ export const getEnv = (): Env => {
     DO_SPACES_REGION: process.env.DO_SPACES_REGION,
     DO_SPACES_ORIGIN_ENDPOINT: process.env.DO_SPACES_ORIGIN_ENDPOINT,
     DO_SPACES_KEY: process.env.DO_SPACES_KEY,
+    CASHFREE_ENV: process.env.CASHFREE_ENV as "TEST" | "PROD" | undefined,
+    CASHFREE_CLIENT_ID: process.env.CASHFREE_CLIENT_ID,
+    CASHFREE_CLIENT_SECRET: process.env.CASHFREE_CLIENT_SECRET,
     SMTP_HOST: process.env.SMTP_HOST,
     SMTP_PORT: process.env.SMTP_PORT,
     SMTP_USERNAME: process.env.SMTP_USERNAME,
