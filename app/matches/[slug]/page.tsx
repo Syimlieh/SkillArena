@@ -46,7 +46,7 @@ const MatchDetailsPage = async ({ params }: { params: { slug: string } }) => {
     startTime: match.startTime ? new Date(match.startTime).toISOString() : match.startTime,
   };
   const isRegistered = match.isRegistered === true;
-  const registrationStatus = isRegistered ? RegistrationStatus.CONFIRMED : null;
+  let registrationStatus: RegistrationStatus | null = isRegistered ? RegistrationStatus.CONFIRMED : null;
   const canStart = (userId && match.createdBy === userId) || userRole === UserRole.ADMIN;
   const showStartButton = canStart && match.status === MatchStatus.UPCOMING;
   const isAdmin = userRole === UserRole.ADMIN;
@@ -69,6 +69,7 @@ const MatchDetailsPage = async ({ params }: { params: { slug: string } }) => {
       status: { $ne: RegistrationStatus.CANCELLED },
     }).lean();
     if (registrationDoc) {
+      registrationStatus = registrationDoc.status as RegistrationStatus;
       userRegistration = {
         teamName: registrationDoc.teamName,
         captainBgmiId: registrationDoc.captainBgmiId,
