@@ -30,6 +30,7 @@ export const sidebarSections: NavSection[] = [
     label: "General",
     items: [
       { id: "dashboard", label: "Dashboard", href: "/dashboard", icon: LayoutDashboard, roles: rolesAll },
+      { id: "guide", label: "Match Guide", href: "/guide", icon: BookOpen, roles: rolesAll },
       { id: "rules", label: "Rules", href: "/rules", icon: BookOpen, roles: rolesAll },
       { id: "admin-host-apps", label: "Host Applications", href: "/dashboard/admin/host-applications", icon: Users, roles: [UserRole.ADMIN] },
       { id: "admin-create-match", label: "Create Match", href: "/dashboard/admin/create-match", icon: ClipboardList, roles: [UserRole.ADMIN] },

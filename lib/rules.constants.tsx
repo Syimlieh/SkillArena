@@ -137,6 +137,10 @@ export const RULES_SECTIONS: RuleItem[] = [
         <li>Submit valid screenshots showing placement, kill count, and match ID.</li>
         <li>Results are verified by SkillArena Admin or Host (subject to admin review).</li>
         <li>Failure to submit proof leads to disqualification.</li>
+        <li>
+          Room ID and password shared by SkillArena or the Host are confidential. Share them only with your registered teammates.
+          Sharing outside your team can result in immediate disqualification without refund.
+        </li>
         <li>If the declared winner is found cheating or violating rules, the next eligible team/player is promoted to winner and payouts adjust accordingly.</li>
       </ul>
     ),
