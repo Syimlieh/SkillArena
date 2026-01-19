@@ -11,6 +11,7 @@ import { RegistrationStatus } from "@/enums/RegistrationStatus.enum";
 import { registerForMatch } from "@/modules/registrations/registration.service";
 import { RegistrationPayload } from "@/types/payment-order.types";
 import { UserModel } from "@/models/User.model";
+import { createModuleLogger } from "@/lib/logger";
 
 type CreateOrderInput = {
   userId: string;
@@ -18,6 +19,8 @@ type CreateOrderInput = {
   registration: RegistrationPayload;
   origin?: string | null;
 };
+
+const { logInfo, logWarn, logError } = createModuleLogger("cashfree");
 
 const cashfreeApiBaseUrl = (env: string | undefined) =>
   env === "PROD" ? "https://api.cashfree.com/pg" : "https://sandbox.cashfree.com/pg";
@@ -39,13 +42,16 @@ const buildCashfreeClient = () => {
 const cashfreeMode = (envValue: string | undefined) => (envValue === "PROD" ? "production" : "sandbox");
 
 export const createCashfreeOrder = async (input: CreateOrderInput) => {
+  logInfo("create order: start", { userId: input.userId });
   await connectDb();
   const env = getEnv();
   const match = await MatchModel.findOne({ matchId: input.matchId }).lean();
   if (!match) {
+    logWarn("create order: match not found", { matchId: input.matchId });
     throw new Error("Match not found");
   }
   if (match.status !== MatchStatus.UPCOMING) {
+    logWarn("create order: match not open", { status: match.status });
     throw new Error("Match is not open for registration");
   }
 
@@ -55,6 +61,7 @@ export const createCashfreeOrder = async (input: CreateOrderInput) => {
     status: { $ne: "CANCELLED" },
   }).lean();
   if (existingReg && existingReg.status !== RegistrationStatus.PENDING_PAYMENT) {
+    logWarn("create order: already registered");
     throw new Error("You are already registered for this match");
   }
 
@@ -64,6 +71,10 @@ export const createCashfreeOrder = async (input: CreateOrderInput) => {
     status: PaymentStatus.INITIATED,
   }).lean();
   if (existingOrder?.paymentSessionId) {
+    logInfo("create order: reuse existing payment session", {
+      orderId: existingOrder.orderId,
+      paymentSessionId: existingOrder.paymentSessionId,
+    });
     return {
       orderId: existingOrder.orderId,
       paymentSessionId: existingOrder.paymentSessionId,
@@ -76,16 +87,25 @@ export const createCashfreeOrder = async (input: CreateOrderInput) => {
 
   const user = await UserModel.findById(input.userId).lean();
   if (!user?.emailVerified) {
+    logWarn("create order: email not verified", { userId: input.userId });
     throw new Error("Please verify your email before joining a match");
   }
   if (!user?.phone) {
+    logWarn("create order: missing phone");
     throw new Error("Phone number is required for payments");
   }
 
   const orderId = crypto.randomUUID();
-  
+
   const redirectUrl = input.origin ? `${input.origin}/payment/return?order_id=${orderId}` : undefined;
   const notifyUrl = buildNotifyUrl(input.origin);
+  logInfo("create order: payload prepared", {
+    orderId,
+    amount: match.entryFee,
+    currency: "INR",
+    hasRedirectUrl: !!redirectUrl,
+    hasNotifyUrl: !!notifyUrl,
+  });
 
   const payload = {
     order_id: orderId,
@@ -104,18 +124,22 @@ export const createCashfreeOrder = async (input: CreateOrderInput) => {
 
   let data: any;
   try {
+    logInfo("create order: calling cashfree");
     const cashfree = buildCashfreeClient();
     const response = await cashfree.PGCreateOrder(payload);
     data = response?.data;
+    logInfo("create order: cashfree response received", { hasSessionId: !!data?.payment_session_id });
   } catch (error: any) {
     const message =
       error?.response?.data?.message ||
       error?.message ||
       "Unable to create payment order";
+    logError("create order: cashfree call failed", { orderId, message });
     throw new Error(message);
   }
 
   if (!data?.payment_session_id) {
+    logError("create order: missing payment session id");
     throw new Error("Cashfree did not return a payment session id");
   }
 
@@ -130,6 +154,7 @@ export const createCashfreeOrder = async (input: CreateOrderInput) => {
     gateway: "CASHFREE",
     registration: input.registration,
   });
+  logInfo("create order: saved", { paymentSessionId: data?.payment_session_id });
 
   return {
     orderId,
@@ -142,6 +167,9 @@ export const createCashfreeOrder = async (input: CreateOrderInput) => {
 };
 
 export const verifyCashfreeSignature = (rawBody: string, timestamp: string | null, signature: string | null) => {
+  if (!signature || !timestamp) {
+    logWarn("webhook signature: missing headers", { hasSignature: !!signature, hasTimestamp: !!timestamp });
+  }
   if (!signature || !timestamp) return false;
   const { CASHFREE_CLIENT_SECRET } = getEnv();
   const payload = `${timestamp}.${rawBody}`;
@@ -207,21 +235,26 @@ const linkPaymentToRegistration = async (orderId: string, registrationId: string
 };
 
 export const handleCashfreeWebhook = async (payload: CashfreeWebhook) => {
+  logInfo("webhook handle: start", { event: payload?.type ?? payload?.event });
   await connectDb();
   const orderId = payload?.data?.order?.order_id;
   if (!orderId) {
+    logWarn("webhook handle: missing order id");
     throw new Error("Missing order id");
   }
   const order = await PaymentOrderModel.findOne({ orderId });
   if (!order) {
+    logWarn("webhook handle: order not found", { orderId });
     throw new Error("Order not found");
   }
 
   assertAmountCurrencyMatch(payload?.data?.order?.order_amount, payload?.data?.order?.order_currency, order);
+  logInfo("webhook handle: amount/currency verified", { orderId });
 
   const orderStatus = payload?.data?.order?.order_status;
   const paymentStatus = payload?.data?.payment?.payment_status;
   const nextStatus = mapStatus(orderStatus, paymentStatus);
+  logInfo("webhook handle: status mapped", { orderId, orderStatus, paymentStatus, nextStatus });
   if (order.status === nextStatus) {
     if (
       order.cashfreeOrderStatus !== orderStatus ||
@@ -232,6 +265,7 @@ export const handleCashfreeWebhook = async (payload: CashfreeWebhook) => {
       order.cashfreePaymentStatus = paymentStatus;
       order.cashfreeEventType = payload?.type ?? payload?.event;
       await order.save();
+      logInfo("webhook handle: metadata updated", { orderId, status: order.status });
     }
     return order.toObject();
   }
@@ -241,14 +275,17 @@ export const handleCashfreeWebhook = async (payload: CashfreeWebhook) => {
   order.cashfreePaymentStatus = paymentStatus;
   order.cashfreeEventType = payload?.type ?? payload?.event;
   await order.save();
+  logInfo("webhook handle: status updated", { orderId, status: order.status });
 
   if (nextStatus === PaymentStatus.SUCCESS) {
     try {
+      logInfo("webhook handle: registration start", { orderId });
       const result = await registerForMatch(order.matchId, order.userId, order.registration);
       const registrationId =
         (result.registration as any)?._id?.toString?.() ?? (result.registration as any)?._id;
       if (registrationId) {
         await linkPaymentToRegistration(order.orderId, registrationId, order.amount);
+        logInfo("webhook handle: registration linked", { orderId, registrationId });
       }
     } catch (err: any) {
       if (err?.message === "You are already registered for this match") {
@@ -259,19 +296,23 @@ export const handleCashfreeWebhook = async (payload: CashfreeWebhook) => {
         const registrationId = (existing as any)?._id?.toString?.() ?? (existing as any)?._id;
         if (registrationId) {
           await linkPaymentToRegistration(order.orderId, registrationId, order.amount);
+          logInfo("webhook handle: existing registration linked", { orderId, registrationId });
         }
       } else {
+        logError("webhook handle: registration failed", { orderId, message: err?.message });
         throw err;
       }
     }
   }
 
+  logInfo("webhook handle: completed", { orderId, status: order.status });
   return order.toObject();
 };
 
 export const fetchCashfreeOrderStatus = async (orderId: string) => {
   const env = getEnv();
   const url = `${cashfreeApiBaseUrl(env.CASHFREE_ENV)}/orders/${orderId}`;
+  logInfo("fetch order status: start", { orderId });
   const response = await fetch(url, {
     method: "GET",
     headers: {
@@ -282,15 +323,19 @@ export const fetchCashfreeOrderStatus = async (orderId: string) => {
   });
   const data = await response.json();
   if (!response.ok) {
+    logError("fetch order status: failed", { orderId, message: data?.message });
     throw new Error(data?.message || "Unable to fetch order status");
   }
+  logInfo("fetch order status: success", { orderId, orderStatus: data?.order_status });
   return data;
 };
 
 export const confirmCashfreeOrder = async (orderId: string) => {
+  logInfo("confirm order: start", { orderId });
   await connectDb();
   const order = await PaymentOrderModel.findOne({ orderId });
   if (!order) {
+    logWarn("confirm order: order not found", { orderId });
     throw new Error("Order not found");
   }
 
@@ -309,15 +354,18 @@ export const confirmCashfreeOrder = async (orderId: string) => {
     order.cashfreeOrderStatus = orderStatus;
     order.cashfreePaymentStatus = paymentStatus;
     await order.save();
+    logInfo("confirm order: status updated", { orderId, status: order.status });
   }
 
   if (nextStatus === PaymentStatus.SUCCESS) {
     try {
+      logInfo("confirm order: registration start", { orderId });
       const result = await registerForMatch(order.matchId, order.userId, order.registration);
       const registrationId =
         (result.registration as any)?._id?.toString?.() ?? (result.registration as any)?._id;
       if (registrationId) {
         await linkPaymentToRegistration(order.orderId, registrationId, order.amount);
+        logInfo("confirm order: registration linked", { orderId, registrationId });
       }
     } catch (err: any) {
       if (err?.message === "You are already registered for this match") {
@@ -328,12 +376,15 @@ export const confirmCashfreeOrder = async (orderId: string) => {
         const registrationId = (existing as any)?._id?.toString?.() ?? (existing as any)?._id;
         if (registrationId) {
           await linkPaymentToRegistration(order.orderId, registrationId, order.amount);
+          logInfo("confirm order: existing registration linked", { orderId, registrationId });
         }
       } else {
+        logError("confirm order: registration failed", { orderId, message: err?.message });
         throw err;
       }
     }
   }
 
+  logInfo("confirm order: completed", { orderId, status: order.status });
   return { order: order.toObject(), cashfreeStatus };
 };
