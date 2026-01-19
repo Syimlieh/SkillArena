@@ -172,10 +172,12 @@ export const verifyCashfreeSignature = (rawBody: string, timestamp: string | nul
   }
   if (!signature || !timestamp) return false;
   const { CASHFREE_CLIENT_SECRET } = getEnv();
-  const payload = `${timestamp}.${rawBody}`;
+  logWarn("timestamp", { timestamp });
+  const payload = `${timestamp}${rawBody}`;
+  logWarn("CASHFREE_CLIENT_SECRET", { CASHFREE_CLIENT_SECRET });
   const expected = crypto.createHmac("sha256", CASHFREE_CLIENT_SECRET).update(payload).digest("base64");
-  const sig = Buffer.from(signature, "base64");
-  const exp = Buffer.from(expected, "base64");
+  const sig = Buffer.from(signature, "utf8");
+  const exp = Buffer.from(expected, "utf8");
   if (sig.length !== exp.length) return false;
   return crypto.timingSafeEqual(sig, exp);
 };
