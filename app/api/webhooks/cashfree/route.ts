@@ -24,7 +24,7 @@ export const POST = async (req: Request) => {
       event: payload?.type ?? payload?.event,
     });
     const updated = await handleCashfreeWebhook(payload);
-    logInfo("webhook: processed", { orderId: payload?.data?.order?.order_id, status: updated?.status });
+    logInfo("webhook: processed", { orderId: payload?.data?.order?.order_id });
     return NextResponse.json(updated);
   } catch (error) {
     logError("webhook: failed", { message: (error as Error).message });

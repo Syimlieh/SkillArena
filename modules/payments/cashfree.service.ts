@@ -174,7 +174,6 @@ export const verifyCashfreeSignature = (rawBody: string, timestamp: string | nul
   const { CASHFREE_CLIENT_SECRET } = getEnv();
   logWarn("timestamp", { timestamp });
   const payload = `${timestamp}${rawBody}`;
-  logWarn("CASHFREE_CLIENT_SECRET", { CASHFREE_CLIENT_SECRET });
   const expected = crypto.createHmac("sha256", CASHFREE_CLIENT_SECRET).update(payload).digest("base64");
   const sig = Buffer.from(signature, "utf8");
   const exp = Buffer.from(expected, "utf8");
@@ -232,22 +231,48 @@ const linkPaymentToRegistration = async (orderId: string, registrationId: string
 
   await PaymentOrderModel.findOneAndUpdate(
     { orderId },
-    { $set: { registrationId } }
+    { $set: { registrationId }, $unset: { postPaymentError: "" } }
   );
+};
+
+const markPostPaymentFailure = async (orderId: string, message: string) => {
+  try {
+    await PaymentOrderModel.findOneAndUpdate(
+      { orderId },
+      { $set: { postPaymentError: message } }
+    );
+    logError("webhook handle: post-payment failure recorded", { orderId, message });
+  } catch (error: any) {
+    logError("webhook handle: failed to record post-payment failure", {
+      orderId,
+      message,
+      error: error?.message,
+    });
+  }
 };
 
 export const handleCashfreeWebhook = async (payload: CashfreeWebhook) => {
   logInfo("webhook handle: start", { event: payload?.type ?? payload?.event });
   await connectDb();
-  const orderId = payload?.data?.order?.order_id;
+  logInfo("webhook handle: payload shape", {
+    topKeys: Object.keys((payload ?? {}) as Record<string, unknown>),
+    dataKeys: Object.keys(((payload as any)?.data ?? {}) as Record<string, unknown>),
+  });
+  const orderId =
+    payload?.data?.order?.order_id ??
+    (payload as any)?.data?.order_id ??
+    (payload as any)?.order_id;
   if (!orderId) {
     logWarn("webhook handle: missing order id");
     throw new Error("Missing order id");
   }
+  if ((payload as any)?.data?.order_id || (payload as any)?.order_id) {
+    logInfo("webhook handle: order id resolved via fallback", { orderId });
+  }
   const order = await PaymentOrderModel.findOne({ orderId });
   if (!order) {
-    logWarn("webhook handle: order not found", { orderId });
-    throw new Error("Order not found");
+    logWarn("webhook handle: order not found (likely dashboard test)", { orderId });
+    return { acknowledged: true };
   }
 
   assertAmountCurrencyMatch(payload?.data?.order?.order_amount, payload?.data?.order?.order_currency, order);
@@ -301,8 +326,9 @@ export const handleCashfreeWebhook = async (payload: CashfreeWebhook) => {
           logInfo("webhook handle: existing registration linked", { orderId, registrationId });
         }
       } else {
-        logError("webhook handle: registration failed", { orderId, message: err?.message });
-        throw err;
+        logError("registration failed", { orderId, err: err?.message });
+        await markPostPaymentFailure(orderId, err?.message || "Registration failed after payment");
+        return order.toObject();
       }
     }
   }

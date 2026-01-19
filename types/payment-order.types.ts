@@ -22,6 +22,7 @@ export interface PaymentOrder {
   cashfreeOrderStatus?: string;
   cashfreePaymentStatus?: string;
   cashfreeEventType?: string;
+  postPaymentError?: string;
   registration: RegistrationPayload;
   createdAt?: Date;
   updatedAt?: Date;

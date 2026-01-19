@@ -26,6 +26,7 @@ const PaymentOrderSchema = new Schema<PaymentOrder>(
     cashfreeOrderStatus: { type: String },
     cashfreePaymentStatus: { type: String },
     cashfreeEventType: { type: String },
+    postPaymentError: { type: String },
     registration: { type: RegistrationSchema, required: true },
   },
   { timestamps: true }
