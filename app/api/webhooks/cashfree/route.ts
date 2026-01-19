@@ -15,6 +15,8 @@ export const POST = async (req: Request) => {
     return NextResponse.json({ error: "Invalid signature" }, { status: 401 });
   }
 
+  logInfo("webhook: signature verified", { verified });
+
   try {
     const payload = JSON.parse(rawBody);
     logInfo("webhook: payload parsed", {
