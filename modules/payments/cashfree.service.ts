@@ -263,8 +263,8 @@ export const handleCashfreeWebhook = async (payload: CashfreeWebhook) => {
     (payload as any)?.data?.order_id ??
     (payload as any)?.order_id;
   if (!orderId) {
-    logWarn("webhook handle: missing order id");
-    throw new Error("Missing order id");
+    logWarn("webhook handle: order id not found (likely dashboard test)", { orderId });
+    return { acknowledged: true };
   }
   if ((payload as any)?.data?.order_id || (payload as any)?.order_id) {
     logInfo("webhook handle: order id resolved via fallback", { orderId });
