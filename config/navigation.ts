@@ -19,7 +19,7 @@ export type NavSection = {
 
 export const topNavItems: NavItem[] = [
   { id: "home", label: "Home", href: "/", icon: LayoutDashboard },
-  { id: "rules", label: "Rules", href: "/rules", icon: BookOpen },
+  { id: "guide", label: "How To", href: "/guide", icon: BookOpen },
 ];
 
 const rolesAll = [UserRole.USER, UserRole.HOST, UserRole.ADMIN];
@@ -30,8 +30,6 @@ export const sidebarSections: NavSection[] = [
     label: "General",
     items: [
       { id: "dashboard", label: "Dashboard", href: "/dashboard", icon: LayoutDashboard, roles: rolesAll },
-      { id: "guide", label: "Match Guide", href: "/guide", icon: BookOpen, roles: rolesAll },
-      { id: "rules", label: "Rules", href: "/rules", icon: BookOpen, roles: rolesAll },
       { id: "admin-host-apps", label: "Host Applications", href: "/dashboard/admin/host-applications", icon: Users, roles: [UserRole.ADMIN] },
       { id: "admin-create-match", label: "Create Match", href: "/dashboard/admin/create-match", icon: ClipboardList, roles: [UserRole.ADMIN] },
     ],
@@ -55,6 +53,7 @@ export const sidebarSections: NavSection[] = [
 
 export const accountItems: NavItem[] = [
   { id: "profile", label: "Profile", action: "profile", icon: User, roles: rolesAll },
+  { id: "rules", label: "Rules", href: "/rules", icon: BookOpen, roles: rolesAll },
   { id: "logout", label: "Logout", action: "logout", icon: LogOut, roles: rolesAll },
 ];
 
