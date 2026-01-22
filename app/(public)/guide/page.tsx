@@ -2,81 +2,133 @@ import { Badge } from "@/components/ui/Badge";
 
 const sections = [
   {
-    id: "registering",
-    title: "Registering for a Match",
+    id: "create-account",
+    title: "Create Your Account",
     body: [
-      "Open the match page and click Register.",
-      "Enter your team name and BGMI IDs before confirming.",
+      "Open the login page and click Create an account.",
+      "Complete signup to access the dashboard.",
     ],
+    image: "/how-to/step-01-create-account.png",
+    imageAlt: "Login page highlighting the Create an account link.",
   },
   {
-    id: "bgmi-ids",
-    title: "Adding BGMI IDs",
+    id: "open-profile",
+    title: "Open Your Profile Menu",
     body: [
-      "Captain BGMI ID is required for every registration.",
-      "You can add up to three more squad BGMI IDs.",
-      "IDs must be numeric and unique.",
+      "Click your avatar/name in the top-right.",
+      "Open the Profile option from the dropdown.",
     ],
+    image: "/how-to/step-02-open-profile-menu.png",
+    imageAlt: "Dashboard header showing the profile dropdown menu.",
   },
   {
-    id: "lock-time",
-    title: "Registration Lock",
+    id: "verify-email",
+    title: "Verify Your Email",
     body: [
-      "Edits are allowed until the match starts.",
-      "Admins can lock a specific registration at any time.",
-      "Once locked or started, BGMI IDs can no longer be changed.",
+      "Use Resend verification inside your profile.",
+      "Verify before registering for matches.",
     ],
+    image: "/how-to/step-03-verify-email.png",
+    imageAlt: "Profile modal showing the resend verification option.",
+  },
+  {
+    id: "find-match",
+    title: "Find a Match on the Dashboard",
+    body: [
+      "Browse Available Matches on your dashboard.",
+      "Open a match card to view details.",
+    ],
+    image: "/how-to/step-04-dashboard-available-match.png",
+    imageAlt: "Player dashboard highlighting an available match card.",
+  },
+  {
+    id: "open-match",
+    title: "Open the Match Page",
+    body: [
+      "Review match details and entry fee.",
+      "Click Register to begin.",
+    ],
+    image: "/how-to/step-05-open-match-register.png",
+    imageAlt: "Match page with the Register button highlighted.",
+  },
+  {
+    id: "captain-details",
+    title: "Enter Captain Details",
+    body: [
+      "Add your team name and captain BGMI ID.",
+      "Captain BGMI ID is required and must be numeric.",
+    ],
+    image: "/how-to/step-06-captain-bgmi-id.png",
+    imageAlt: "Registration form highlighting the captain BGMI ID field.",
+  },
+  {
+    id: "squad-ids",
+    title: "Add Squad BGMI IDs",
+    body: [
+      "Optional: add up to three additional BGMI IDs.",
+      "All IDs must be unique.",
+    ],
+    image: "/how-to/step-07-squad-bgmi-ids.png",
+    imageAlt: "Registration form showing squad BGMI ID fields.",
+  },
+  {
+    id: "save-registration",
+    title: "Save Your Registration",
+    body: [
+      "Agree to the rules and save your registration.",
+      "You can edit until the match starts.",
+    ],
+    imageAlt: "Registration modal with Save Registration button.",
+  },
+  {
+    id: "edit-registration",
+    title: "Edit Registration Before Start",
+    body: [
+      "Use Edit Registration if you need changes before kickoff.",
+      "After lock or match start, edits are disabled.",
+    ],
+    image: "/how-to/step-09-edit-registration.png",
+    imageAlt: "Match page showing the Edit Registration button.",
   },
   {
     id: "room-details",
-    title: "Receiving Match Details",
+    title: "Receive Room Details",
     body: [
       "Room ID and password are shared before match start.",
-      "You will receive an email with the match link and room details.",
-      "Room details are visible on the match page for registered teams.",
+      "Check your email for the room details message.",
     ],
+    image: "/how-to/step-10-room-details-email.png",
+    imageAlt: "Email showing room ID and password details.",
   },
   {
-    id: "joining-room",
-    title: "Joining the Room",
+    id: "submit-result",
+    title: "Submit Your Result",
     body: [
-      "Use the Room ID and password to join the custom room.",
-      "Join only with your registered team members.",
-      "If a team slot is assigned, enter the correct team row.",
+      "Upload a clear result screenshot after the match.",
+      "Confirm the screenshot is genuine and submit.",
     ],
+    image: "/how-to/step-11-submit-result.png",
+    imageAlt: "Result submission section with upload and submit buttons.",
   },
   {
-    id: "playing",
-    title: "Playing the Match",
+    id: "result-proof",
+    title: "Capture Result Screenshot",
     body: [
-      "Follow the match rules and play fair.",
-      "Do not use emulators, hacks, or unauthorized tools.",
+      "Make sure placement and team names are visible.",
+      "Screenshots must clearly show the win screen.",
     ],
-  },
-  {
-    id: "screenshots",
-    title: "Submitting Screenshots",
-    body: [
-      "After the match, submit a clear screenshot of placement and kills.",
-      "Make sure the match ID is visible in the result.",
-    ],
-  },
-  {
-    id: "verification",
-    title: "Result Verification",
-    body: [
-      "Hosts review submissions first; admins can review after.",
-      "Rejected submissions can be re-uploaded with the correct proof.",
-    ],
+    image: "/how-to/step-12-result-screenshot.png",
+    imageAlt: "BGMI winner screen example with highlighted player names.",
   },
   {
     id: "winner",
-    title: "Winner Announcement & Payout",
+    title: "Check Results & Winners",
     body: [
+      "Results appear in Recent Match Results.",
       "Winners are announced after verification.",
-      "Payouts are released only after admin approval.",
-      "Prize money is typically credited within 5–30 minutes after results are finalized.",
     ],
+    image: "/how-to/step-13-winner-card.png",
+    imageAlt: "Recent match results card highlighting the winner tag.",
   },
 ];
 
@@ -123,6 +175,16 @@ const GuidePage = () => {
                     <li key={line}>{line}</li>
                   ))}
                 </ul>
+                {section.image ? (
+                  <figure className="mt-5 overflow-hidden rounded-2xl border border-[var(--border-subtle)] bg-[var(--card-bg)] md:max-w-4xl">
+                    <img
+                      src={section.image}
+                      alt={section.imageAlt ?? section.title}
+                      className="h-auto w-full object-cover"
+                      loading="lazy"
+                    />
+                  </figure>
+                ) : null}
               </section>
             ))}
           </div>
