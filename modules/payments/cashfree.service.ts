@@ -54,6 +54,7 @@ export const createCashfreeOrder = async (input: CreateOrderInput) => {
     logWarn("create order: match not open", { status: match.status });
     throw new Error("Match is not open for registration");
   }
+  await ensureSlotsAvailable(match.matchId, match.maxSlots);
 
   const existingReg = await RegistrationModel.findOne({
     userId: input.userId,
@@ -202,6 +203,16 @@ const mapStatus = (orderStatus?: string, paymentStatus?: string): PaymentStatus 
   if (status.toUpperCase() === "SUCCESS" || status.toUpperCase() === "PAID") return PaymentStatus.SUCCESS;
   if (status.toUpperCase() === "FAILED") return PaymentStatus.FAILED;
   return PaymentStatus.INITIATED;
+};
+
+const ensureSlotsAvailable = async (matchId: string, maxSlots: number) => {
+  const activeCount = await RegistrationModel.countDocuments({
+    matchId,
+    status: { $in: [RegistrationStatus.PENDING_PAYMENT, RegistrationStatus.CONFIRMED] },
+  });
+  if (activeCount >= maxSlots) {
+    throw new Error("No slots available for this match");
+  }
 };
 
 const assertAmountCurrencyMatch = (payloadAmount: unknown, payloadCurrency: unknown, order: { amount: number; currency: string }) => {
