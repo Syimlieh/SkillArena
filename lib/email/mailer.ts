@@ -19,7 +19,9 @@ const buildTransporter = () => {
   const env = getEnv();
   const smtpPass = env.SMTP_PASS ?? env.SMTP_PASSWORD;
   const hasSmtp = env.SMTP_HOST && env.SMTP_PORT && env.SMTP_USERNAME && smtpPass;
-
+  const port = Number(env.SMTP_PORT);
+  const secure = port === 465;
+  
   if (!hasSmtp) {
     // Fallback to JSON transport so local/dev does not throw
     return nodemailer.createTransport({
@@ -29,11 +31,14 @@ const buildTransporter = () => {
 
   return nodemailer.createTransport({
     host: env.SMTP_HOST,
-    port: env.SMTP_PORT,
-    secure: env.SMTP_SECURE ?? false,
+    port,
+    secure,
     auth: {
       user: env.SMTP_USERNAME,
       pass: smtpPass,
+    },
+    tls: {
+      rejectUnauthorized: true, // Keep for production more secure
     },
   });
 };
@@ -42,7 +47,7 @@ const transporter = buildTransporter();
 
 const sendMail = async ({ to, subject, html, text }: MailPayload) => {
   const env = getEnv();
-  const from = env.SMTP_USERNAME;
+  const from = `"SkillArena Support" <${env.SMTP_FROM}>`;
 
   try {
     const info = await transporter.sendMail({

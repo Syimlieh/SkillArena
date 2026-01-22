@@ -100,8 +100,9 @@ const ProfileModal = ({ isOpen, onClose }: Props) => {
       await refreshProfile();
       onClose();
     } catch (err: any) {
+      const errorPayload = err?.response?.data?.error;
       const message =
-        err?.response?.data?.error ||
+        (typeof errorPayload === "string" ? errorPayload : errorPayload?.message) ||
         err?.response?.data?.message ||
         "Unable to update profile right now.";
       setError(message);
@@ -118,8 +119,9 @@ const ProfileModal = ({ isOpen, onClose }: Props) => {
       await apiClient.post("/api/auth/verify/request");
       setVerifyMessage("Verification email sent. Check your inbox.");
     } catch (err: any) {
+      const errorPayload = err?.response?.data?.error;
       const message =
-        err?.response?.data?.error ||
+        (typeof errorPayload === "string" ? errorPayload : errorPayload?.message) ||
         err?.response?.data?.message ||
         "Unable to send verification email right now.";
       setError(message);

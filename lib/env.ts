@@ -22,11 +22,6 @@ const envSchema = z.object({
   SMTP_PASSWORD: z.string().optional(),
   SMTP_PASS: z.string().optional(),
   SMTP_FROM: z.string().email().optional(),
-  SMTP_SECURE: z
-    .string()
-    .optional()
-    .transform((val) => (val ? val === "true" : undefined))
-    .pipe(z.boolean().optional()),
 });
 
 export type Env = z.infer<typeof envSchema>;
@@ -51,7 +46,6 @@ export const getEnv = (): Env => {
     SMTP_PASSWORD: process.env.SMTP_PASSWORD,
     SMTP_PASS: process.env.SMTP_PASS,
     SMTP_FROM: process.env.SMTP_FROM,
-    SMTP_SECURE: process.env.SMTP_SECURE,
   });
 
   if (!parsed.success) {

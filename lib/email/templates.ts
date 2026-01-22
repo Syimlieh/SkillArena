@@ -29,7 +29,7 @@ export type EmailTemplate = {
 const baseStyles = {
   body: "font-family: Arial, sans-serif; color: #0f172a;",
   button:
-    "display:inline-block;padding:12px 18px;border-radius:10px;background:#10b981;color:#0f172a;text-decoration:none;font-weight:700;",
+    "display:inline-block;padding:12px 18px;border-radius:10px;background:#10b981;color:#ffffff;text-decoration:none;font-weight:700;",
   muted: "color:#6b7280;font-size:12px;",
 };
 
