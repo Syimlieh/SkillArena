@@ -1,8 +1,9 @@
 import { errorResponse, successResponse } from "@/lib/api-response";
 import { passwordResetConfirmSchema } from "@/modules/auth/auth.validator";
 import { PasswordResetError, resetPasswordWithToken } from "@/modules/auth/password-reset.service";
+import { withApiLogger } from "@/lib/api-logger";
 
-export const POST = async (req: Request) => {
+export const POST = withApiLogger("api-auth-reset-confirm", "POST", async (req: Request) => {
   const body = await req.json();
   const parsed = passwordResetConfirmSchema.safeParse(body);
 
@@ -22,4 +23,4 @@ export const POST = async (req: Request) => {
     }
     return errorResponse("Unable to reset password", 500, { code: "SERVER_ERROR" });
   }
-};
+});

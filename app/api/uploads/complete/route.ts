@@ -4,6 +4,7 @@ import { connectDb } from "@/lib/db";
 import { getSpacesPublicUrl } from "@/lib/spaces";
 import { FileMetadataModel } from "@/models/FileMetadata.model";
 import { FileType } from "@/types/file.types";
+import { withApiLogger } from "@/lib/api-logger";
 
 export const dynamic = "force-dynamic";
 
@@ -15,7 +16,7 @@ const completeSchema = z.object({
   type: z.nativeEnum(FileType).optional(),
 });
 
-export const POST = async (req: Request) => {
+export const POST = withApiLogger("api-uploads-complete", "POST", async (req: Request) => {
   try {
     const payload = await req.json().catch(() => ({}));
     const parsed = completeSchema.safeParse(payload);
@@ -45,4 +46,4 @@ export const POST = async (req: Request) => {
     }
     return errorResponse("Unable to finalize upload", 500);
   }
-};
+});

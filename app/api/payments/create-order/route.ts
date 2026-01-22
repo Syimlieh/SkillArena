@@ -4,6 +4,7 @@ import { requireUser } from "@/lib/auth.server";
 import { errorResponse, successResponse } from "@/lib/api-response";
 import { createCashfreeOrder } from "@/modules/payments/cashfree.service";
 import { BGMI_ID_LENGTH } from "@/lib/constants";
+import { withApiLogger } from "@/lib/api-logger";
 
 const bgmiIdSchema = z
   .string()
@@ -32,7 +33,7 @@ const createOrderSchema = z
     }
   });
 
-export const POST = async (req: NextRequest) => {
+export const POST = withApiLogger("api-payments-create-order", "POST", async (req: NextRequest) => {
   try {
     const user = await requireUser();
     const body = await req.json().catch(() => ({}));
@@ -66,4 +67,4 @@ export const POST = async (req: NextRequest) => {
     if (err?.message === "Unauthorized") return errorResponse("Unauthorized", 401);
     return errorResponse(err?.message || "Unable to create payment order", 400);
   }
-};
+});

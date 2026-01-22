@@ -2,8 +2,9 @@ import { headers } from "next/headers";
 import { errorResponse, successResponse } from "@/lib/api-response";
 import { requireUser } from "@/lib/auth.server";
 import { EmailVerificationError, requestEmailVerification } from "@/modules/auth/email-verification.service";
+import { withApiLogger } from "@/lib/api-logger";
 
-export const POST = async (req: Request) => {
+export const POST = withApiLogger("api-auth-verify-request", "POST", async (req: Request) => {
   try {
     const user = await requireUser();
     const hdrs = await headers();
@@ -17,4 +18,4 @@ export const POST = async (req: Request) => {
     if (error?.message === "Unauthorized") return errorResponse("Unauthorized", 401);
     return errorResponse("Unable to send verification email", 500, { code: "SERVER_ERROR" });
   }
-};
+});

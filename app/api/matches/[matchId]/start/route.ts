@@ -2,10 +2,14 @@ import { NextRequest } from "next/server";
 import { errorResponse, successResponse } from "@/lib/api-response";
 import { requireMatchCreator } from "@/lib/auth.server";
 import { startMatch } from "@/modules/matches/match.service";
+import { withApiLogger } from "@/lib/api-logger";
 
 export const dynamic = "force-dynamic";
 
-export const POST = async (req: NextRequest, { params }: { params: Promise<{ matchId: string }> }) => {
+export const POST = withApiLogger(
+  "api-matches-start",
+  "POST",
+  async (req: NextRequest, { params }: { params: Promise<{ matchId: string }> }) => {
   try {
     const actor = await requireMatchCreator();
     const { matchId } = await params;
@@ -28,4 +32,5 @@ export const POST = async (req: NextRequest, { params }: { params: Promise<{ mat
     if (err?.message === "Forbidden") return errorResponse("Forbidden", 403);
     return errorResponse("Unable to start match", 500);
   }
-};
+  }
+);

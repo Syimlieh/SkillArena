@@ -7,10 +7,14 @@ import { getMatchBySlug } from "@/modules/matches/match.service";
 import { FileMetadataModel } from "@/models/FileMetadata.model";
 import { createPresignedDownload } from "@/lib/spaces";
 import { FileType } from "@/types/file.types";
+import { withApiLogger } from "@/lib/api-logger";
 
 export const dynamic = "force-dynamic";
 
-export const GET = async (_req: NextRequest, { params }: { params: Promise<{ matchId: string }> }) => {
+export const GET = withApiLogger(
+  "api-matches-my-result",
+  "GET",
+  async (_req: NextRequest, { params }: { params: Promise<{ matchId: string }> }) => {
   try {
     const user = await requireUser();
     await connectDb();
@@ -55,4 +59,5 @@ export const GET = async (_req: NextRequest, { params }: { params: Promise<{ mat
     }
     return errorResponse("Unable to load submission", 500);
   }
-};
+  }
+);

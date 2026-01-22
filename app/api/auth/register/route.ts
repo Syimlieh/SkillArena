@@ -4,6 +4,7 @@ import { SECURITY } from "@/lib/constants";
 import { successResponse, errorResponse } from "@/lib/api-response";
 import { AuthServiceError, registerUser } from "@/modules/auth/auth.service";
 import { registerSchema } from "@/modules/auth/auth.validator";
+import { withApiLogger } from "@/lib/api-logger";
 
 const buildAuthCookie = (token: string) => ({
   name: SECURITY.authCookie,
@@ -15,7 +16,7 @@ const buildAuthCookie = (token: string) => ({
   maxAge: 60 * 60 * 24 * 7, // 7 days, aligned with default JWT expiry
 });
 
-export const POST = async (req: Request) => {
+export const POST = withApiLogger("api-auth-register", "POST", async (req: Request) => {
   const body = await req.json();
   const parsed = registerSchema.safeParse(body);
 
@@ -42,4 +43,4 @@ export const POST = async (req: Request) => {
     }
     return errorResponse("Unable to complete registration", 500, { code: "SERVER_ERROR" });
   }
-};
+});

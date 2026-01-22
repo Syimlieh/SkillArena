@@ -5,8 +5,12 @@ import { connectDb } from "@/lib/db";
 import { MatchResultSubmissionModel } from "@/models/MatchResultSubmission.model";
 import { MatchModel } from "@/models/Match.model";
 import { UserRole } from "@/enums/UserRole.enum";
+import { withApiLogger } from "@/lib/api-logger";
 
-export const PATCH = async (req: NextRequest, { params }: { params: Promise<{ matchId: string; submissionId: string }> }) => {
+export const PATCH = withApiLogger(
+  "api-matches-submissions-host-approve",
+  "PATCH",
+  async (req: NextRequest, { params }: { params: Promise<{ matchId: string; submissionId: string }> }) => {
   try {
     const user = await requireUser();
     await connectDb();
@@ -74,4 +78,5 @@ export const PATCH = async (req: NextRequest, { params }: { params: Promise<{ ma
     if (err?.message === "Forbidden") return errorResponse("Forbidden", 403);
     return errorResponse("Unable to update submission", 500);
   }
-};
+  }
+);

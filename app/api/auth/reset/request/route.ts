@@ -2,8 +2,9 @@ import { headers } from "next/headers";
 import { errorResponse, successResponse } from "@/lib/api-response";
 import { passwordResetRequestSchema } from "@/modules/auth/auth.validator";
 import { PasswordResetError, requestPasswordReset } from "@/modules/auth/password-reset.service";
+import { withApiLogger } from "@/lib/api-logger";
 
-export const POST = async (req: Request) => {
+export const POST = withApiLogger("api-auth-reset-request", "POST", async (req: Request) => {
   const body = await req.json();
   const parsed = passwordResetRequestSchema.safeParse(body);
 
@@ -26,4 +27,4 @@ export const POST = async (req: Request) => {
     }
     return errorResponse("Unable to start password reset", 500, { code: "SERVER_ERROR" });
   }
-};
+});

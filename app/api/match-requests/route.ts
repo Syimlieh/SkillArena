@@ -7,8 +7,9 @@ import {
   listMatchRequests,
   MatchRequestError,
 } from "@/modules/match-requests/match-request.service";
+import { withApiLogger } from "@/lib/api-logger";
 
-export const GET = async () => {
+export const GET = withApiLogger("api-match-requests", "GET", async () => {
   let userId: string | undefined;
   try {
     const user = await requireUser();
@@ -23,9 +24,9 @@ export const GET = async () => {
   } catch {
     return errorResponse("Unable to load match requests", 500);
   }
-};
+});
 
-export const POST = async (req: NextRequest) => {
+export const POST = withApiLogger("api-match-requests", "POST", async (req: NextRequest) => {
   try {
     const user = await requireUser();
     const body = await req.json();
@@ -61,4 +62,4 @@ export const POST = async (req: NextRequest) => {
     if (error?.message === "Unauthorized") return errorResponse("Unauthorized", 401);
     return errorResponse("Unable to create match request", 500);
   }
-};
+});

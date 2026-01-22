@@ -5,10 +5,14 @@ import { connectDb } from "@/lib/db";
 import { MatchResultSubmissionModel } from "@/models/MatchResultSubmission.model";
 import { ResultStatus } from "@/enums/ResultStatus.enum";
 import { closeMatchWithWinner } from "@/modules/matches/match.service";
+import { withApiLogger } from "@/lib/api-logger";
 
 export const dynamic = "force-dynamic";
 
-export const POST = async (_req: NextRequest, { params }: { params: Promise<{ matchId: string }> }) => {
+export const POST = withApiLogger(
+  "api-matches-close",
+  "POST",
+  async (_req: NextRequest, { params }: { params: Promise<{ matchId: string }> }) => {
   try {
     const admin = await requireAdmin();
     await connectDb();
@@ -41,4 +45,5 @@ export const POST = async (_req: NextRequest, { params }: { params: Promise<{ ma
     if (err?.message === "Forbidden") return errorResponse("Forbidden", 403);
     return errorResponse("Unable to close match", 500);
   }
-};
+  }
+);

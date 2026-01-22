@@ -2,8 +2,12 @@ import { NextRequest } from "next/server";
 import { requireAdmin } from "@/lib/auth.server";
 import { errorResponse, successResponse } from "@/lib/api-response";
 import { RegistrationModel } from "@/models/Registration.model";
+import { withApiLogger } from "@/lib/api-logger";
 
-export const POST = async (_req: NextRequest, { params }: { params: Promise<{ matchId: string; registrationId: string }> }) => {
+export const POST = withApiLogger(
+  "api-matches-registrations-lock",
+  "POST",
+  async (_req: NextRequest, { params }: { params: Promise<{ matchId: string; registrationId: string }> }) => {
   try {
     const admin = await requireAdmin();
     const { matchId, registrationId } = await params;
@@ -24,4 +28,5 @@ export const POST = async (_req: NextRequest, { params }: { params: Promise<{ ma
     if (err?.message === "Forbidden") return errorResponse("Forbidden", 403);
     return errorResponse("Unable to lock registration", 500);
   }
-};
+  }
+);

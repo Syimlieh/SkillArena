@@ -8,6 +8,7 @@ import { createPresignedDownload } from "@/lib/spaces";
 import { FileType } from "@/types/file.types";
 import { ResultStatus } from "@/enums/ResultStatus.enum";
 // Match closing is handled by a separate endpoint; this route only updates the submission.
+import { withApiLogger } from "@/lib/api-logger";
 
 const placementPoints: Record<number, number> = {
   1: 15,
@@ -26,7 +27,10 @@ const calculateScore = (placement?: number, kills?: number) => {
   return placementScore + killScore;
 };
 
-export const PATCH = async (req: NextRequest, { params }: { params: Promise<{ matchId: string; submissionId: string }> }) => {
+export const PATCH = withApiLogger(
+  "api-matches-submissions",
+  "PATCH",
+  async (req: NextRequest, { params }: { params: Promise<{ matchId: string; submissionId: string }> }) => {
   try {
     const admin = await requireAdmin();
     await connectDb();
@@ -89,4 +93,5 @@ export const PATCH = async (req: NextRequest, { params }: { params: Promise<{ ma
     if (err?.message === "Forbidden") return errorResponse("Forbidden", 403);
     return errorResponse("Unable to update submission", 500);
   }
-};
+  }
+);

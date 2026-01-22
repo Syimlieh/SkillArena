@@ -3,6 +3,7 @@ import { SECURITY } from "@/lib/constants";
 import { successResponse, errorResponse } from "@/lib/api-response";
 import { AuthServiceError, loginUser } from "@/modules/auth/auth.service";
 import { loginSchema } from "@/modules/auth/auth.validator";
+import { withApiLogger } from "@/lib/api-logger";
 
 const buildAuthCookie = (token: string) => ({
   name: SECURITY.authCookie,
@@ -14,7 +15,7 @@ const buildAuthCookie = (token: string) => ({
   maxAge: 60 * 60 * 24 * 7,
 });
 
-export const POST = async (req: Request) => {
+export const POST = withApiLogger("api-auth-login", "POST", async (req: Request) => {
   const body = await req.json();
   const parsed = loginSchema.safeParse(body);
 
@@ -36,4 +37,4 @@ export const POST = async (req: Request) => {
     }
     return errorResponse("Unable to login", 500, { code: "SERVER_ERROR" });
   }
-};
+});

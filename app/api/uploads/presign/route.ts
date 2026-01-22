@@ -2,6 +2,7 @@ import { z } from "zod";
 import { errorResponse, successResponse } from "@/lib/api-response";
 import { createPresignedUpload } from "@/lib/spaces";
 import { FileType } from "@/types/file.types";
+import { withApiLogger } from "@/lib/api-logger";
 
 export const dynamic = "force-dynamic";
 
@@ -13,7 +14,7 @@ const presignSchema = z.object({
   type: z.nativeEnum(FileType).optional(),
 });
 
-export const POST = async (req: Request) => {
+export const POST = withApiLogger("api-uploads-presign", "POST", async (req: Request) => {
   try {
     const payload = await req.json().catch(() => ({}));
     const parsed = presignSchema.safeParse(payload);
@@ -66,4 +67,4 @@ export const POST = async (req: Request) => {
     }
     return errorResponse("Unable to prepare upload", 500);
   }
-};
+});

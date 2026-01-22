@@ -4,10 +4,11 @@ import { uploadToSpaces } from "@/lib/spaces";
 import { FileMetadataModel } from "@/models/FileMetadata.model";
 import { connectDb } from "@/lib/db";
 import { FileType } from "@/types/file.types";
+import { withApiLogger } from "@/lib/api-logger";
 
 export const dynamic = "force-dynamic";
 
-export const POST = async (req: NextRequest) => {
+export const POST = withApiLogger("api-uploads", "POST", async (req: NextRequest) => {
   try {
     const formData = await req.formData();
     const file = formData.get("file");
@@ -51,4 +52,4 @@ export const POST = async (req: NextRequest) => {
     }
     return errorResponse("Unable to upload image", 500);
   }
-};
+});

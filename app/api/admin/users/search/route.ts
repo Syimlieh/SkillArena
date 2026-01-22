@@ -2,8 +2,9 @@ import { NextRequest } from "next/server";
 import { connectDb } from "@/lib/db";
 import { requireAdmin } from "@/lib/auth.server";
 import { UserModel } from "@/models/User.model";
+import { withApiLogger } from "@/lib/api-logger";
 
-export const GET = async (req: NextRequest) => {
+export const GET = withApiLogger("api-admin-users-search", "GET", async (req: NextRequest) => {
   try {
     await requireAdmin();
     await connectDb();
@@ -30,4 +31,4 @@ export const GET = async (req: NextRequest) => {
     const status = error?.message === "Unauthorized" ? 401 : error?.message === "Forbidden" ? 403 : 500;
     return new Response(JSON.stringify({ success: false, error: "Unable to search users" }), { status });
   }
-};
+});

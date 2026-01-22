@@ -11,10 +11,14 @@ import { ResultStatus } from "@/enums/ResultStatus.enum";
 import { FileMetadataModel } from "@/models/FileMetadata.model";
 import { createPresignedDownload } from "@/lib/spaces";
 import { FileType } from "@/types/file.types";
+import { withApiLogger } from "@/lib/api-logger";
 
 export const dynamic = "force-dynamic";
 
-export const POST = async (req: NextRequest, { params }: { params: Promise<{ matchId: string }> }) => {
+export const POST = withApiLogger(
+  "api-matches-submit-result",
+  "POST",
+  async (req: NextRequest, { params }: { params: Promise<{ matchId: string }> }) => {
   try {
     const user = await requireUser();
     await connectDb();
@@ -122,4 +126,5 @@ export const POST = async (req: NextRequest, { params }: { params: Promise<{ mat
     }
     return errorResponse("Unable to submit result", 500);
   }
-};
+  }
+);

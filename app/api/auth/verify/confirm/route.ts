@@ -1,12 +1,13 @@
 import { errorResponse, successResponse } from "@/lib/api-response";
 import { EmailVerificationError, verifyEmailWithToken } from "@/modules/auth/email-verification.service";
 import { z } from "zod";
+import { withApiLogger } from "@/lib/api-logger";
 
 const verifySchema = z.object({
   token: z.string().min(10),
 });
 
-export const POST = async (req: Request) => {
+export const POST = withApiLogger("api-auth-verify-confirm", "POST", async (req: Request) => {
   const body = await req.json().catch(() => ({}));
   const parsed = verifySchema.safeParse(body);
 
@@ -26,4 +27,4 @@ export const POST = async (req: Request) => {
     }
     return errorResponse("Unable to verify email", 500, { code: "SERVER_ERROR" });
   }
-};
+});

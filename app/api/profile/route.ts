@@ -5,6 +5,7 @@ import { connectDb } from "@/lib/db";
 import { UserModel } from "@/models/User.model";
 import { UserRole } from "@/enums/UserRole.enum";
 import { FileMetadataModel } from "@/models/FileMetadata.model";
+import { withApiLogger } from "@/lib/api-logger";
 
 const updateProfileSchema = z.object({
   name: z.string().trim().min(2).max(80).optional(),
@@ -34,7 +35,7 @@ const buildProfileResponse = async (userId: string) => {
   };
 };
 
-export const GET = async () => {
+export const GET = withApiLogger("api-profile", "GET", async () => {
   try {
     const user = await requireUser();
     const profile = await buildProfileResponse(user.userId);
@@ -43,9 +44,9 @@ export const GET = async () => {
     if (error?.message === "Unauthorized") return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
-};
+});
 
-export const PATCH = async (req: Request) => {
+export const PATCH = withApiLogger("api-profile", "PATCH", async (req: Request) => {
   try {
     const user = await requireUser();
     const body = await req.json().catch(() => ({}));
@@ -82,4 +83,4 @@ export const PATCH = async (req: Request) => {
     if (error?.message === "Unauthorized") return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
-};
+});

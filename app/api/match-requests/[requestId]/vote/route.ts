@@ -7,8 +7,12 @@ import {
   removeVoteForMatchRequest,
   MatchRequestError,
 } from "@/modules/match-requests/match-request.service";
+import { withApiLogger } from "@/lib/api-logger";
 
-export const POST = async (_req: NextRequest, { params }: { params: Promise<{ requestId: string }> }) => {
+export const POST = withApiLogger(
+  "api-match-requests-vote",
+  "POST",
+  async (_req: NextRequest, { params }: { params: Promise<{ requestId: string }> }) => {
   try {
     const user = await requireUser();
     const resolved = await params;
@@ -28,9 +32,13 @@ export const POST = async (_req: NextRequest, { params }: { params: Promise<{ re
     if (error?.message === "Unauthorized") return errorResponse("Unauthorized", 401);
     return errorResponse("Unable to vote for request", 500);
   }
-};
+  }
+);
 
-export const DELETE = async (_req: NextRequest, { params }: { params: Promise<{ requestId: string }> }) => {
+export const DELETE = withApiLogger(
+  "api-match-requests-vote",
+  "DELETE",
+  async (_req: NextRequest, { params }: { params: Promise<{ requestId: string }> }) => {
   try {
     const user = await requireUser();
     const resolved = await params;
@@ -50,4 +58,5 @@ export const DELETE = async (_req: NextRequest, { params }: { params: Promise<{ 
     if (error?.message === "Unauthorized") return errorResponse("Unauthorized", 401);
     return errorResponse("Unable to remove vote", 500);
   }
-};
+  }
+);
