@@ -416,3 +416,50 @@ export const confirmCashfreeOrder = async (orderId: string) => {
   logInfo("confirm order: completed", { orderId, status: order.status });
   return { order: order.toObject(), cashfreeStatus };
 };
+
+type CashfreeSyncOptions = {
+  minAgeMinutes?: number;
+  limit?: number;
+};
+
+export const syncStaleCashfreeOrders = async (options: CashfreeSyncOptions = {}) => {
+  const minAgeMinutes = Number.isFinite(options.minAgeMinutes) ? Number(options.minAgeMinutes) : 10;
+  const limit = Number.isFinite(options.limit) ? Number(options.limit) : 50;
+  const cutoff = new Date(Date.now() - minAgeMinutes * 60 * 1000);
+  logInfo("sync orders: start", { minAgeMinutes, limit, cutoff });
+
+  await connectDb();
+  const orders = await PaymentOrderModel.find({
+    status: PaymentStatus.INITIATED,
+    createdAt: { $lte: cutoff },
+  })
+    .sort({ createdAt: 1 })
+    .limit(limit)
+    .lean();
+
+  const summary = {
+    found: orders.length,
+    processed: 0,
+    resolved: 0,
+    failed: 0,
+    failures: [] as Array<{ orderId: string; message: string }>,
+  };
+
+  for (const order of orders) {
+    summary.processed += 1;
+    try {
+      const result = await confirmCashfreeOrder(order.orderId);
+      if (result.order.status !== PaymentStatus.INITIATED) {
+        summary.resolved += 1;
+      }
+    } catch (error: any) {
+      const message = error?.message || "Failed to sync order";
+      summary.failed += 1;
+      summary.failures.push({ orderId: order.orderId, message });
+      logError("sync orders: failed", { orderId: order.orderId, message });
+    }
+  }
+
+  logInfo("sync orders: completed", summary);
+  return summary;
+};
