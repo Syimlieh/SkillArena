@@ -195,15 +195,15 @@ const RegisterModal = ({ match, isOpen, onClose, registration, paymentPending }:
           <div className="mt-2 grid grid-cols-3 gap-3">
             <div>
               <div className="font-semibold text-[var(--text-primary)]">1st</div>
-              <div className="text-[var(--text-secondary)]">₹1370</div>
+              <div className="text-[var(--text-secondary)]">₹{match?.prizeBreakdown?.first}</div>
             </div>
             <div>
               <div className="font-semibold text-[var(--text-primary)]">2nd</div>
-              <div className="text-[var(--text-secondary)]">₹150</div>
+              <div className="text-[var(--text-secondary)]">₹{match?.prizeBreakdown?.second}</div>
             </div>
             <div>
               <div className="font-semibold text-[var(--text-primary)]">3rd</div>
-              <div className="text-[var(--text-secondary)]">₹80</div>
+              <div className="text-[var(--text-secondary)]">₹{match?.prizeBreakdown?.third}</div>
             </div>
           </div>
         </div>
