@@ -6,6 +6,12 @@ export const Footer = () => (
         <a href="/contact" className="hover:text-[var(--accent-primary)]">
           Contact Us
         </a>
+        <a href="/about" className="hover:text-[var(--accent-primary)]">
+          About Us
+        </a>
+        <a href="/terms" className="hover:text-[var(--accent-primary)]">
+          Terms & Conditions
+        </a>
         <a href="/rules" className="hover:text-[var(--accent-primary)]">
           Rules
         </a>
