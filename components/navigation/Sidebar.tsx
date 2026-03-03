@@ -43,7 +43,7 @@ const Sidebar = ({ sections, accountItems, isCollapsed, activePath, onToggleColl
                 key={item.id}
                 item={item}
                 isCollapsed={isCollapsed}
-                isActive={item.href ? activePath.startsWith(item.href) : false}
+                isActive={item.href ? (item.exactMatch ? activePath === item.href : activePath.startsWith(item.href)) : false}
                 onAction={onAction}
               />
             ))}
@@ -64,7 +64,7 @@ const Sidebar = ({ sections, accountItems, isCollapsed, activePath, onToggleColl
             key={item.id}
             item={item}
             isCollapsed={isCollapsed}
-            isActive={item.href ? activePath.startsWith(item.href) : false}
+            isActive={item.href ? (item.exactMatch ? activePath === item.href : activePath.startsWith(item.href)) : false}
             onAction={onAction}
           />
         ))}

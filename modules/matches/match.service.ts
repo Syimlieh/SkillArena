@@ -102,13 +102,15 @@ export const listMatches = async (status?: MatchStatus, createdBy?: string): Pro
   const matchIds = matches.map((m) => m.matchId);
   if (matchIds.length === 0) return matches as Match[];
 
-  const regCounts = await RegistrationModel.aggregate<{ _id: string; count: number }>([
-    { $match: { matchId: { $in: matchIds }, status: { $in: [RegistrationStatus.PENDING_PAYMENT, RegistrationStatus.CONFIRMED] } } },
-    { $group: { _id: "$matchId", count: { $sum: 1 } } },
-  ]);
-  const pendingResults = await MatchResultSubmissionModel.aggregate<{ _id: string; count: number }>([
-    { $match: { matchId: { $in: matchIds }, status: { $in: [ResultStatus.SUBMITTED, ResultStatus.UNDER_REVIEW] } } },
-    { $group: { _id: "$matchId", count: { $sum: 1 } } },
+  const [regCounts, pendingResults] = await Promise.all([
+    RegistrationModel.aggregate<{ _id: string; count: number }>([
+      { $match: { matchId: { $in: matchIds }, status: { $in: [RegistrationStatus.PENDING_PAYMENT, RegistrationStatus.CONFIRMED] } } },
+      { $group: { _id: "$matchId", count: { $sum: 1 } } },
+    ]),
+    MatchResultSubmissionModel.aggregate<{ _id: string; count: number }>([
+      { $match: { matchId: { $in: matchIds }, status: { $in: [ResultStatus.SUBMITTED, ResultStatus.UNDER_REVIEW] } } },
+      { $group: { _id: "$matchId", count: { $sum: 1 } } },
+    ]),
   ]);
 
   const regCountMap = new Map<string, number>(regCounts.map((c) => [c._id, c.count]));
@@ -154,8 +156,12 @@ export const listRecentMatchResults = async (limit = 6): Promise<RecentMatchResu
   const userIds = winners.map((winner) => winner.userId).filter(Boolean) as string[];
   const submissionIds = winners.map((winner) => winner.submissionId).filter(Boolean) as string[];
 
-  const users = userIds.length ? await UserModel.find({ _id: { $in: userIds } }).lean() : [];
+  const [users, submissions] = await Promise.all([
+    userIds.length ? UserModel.find({ _id: { $in: userIds } }).lean() : [],
+    submissionIds.length ? MatchResultSubmissionModel.find({ _id: { $in: submissionIds } }).lean() : [],
+  ]);
   const userMap = new Map(users.map((user: any) => [user._id?.toString?.() ?? "", user]));
+  const submissionMap = new Map(submissions.map((sub: any) => [sub._id?.toString?.() ?? "", sub]));
 
   const avatarFileIds = users
     .map((user: any) => user.profileFileId)
@@ -164,11 +170,6 @@ export const listRecentMatchResults = async (limit = 6): Promise<RecentMatchResu
     ? await FileMetadataModel.find({ fileId: { $in: avatarFileIds } }).lean()
     : [];
   const avatarMap = new Map(avatarFiles.map((file: any) => [file.fileId, file.url]));
-
-  const submissions = submissionIds.length
-    ? await MatchResultSubmissionModel.find({ _id: { $in: submissionIds } }).lean()
-    : [];
-  const submissionMap = new Map(submissions.map((sub: any) => [sub._id?.toString?.() ?? "", sub]));
 
   return matches.map((match) => {
     const winner = match.winner as { userId?: string; teamName?: string; submissionId?: string } | undefined;

@@ -37,6 +37,85 @@ const toRegisteredMatch = (match: Match, regStatus: RegistrationStatus): Registe
   return { match, registrationStatus: regStatus, paymentStatus };
 };
 
+/* ── Individual data-fetching functions for split pages ── */
+
+export type UserDashboardStats = {
+  registeredCount: number;
+  availableCount: number;
+  hostedCount: number;
+  historyCount: number;
+};
+
+export const getUserDashboardStats = async (userId: string): Promise<UserDashboardStats> => {
+  const [upcomingMatches, ongoingMatches] = await Promise.all([
+    listMatches(MatchStatus.UPCOMING),
+    listMatches(MatchStatus.ONGOING),
+  ]);
+  const relevantMatches = [...upcomingMatches, ...ongoingMatches];
+  const relevantMap = new Map(relevantMatches.map((m) => [m.matchId, m]));
+
+  const [regs, hostedMatches, scrims] = await Promise.all([
+    RegistrationModel.find({ userId }).lean(),
+    listMatches(undefined, userId),
+    listScrims(),
+  ]);
+
+  const registeredCount = regs.filter((r) => relevantMap.has(r.matchId)).length;
+  const registeredIds = regs.map((r) => r.matchId);
+  const hostedIds = hostedMatches.map((m) => m.matchId);
+  const availableCount = upcomingMatches.filter(
+    (m) => !registeredIds.includes(m.matchId) && !hostedIds.includes(m.matchId)
+  ).length;
+  const hostedCount = hostedMatches.length;
+  const historyCount = scrims.filter((s) => s.status === ScrimStatus.COMPLETED).length;
+
+  return { registeredCount, availableCount, hostedCount, historyCount };
+};
+
+export const getRegisteredMatches = async (userId: string): Promise<RegisteredMatch[]> => {
+  const [upcomingMatches, ongoingMatches] = await Promise.all([
+    listMatches(MatchStatus.UPCOMING),
+    listMatches(MatchStatus.ONGOING),
+  ]);
+  const relevantMatches = [...upcomingMatches, ...ongoingMatches];
+  const relevantMap = new Map(relevantMatches.map((m) => [m.matchId, m]));
+
+  const regs = await RegistrationModel.find({ userId }).lean();
+  return regs
+    .map((r) => {
+      const match = relevantMap.get(r.matchId);
+      if (!match) return null;
+      return toRegisteredMatch(serializeMatch(match), r.status ?? RegistrationStatus.NONE);
+    })
+    .filter(Boolean) as RegisteredMatch[];
+};
+
+export const getAvailableMatches = async (userId: string): Promise<Match[]> => {
+  const upcomingMatches = (await listMatches(MatchStatus.UPCOMING)).map(serializeMatch);
+  const [regs, hostedMatches] = await Promise.all([
+    RegistrationModel.find({ userId }).lean(),
+    listMatches(undefined, userId),
+  ]);
+  const registeredIds = regs.map((r) => r.matchId);
+  const hostedIds = hostedMatches.map((m) => m.matchId);
+  return upcomingMatches.filter(
+    (m) => !registeredIds.includes(m.matchId) && !hostedIds.includes(m.matchId)
+  );
+};
+
+export const getHostedMatches = async (userId: string): Promise<Match[]> => {
+  return (await listMatches(undefined, userId)).map(serializeMatch);
+};
+
+export const getMatchHistory = async (): Promise<DashboardScrim[]> => {
+  const scrims = (await listScrims()).map(serializeScrim);
+  return scrims
+    .filter((scrim) => scrim.status === ScrimStatus.COMPLETED)
+    .map((scrim, idx) => ({ ...scrim, confirmed: true, placement: idx + 1, prizeWon: 0 }));
+};
+
+/* ── Legacy: full dashboard data (kept for reference) ── */
+
 export const getDashboardData = async (userId?: string): Promise<DashboardData> => {
   const scrims = (await listScrims()).map(serializeScrim);
   const upcomingMatches: Match[] = (await listMatches(MatchStatus.UPCOMING)).map(serializeMatch);

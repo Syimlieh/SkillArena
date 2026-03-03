@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import clsx from "clsx";
 import Modal from "@/components/ui/Modal";
@@ -35,18 +35,7 @@ export const MatchRequestsSection = ({ initialRequests }: Props) => {
     note: "",
   });
 
-  useEffect(() => {
-    const load = async () => {
-      try {
-        const res = await apiClient.get("/api/match-requests");
-        const data = res.data?.data?.requests ?? res.data?.requests ?? [];
-        setRequests(data);
-      } catch {
-        /* ignore */
-      }
-    };
-    void load();
-  }, []);
+  // SSR provides fresh initialRequests — no need to re-fetch on mount
 
   const closeModal = useCallback(() => setOpen(false), []);
 

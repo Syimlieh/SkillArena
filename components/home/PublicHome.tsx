@@ -64,11 +64,13 @@ const toHomeResult = (result: Awaited<ReturnType<typeof listRecentMatchResults>>
 });
 
 const PublicHome = async () => {
-  const matches = await listMatches(MatchStatus.UPCOMING);
+  const [matches, results, matchRequests] = await Promise.all([
+    listMatches(MatchStatus.UPCOMING),
+    listRecentMatchResults(6),
+    listMatchRequests() as Promise<MatchRequestPublic[]>,
+  ]);
   const topMatches = matches.slice(0, 6).map(toHomeMatch);
-  const results = await listRecentMatchResults(6);
   const recentResults = results.map(toHomeResult);
-  const matchRequests = (await listMatchRequests()) as MatchRequestPublic[];
 
   return (
     <div className="mx-auto flex max-w-6xl flex-col gap-10 px-6 py-10">

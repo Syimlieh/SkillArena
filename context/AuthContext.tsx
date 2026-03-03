@@ -1,6 +1,6 @@
 "use client";
 
-import React, { createContext, useContext, useReducer, ReactNode, useCallback, useEffect } from "react";
+import React, { createContext, useContext, useReducer, useRef, ReactNode, useCallback, useEffect } from "react";
 import { AuthStatus } from "@/enums/AuthStatus.enum";
 import { API_ROUTES } from "@/lib/constants";
 import { fetchProfile } from "@/modules/profile/profile.service";
@@ -79,12 +79,19 @@ const shapeProfileToUser = (profile: Profile) =>
     emailVerified: profile.emailVerified ?? false,
   } as const);
 
+const PROFILE_CACHE_TTL = 60_000; // 60 seconds
+
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [state, dispatch] = useReducer(reducer, initialAuthState);
+  const lastFetchedAt = useRef(0);
 
-  const hydrateProfile = useCallback(async () => {
+  const hydrateProfile = useCallback(async (force = false) => {
+    if (!force && Date.now() - lastFetchedAt.current < PROFILE_CACHE_TTL && lastFetchedAt.current > 0) {
+      return;
+    }
     dispatch({ type: "SET_STATUS", payload: AuthStatus.LOADING });
     const profile = await fetchProfile();
+    lastFetchedAt.current = Date.now();
     if (profile) {
       dispatch({ type: "SET_USER", payload: shapeProfileToUser(profile) });
       dispatch({ type: "SET_STATUS", payload: AuthStatus.AUTHENTICATED });
@@ -110,7 +117,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       }
       dispatch({ type: "SET_USER", payload: result.user });
       dispatch({ type: "SET_STATUS", payload: AuthStatus.AUTHENTICATED });
-      await hydrateProfile();
+      lastFetchedAt.current = Date.now();
+      // Hydrate full profile (with avatarUrl) in the background
+      void hydrateProfile(true);
       return { success: true, message: "Logged in", user: result.user };
     },
     [hydrateProfile]
@@ -120,7 +129,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     async (payload: RegisterPayload): Promise<AuthResult> => {
       dispatch({ type: "SET_STATUS", payload: AuthStatus.LOADING });
       dispatch({ type: "SET_ERROR", payload: undefined });
-    const result = await performAuthRequest(API_ROUTES.authRegister, payload);
+      const result = await performAuthRequest(API_ROUTES.authRegister, payload);
       if (!result.success || !result.user) {
         dispatch({ type: "SET_STATUS", payload: AuthStatus.UNAUTHENTICATED });
         dispatch({ type: "SET_ERROR", payload: result.message });
@@ -128,7 +137,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       }
       dispatch({ type: "SET_USER", payload: result.user });
       dispatch({ type: "SET_STATUS", payload: AuthStatus.AUTHENTICATED });
-      await hydrateProfile();
+      lastFetchedAt.current = Date.now();
+      // Hydrate full profile (with avatarUrl) in the background
+      void hydrateProfile(true);
       return { success: true, message: "Registered", user: result.user };
     },
     [hydrateProfile]

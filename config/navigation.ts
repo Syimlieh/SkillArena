@@ -1,5 +1,5 @@
 import { UserRole } from "@/enums/UserRole.enum";
-import { LayoutDashboard, BookOpen, ListChecks, Shield, ClipboardList, Users, User, LogOut } from "lucide-react";
+import { LayoutDashboard, BookOpen, ListChecks, Shield, ClipboardList, Users, User, LogOut, BarChart3, Swords, Inbox, History, Trophy, CalendarCheck } from "lucide-react";
 import { LucideIcon } from "lucide-react";
 
 export type NavItem = {
@@ -9,6 +9,7 @@ export type NavItem = {
   icon: LucideIcon;
   roles?: UserRole[];
   action?: "profile" | "logout";
+  exactMatch?: boolean;
 };
 
 export type NavSection = {
@@ -26,19 +27,25 @@ const rolesAll = [UserRole.USER, UserRole.HOST, UserRole.ADMIN];
 
 export const sidebarSections: NavSection[] = [
   {
-    id: "general",
-    label: "General",
-    items: [
-      { id: "dashboard", label: "Dashboard", href: "/dashboard", icon: LayoutDashboard, roles: rolesAll },
-      { id: "admin-host-apps", label: "Host Applications", href: "/dashboard/admin/host-applications", icon: Users, roles: [UserRole.ADMIN] },
-      { id: "admin-create-match", label: "Create Match", href: "/dashboard/admin/create-match", icon: ClipboardList, roles: [UserRole.ADMIN] },
-    ],
-  },
-  {
     id: "player",
     label: "Player",
     items: [
-      { id: "requested-matches", label: "Requested Matches", href: "/#match-requests", icon: ListChecks, roles: [UserRole.USER] },
+      { id: "dashboard", label: "Overview", href: "/dashboard", icon: BarChart3, roles: [UserRole.USER, UserRole.HOST], exactMatch: true },
+      { id: "my-matches", label: "My Matches", href: "/dashboard/my-matches", icon: CalendarCheck, roles: [UserRole.USER, UserRole.HOST] },
+      { id: "available-matches", label: "Available", href: "/dashboard/available", icon: Swords, roles: [UserRole.USER, UserRole.HOST] },
+      { id: "match-history", label: "History", href: "/dashboard/history", icon: History, roles: [UserRole.USER, UserRole.HOST] },
+    ],
+  },
+  {
+    id: "admin",
+    label: "Admin",
+    items: [
+      { id: "admin-overview", label: "Overview", href: "/dashboard/admin", icon: BarChart3, roles: [UserRole.ADMIN], exactMatch: true },
+      { id: "admin-matches", label: "Matches", href: "/dashboard/admin/matches", icon: Swords, roles: [UserRole.ADMIN] },
+      { id: "admin-match-requests", label: "Match Requests", href: "/dashboard/admin/match-requests", icon: Inbox, roles: [UserRole.ADMIN] },
+      { id: "admin-match-history", label: "Match History", href: "/dashboard/admin/match-history", icon: History, roles: [UserRole.ADMIN] },
+      { id: "admin-host-apps", label: "Host Applications", href: "/dashboard/admin/host-applications", icon: Users, roles: [UserRole.ADMIN] },
+      { id: "admin-create-match", label: "Create Match", href: "/dashboard/admin/create-match", icon: ClipboardList, roles: [UserRole.ADMIN] },
     ],
   },
   {

@@ -62,7 +62,7 @@ const MobileSidebar = ({ isOpen, onClose, sections, accountItems, activePath, on
                     key={item.id}
                     item={item}
                     isCollapsed={false}
-                    isActive={item.href ? activePath.startsWith(item.href) : false}
+                    isActive={item.href ? (item.exactMatch ? activePath === item.href : activePath.startsWith(item.href)) : false}
                     onAction={onAction}
                   />
                 ))}
@@ -79,7 +79,7 @@ const MobileSidebar = ({ isOpen, onClose, sections, accountItems, activePath, on
                   key={item.id}
                   item={item}
                   isCollapsed={false}
-                  isActive={item.href ? activePath.startsWith(item.href) : false}
+                  isActive={item.href ? (item.exactMatch ? activePath === item.href : activePath.startsWith(item.href)) : false}
                   onAction={onAction}
                 />
               ))}

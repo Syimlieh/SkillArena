@@ -135,6 +135,18 @@ const MatchDetailsPage = async ({ params }: { params: { slug: string } }) => {
       }
 
       const records = await MatchResultSubmissionModel.find({ matchId: match.matchId }).lean();
+
+      // Ensure all submission authors have names resolved (not just registered users)
+      const submissionUserIds = records.map((r) => r.userId).filter(Boolean) as string[];
+      const missingUserIds = submissionUserIds.filter((id) => !nameByUser.has(id));
+      if (missingUserIds.length > 0) {
+        const extraUsers = await UserModel.find({ _id: { $in: missingUserIds } }).lean();
+        extraUsers.forEach((u: any) => {
+          const id = u._id?.toString?.() ?? "";
+          if (id) nameByUser.set(id, u.name);
+        });
+      }
+
       const fileIds = records.map((r) => r.fileId).filter(Boolean) as string[];
       const fileMetaDocs = fileIds.length
         ? await FileMetadataModel.find({ fileId: { $in: fileIds } }).lean()
