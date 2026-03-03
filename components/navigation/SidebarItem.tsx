@@ -12,17 +12,23 @@ interface Props {
 const SidebarItem = ({ item, isCollapsed, isActive, onAction }: Props) => {
   const Icon = item.icon;
   const classes = clsx(
-    "group flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-semibold transition",
+    "group flex w-full items-center rounded-xl py-2 text-sm font-semibold transition-all duration-[320ms]",
+    isCollapsed ? "justify-center gap-0 px-2" : "justify-start gap-3 px-3",
     isActive
-      ? "bg-[var(--accent-primary)]/15 text-[var(--accent-primary)]"
-      : "text-[var(--text-secondary)] hover:bg-[var(--bg-secondary)] hover:text-[var(--text-primary)]"
+      ? "border border-[var(--accent-primary)]/45 bg-[var(--accent-primary)]/13 text-[var(--accent-primary)] shadow-[0_0_18px_rgba(49,255,225,0.18)]"
+      : "border border-transparent text-[var(--text-secondary)] hover:border-[var(--panel-border)] hover:bg-[var(--bg-secondary)]/72 hover:text-[var(--text-primary)]"
+  );
+
+  const labelClass = clsx(
+    "overflow-hidden whitespace-nowrap transition-all duration-[320ms]",
+    isCollapsed ? "max-w-0 -translate-x-1 opacity-0" : "max-w-36 translate-x-0 opacity-100"
   );
 
   if (item.action && onAction) {
     return (
       <button type="button" onClick={() => onAction(item)} className={classes}>
         <Icon className="h-4 w-4" />
-        {!isCollapsed && <span>{item.label}</span>}
+        <span className={labelClass}>{item.label}</span>
       </button>
     );
   }
@@ -30,7 +36,7 @@ const SidebarItem = ({ item, isCollapsed, isActive, onAction }: Props) => {
   return (
     <Link href={item.href ?? "#"} className={classes}>
       <Icon className="h-4 w-4" />
-      {!isCollapsed && <span>{item.label}</span>}
+      <span className={labelClass}>{item.label}</span>
     </Link>
   );
 };

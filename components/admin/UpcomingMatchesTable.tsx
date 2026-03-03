@@ -27,7 +27,7 @@ const typeTone = (type?: MatchType): "neutral" | "success" =>
 export const UpcomingMatchesTable = ({ matches }: Props) => (
   <div className="glass-panel rounded-2xl p-4">
     <div className="mb-3 text-sm uppercase text-[var(--primary)]">Upcoming Matches</div>
-    <div className="mb-3 flex gap-2 text-xs text-[var(--text-secondary)]">
+    <div className="mb-3 flex gap-3 text-xs text-[var(--text-secondary)]">
       <span className="rounded-full border border-[var(--border-subtle)] px-2 py-1">Showing: Upcoming + Ongoing</span>
       <span className="rounded-full border border-[var(--border-subtle)] px-2 py-1">Total: {matches.length}</span>
     </div>
@@ -53,38 +53,38 @@ export const UpcomingMatchesTable = ({ matches }: Props) => (
             return (
               <tr key={key} className="transition hover:bg-[var(--bg-secondary)]/60">
                 <td className="p-0">
-                  <Link href={href} className="block py-2 pr-4 font-semibold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--primary)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--card-bg)]">
+                  <Link href={href} className="block py-2.5 pr-4 font-semibold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--primary)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--card-bg)]">
                     {match.matchId}
                   </Link>
                 </td>
                 <td className="p-0">
-                  <Link href={href} className="block py-2 pr-4">
+                  <Link href={href} className="block py-2.5 pr-4">
                     <Badge tone={typeTone(match.type)}>{match.type ?? MatchType.OFFICIAL}</Badge>
                   </Link>
                 </td>
                 <td className="p-0">
-                  <Link href={href} className="block py-2 pr-4">
+                  <Link href={href} className="block py-2.5 pr-4">
                     <Badge tone={mapTone(match.map)}>{match.map}</Badge>
                   </Link>
                 </td>
                 <td className="p-0">
-                  <Link href={href} className="block py-2 pr-4">
+                  <Link href={href} className="block py-2.5 pr-4">
                     {formatTime(match.startTime)}
                   </Link>
                 </td>
                 <td className="p-0">
-                  <Link href={href} className="block py-2 pr-4">
+                  <Link href={href} className="block py-2.5 pr-4">
                     {(match.registrationCount ?? 0) + "/" + match.maxSlots}
                   </Link>
                 </td>
                 <td className="p-0">
-                  <Link href={href} className="block py-2 pr-4">₹{match.entryFee}</Link>
+                  <Link href={href} className="block py-2.5 pr-4">₹{match.entryFee}</Link>
                 </td>
                 <td className="p-0">
-                  <Link href={href} className="block py-2 pr-4">₹{match.prizePool}</Link>
+                  <Link href={href} className="block py-2.5 pr-4">₹{match.prizePool}</Link>
                 </td>
                 <td className="p-0">
-                  <Link href={href} className="block py-2 pr-4">
+                  <Link href={href} className="block py-2.5 pr-4">
                     {match.pendingResultCount && match.pendingResultCount > 0 ? (
                       <Badge tone="warning">{match.pendingResultCount} pending</Badge>
                     ) : (
@@ -93,7 +93,7 @@ export const UpcomingMatchesTable = ({ matches }: Props) => (
                   </Link>
                 </td>
                 <td className="p-0">
-                  <Link href={href} className="block py-2 pr-4">
+                  <Link href={href} className="block py-2.5 pr-4">
                     <Badge tone={match.status === MatchStatus.ONGOING ? "warning" : "success"}>
                       {match.status === MatchStatus.ONGOING ? "Ongoing" : "Upcoming"}
                     </Badge>

@@ -5,7 +5,7 @@ import NavigationShell from "@/components/navigation/NavigationShell";
 const PublicLayout = ({ children }: { children: ReactNode }) => (
   <NavigationShell variant="public">
     <div className="flex min-h-screen flex-col">
-      <main className="flex-1 bg-[radial-gradient(circle_at_20%_20%,rgba(66,255,135,0.06),transparent_25%),radial-gradient(circle_at_80%_0%,rgba(20,180,111,0.06),transparent_30%),#05070b]">
+      <main className="flex-1 bg-[radial-gradient(circle_at_20%_18%,rgba(49,255,225,0.12),transparent_24%),radial-gradient(circle_at_86%_6%,rgba(155,255,77,0.09),transparent_28%),radial-gradient(circle_at_52%_86%,rgba(255,94,164,0.08),transparent_30%)]">
         {children}
       </main>
       <Footer />

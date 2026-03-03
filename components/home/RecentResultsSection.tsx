@@ -50,22 +50,22 @@ export const RecentResultsSection = ({ results }: Props) => {
         <p className="text-sm text-[var(--text-secondary)]">Latest completed matches and their champions.</p>
       </div>
       {results.length === 0 ? (
-        <div className="rounded-2xl border border-[var(--border-subtle)] bg-[var(--card-bg)] px-4 py-6 text-[var(--text-secondary)]">
+        <div className="glass-panel rounded-2xl px-4 py-6 text-[var(--text-secondary)]">
           No recent results are available yet.
         </div>
       ) : (
         <div className="relative">
           <div
             ref={trackRef}
-            className="flex snap-x snap-mandatory gap-4 overflow-x-auto pb-4 pr-2 scrollbar-none"
+            className="flex snap-x snap-mandatory gap-4 overflow-x-auto px-1 pb-4 pt-3 pr-2 scrollbar-none"
           >
             {results.map((result) => (
               <div
                 key={result.id}
                 data-result-card
-                className="relative w-[280px] flex-none snap-start overflow-hidden rounded-2xl border border-[var(--border-subtle)] bg-[var(--card-bg)]/70 p-4 shadow-md transition hover:-translate-y-0.5 hover:shadow-lg md:w-[320px]"
+                className="glass-panel glow-hover relative z-0 w-[280px] flex-none snap-start overflow-hidden rounded-2xl p-4 transition-[z-index] hover:z-20 md:w-[320px]"
               >
-                <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(66,255,135,0.16),_transparent_55%)]" />
+                <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(49,255,225,0.2),_transparent_52%)]" />
                 <div className="relative flex items-center justify-between text-xs uppercase tracking-wide text-[var(--text-secondary)]">
                   <span className="font-semibold text-[var(--accent-primary)]">{result.map} Scrim</span>
                   <Badge tone="success" className="text-[10px]">
@@ -88,8 +88,8 @@ export const RecentResultsSection = ({ results }: Props) => {
                     )}
                   </div>
                   <div className="mt-3 text-lg font-semibold text-[var(--text-primary)]">{result.winnerTeam}</div>
-                  <span className="mt-2 inline-flex items-center gap-2 rounded-full border border-amber-400/50 bg-amber-400/10 px-3 py-1 text-xs font-semibold text-amber-200">
-                    <span className="rounded-full bg-amber-300/10 px-2 py-0.5 text-[10px] font-bold text-amber-100">
+                  <span className="mt-2 inline-flex items-center gap-2 rounded-full border border-[var(--warning-border)] bg-[var(--warning-bg)] px-3 py-1 text-xs font-semibold text-[var(--warning-text)]">
+                    <span className="rounded-full bg-[var(--warning-soft-bg)] px-2 py-0.5 text-[10px] font-bold text-[var(--warning-text)]">
                       1st
                     </span>
                     Winner
@@ -109,7 +109,7 @@ export const RecentResultsSection = ({ results }: Props) => {
           <button
             type="button"
             onClick={() => scrollByCards("prev")}
-            className="absolute left-0 top-1/2 hidden -translate-y-1/2 rounded-full border border-[var(--border-subtle)] bg-[var(--bg-secondary)]/80 px-3 py-2 text-sm text-[var(--text-primary)] backdrop-blur transition hover:border-[var(--accent-primary)] md:inline-flex"
+            className="absolute left-0 top-1/2 hidden -translate-y-1/2 rounded-full border border-[var(--panel-border)] bg-[var(--bg-secondary)]/80 px-3 py-2 text-sm text-[var(--text-primary)] backdrop-blur transition hover:border-[var(--accent-primary)] hover:shadow-[0_0_22px_rgba(49,255,225,0.22)] md:inline-flex"
             aria-label="Previous results"
           >
             ‹
@@ -117,7 +117,7 @@ export const RecentResultsSection = ({ results }: Props) => {
           <button
             type="button"
             onClick={() => scrollByCards("next")}
-            className="absolute right-0 top-1/2 hidden -translate-y-1/2 rounded-full border border-[var(--border-subtle)] bg-[var(--bg-secondary)]/80 px-3 py-2 text-sm text-[var(--text-primary)] backdrop-blur transition hover:border-[var(--accent-primary)] md:inline-flex"
+            className="absolute right-0 top-1/2 hidden -translate-y-1/2 rounded-full border border-[var(--panel-border)] bg-[var(--bg-secondary)]/80 px-3 py-2 text-sm text-[var(--text-primary)] backdrop-blur transition hover:border-[var(--accent-primary)] hover:shadow-[0_0_22px_rgba(49,255,225,0.22)] md:inline-flex"
             aria-label="Next results"
           >
             ›
@@ -128,7 +128,7 @@ export const RecentResultsSection = ({ results }: Props) => {
                 key={`dot-${index}`}
                 className={
                   index === activeIndex
-                    ? "h-2 w-2 rounded-full bg-[var(--accent-primary)]"
+                    ? "h-2 w-2 rounded-full bg-[var(--accent-primary)] shadow-[0_0_12px_var(--accent-primary)]"
                     : "h-2 w-2 rounded-full bg-[var(--border-subtle)]"
                 }
               />

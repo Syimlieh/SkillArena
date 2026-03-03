@@ -52,7 +52,7 @@ const Modal = ({ isOpen, onClose, children, title, disableBackdropClose = false 
         tabIndex={-1}
         onClick={(e) => e.stopPropagation()}
         className={clsx(
-          "relative z-10 w-full max-w-lg rounded-2xl border border-[var(--border-subtle)] bg-[var(--card-bg)] p-6 shadow-2xl outline-none text-[var(--text-primary)]",
+          "glass-panel page-reveal relative z-10 w-full max-w-lg rounded-2xl p-6 shadow-2xl outline-none text-[var(--text-primary)]",
           "max-h-[80vh] overflow-y-auto",
           "focus:outline-none focus-visible:outline-none"
         )}

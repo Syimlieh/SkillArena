@@ -7,7 +7,7 @@ interface Props {
 }
 
 export const MatchCard = ({ match }: Props) => (
-  <div className="flex flex-col justify-between rounded-2xl border border-[var(--border-subtle)] bg-[var(--card-bg)] p-4 shadow-md transition hover:-translate-y-0.5 hover:shadow-lg">
+  <div className="glass-panel glow-hover flex flex-col justify-between rounded-2xl p-4">
     <div className="flex items-center justify-between">
       <Badge tone="success" className="text-[10px]">{match.map}</Badge>
       <Badge tone="neutral" className="text-[10px]">{match.status}</Badge>
@@ -23,7 +23,7 @@ export const MatchCard = ({ match }: Props) => (
     <div className="mt-4">
       <Link
         href={match.href ?? `/matches/${match.matchId ?? match.id}`}
-        className="inline-flex items-center justify-center rounded-xl border border-[var(--border-subtle)] px-4 py-2 text-sm font-semibold text-[var(--text-primary)] transition hover:border-[var(--accent-primary)]"
+        className="inline-flex items-center justify-center rounded-xl border border-[var(--panel-border)] bg-[var(--bg-secondary)]/72 px-4 py-2 text-sm font-semibold text-[var(--text-primary)] transition hover:border-[var(--accent-primary)] hover:shadow-[0_0_20px_rgba(49,255,225,0.2)]"
       >
         View Details
       </Link>

@@ -15,7 +15,7 @@ import { FileType } from "@/types/file.types";
 type FieldErrors = Record<string, string>;
 
 const inputStyles =
-  "w-full rounded-xl border border-[var(--border-subtle)] bg-[var(--card-bg)] px-4 py-3 text-sm text-[var(--text-primary)] focus:border-[var(--accent-primary)] focus:outline-none placeholder:text-[var(--text-secondary)]";
+  "neon-input w-full rounded-xl px-4 py-3 text-sm text-[var(--text-primary)] placeholder:text-[var(--text-secondary)]";
 
 type RegisterFormState = RegisterPayload & { confirmPassword: string };
 
@@ -226,7 +226,7 @@ export const RegisterForm = () => {
         </div>
       </div>
 
-      <label className="flex items-center gap-3 rounded-xl border border-[var(--border-subtle)] bg-[var(--card-bg)] px-4 py-3 text-sm text-[var(--text-secondary)]">
+      <label className="neon-input flex items-center gap-3 rounded-xl px-4 py-3 text-sm text-[var(--text-secondary)]">
         <input
           type="checkbox"
           checked={formState.ageVerified}
@@ -243,7 +243,7 @@ export const RegisterForm = () => {
           {uploading && <span className="text-xs text-[var(--text-secondary)]">Uploading...</span>}
         </div>
         <div className="flex items-center gap-4">
-          <label className="flex h-24 w-24 cursor-pointer items-center justify-center overflow-hidden rounded-xl border border-dashed border-[var(--border-subtle)] bg-[var(--card-bg)] text-xs text-[var(--text-secondary)] hover:border-[var(--accent-primary)]">
+          <label className="flex h-24 w-24 cursor-pointer items-center justify-center overflow-hidden rounded-xl border border-dashed border-[var(--panel-border)] bg-[var(--card-bg)]/72 text-xs text-[var(--text-secondary)] transition hover:border-[var(--accent-primary)]">
             {preview ? (
               <img src={preview} alt="Profile preview" className="h-full w-full object-cover" />
             ) : (
@@ -267,7 +267,7 @@ export const RegisterForm = () => {
 
       <Button
         type="submit"
-        className="w-full justify-center bg-[var(--accent-primary)] text-white hover:bg-[var(--accent-secondary)]"
+        className="w-full justify-center"
         disabled={isLoading}
       >
         {isLoading ? "Creating Account..." : "Create Account"}

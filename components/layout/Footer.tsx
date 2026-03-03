@@ -1,6 +1,6 @@
 export const Footer = () => (
-  <footer className="border-t border-[#0f172a] bg-[#05070bcc] text-slate-400">
-    <div className="mx-auto flex max-w-6xl flex-col gap-4 px-6 py-6 text-sm md:flex-row md:items-center md:justify-between">
+  <footer className="border-t border-[var(--panel-border)] bg-[var(--bg-primary)]/86 text-[var(--text-secondary)] backdrop-blur">
+    <div className="mx-auto flex max-w-7xl flex-col gap-4 px-6 py-6 text-sm md:flex-row md:items-center md:justify-between">
       <span>BGMI Scrims • Competitive community scrims</span>
       <div className="flex flex-wrap items-center gap-4 text-xs">
         <a href="/contact" className="hover:text-[var(--accent-primary)]">

@@ -11,7 +11,7 @@ export const UpcomingMatchesSection = ({ matches }: Props) => (
       <h2 className="text-2xl font-bold text-[var(--text-primary)]">Upcoming Matches</h2>
     </div>
     {matches.length === 0 ? (
-      <div className="rounded-2xl border border-[var(--border-subtle)] bg-[var(--card-bg)] px-4 py-6 text-[var(--text-secondary)]">
+      <div className="glass-panel rounded-2xl px-4 py-6 text-[var(--text-secondary)]">
         No upcoming matches are available right now. Check back soon.
       </div>
     ) : (

@@ -36,7 +36,7 @@ const MobileSidebar = ({ isOpen, onClose, sections, accountItems, activePath, on
       <aside
         ref={containerRef}
         className={clsx(
-          "absolute left-0 top-0 h-full w-72 overflow-y-auto border-r border-[var(--border-subtle)] bg-[var(--bg-primary)] p-4 transition-transform",
+          "absolute left-0 top-0 h-full w-72 overflow-y-auto border-r border-[var(--panel-border)] bg-[var(--bg-primary)]/94 p-4 backdrop-blur-xl transition-transform",
           isOpen ? "translate-x-0" : "-translate-x-full"
         )}
       >
@@ -45,7 +45,7 @@ const MobileSidebar = ({ isOpen, onClose, sections, accountItems, activePath, on
           <button
             type="button"
             onClick={onClose}
-            className="rounded-full border border-[var(--border-subtle)] px-2 py-1 text-xs text-[var(--text-secondary)]"
+            className="rounded-full border border-[var(--panel-border)] bg-[var(--bg-secondary)]/70 px-2 py-1 text-xs text-[var(--text-secondary)] transition hover:border-[var(--accent-primary)]"
           >
             ✕
           </button>
@@ -69,7 +69,7 @@ const MobileSidebar = ({ isOpen, onClose, sections, accountItems, activePath, on
               </div>
             </div>
           ))}
-          <div className="space-y-2 border-t border-[var(--border-subtle)] pt-4">
+          <div className="space-y-2 border-t border-[var(--panel-border)] pt-4">
             <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[var(--text-secondary)]">
               Account
             </div>

@@ -27,7 +27,7 @@ export const AdminOverview = ({ stats }: Props) => {
         <Link
           key={key}
           href={href}
-          className="glass-panel group rounded-2xl p-5 transition hover:border-[var(--primary)]/40"
+          className="glass-panel glow-hover group rounded-2xl p-5"
         >
           <div className="flex items-center gap-3">
             <Icon className={`h-5 w-5 ${color}`} />

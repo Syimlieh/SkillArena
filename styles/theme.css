@@ -1,48 +1,65 @@
 :root {
-  color-scheme: light;
+  color-scheme: dark;
 }
 
 :root {
-  --bg-primary: #050814;
-  --bg-secondary: #0b1020;
-  --card-bg: #0f172a;
-  --text-primary: #f8fafc;
-  --text-secondary: #cbd5e1;
-  --ghost-text: #ffffff;
-  --ghost-border: transparent;
-  --toggle-border: #1f2937;
-  --panel-bg: linear-gradient(135deg, rgba(12, 17, 26, 0.9), rgba(12, 17, 26, 0.75));
-  --panel-border: rgba(99, 255, 155, 0.12);
-  --panel-shadow: 0 10px 60px rgba(0, 0, 0, 0.35), 0 0 35px rgba(99, 255, 155, 0.08);
-  --primary: #25c86f;
-  --accent-primary: #25c86f;
-  --accent-secondary: #1faa60;
-  --border-subtle: #1f2937;
-  --badge-bg: rgba(99, 255, 155, 0.12);
+  --bg-primary: #03050e;
+  --bg-secondary: #081228;
+  --card-bg: #091b36;
+  --text-primary: #f2f8ff;
+  --text-secondary: #a9bdd7;
+  --ghost-text: #ebf5ff;
+  --ghost-border: rgba(89, 139, 194, 0.35);
+  --toggle-border: rgba(103, 159, 220, 0.35);
+  --panel-bg: linear-gradient(145deg, rgba(9, 25, 49, 0.88), rgba(8, 18, 40, 0.84));
+  --panel-border: rgba(75, 247, 224, 0.28);
+  --panel-shadow: 0 12px 40px rgba(2, 10, 24, 0.5), 0 0 45px rgba(49, 255, 225, 0.13);
+  --primary: #31ffe1;
+  --accent-primary: #31ffe1;
+  --accent-secondary: #9bff4d;
+  --accent-tertiary: #ff5ea4;
+  --warning-text: #ffe7a1;
+  --warning-bg: rgba(255, 210, 94, 0.16);
+  --warning-border: rgba(255, 210, 94, 0.42);
+  --warning-soft-bg: rgba(255, 210, 94, 0.2);
+  --border-subtle: rgba(73, 109, 154, 0.42);
+  --badge-bg: rgba(49, 255, 225, 0.16);
+  --bg-radial-a: rgba(49, 255, 225, 0.16);
+  --bg-radial-b: rgba(155, 255, 77, 0.12);
+  --bg-radial-c: rgba(255, 94, 164, 0.1);
   --hero-image: url("/images/hero-dark.jpg");
 }
 
 :root[data-theme="dark"] {
+  color-scheme: dark;
 }
 
 :root[data-theme="light"] {
   color-scheme: light;
-  --bg-primary: #f3f4f6;
+  --bg-primary: #f2f8ff;
   --bg-secondary: #ffffff;
   --card-bg: #ffffff;
-  --text-primary: #0f172a;
-  --text-secondary: #475569;
-  --ghost-text: #000000;
-  --ghost-border: #1f2937;
-  --toggle-border: #1f2937;
-  --panel-bg: linear-gradient(135deg, rgba(255, 255, 255, 0.98), rgba(243, 244, 246, 0.94));
-  --panel-border: rgba(0, 0, 0, 0.06);
-  --panel-shadow: 0 12px 45px rgba(15, 23, 42, 0.12), 0 2px 8px rgba(15, 23, 42, 0.06);
-  --primary: #0f9f6e;
-  --accent-primary: #0f9f6e;
-  --accent-secondary: #0b7a56;
-  --border-subtle: #e2e8f0;
-  --badge-bg: rgba(15, 159, 110, 0.1);
+  --text-primary: #0d1a2f;
+  --text-secondary: #3f5876;
+  --ghost-text: #0d1a2f;
+  --ghost-border: rgba(26, 57, 96, 0.24);
+  --toggle-border: rgba(26, 57, 96, 0.24);
+  --panel-bg: linear-gradient(145deg, rgba(255, 255, 255, 0.95), rgba(232, 245, 255, 0.84));
+  --panel-border: rgba(0, 144, 255, 0.2);
+  --panel-shadow: 0 14px 40px rgba(8, 20, 40, 0.14), 0 0 28px rgba(0, 225, 191, 0.1);
+  --primary: #00a88d;
+  --accent-primary: #00a88d;
+  --accent-secondary: #0f87d6;
+  --accent-tertiary: #d63d7b;
+  --warning-text: #8a4b00;
+  --warning-bg: rgba(245, 158, 11, 0.18);
+  --warning-border: rgba(217, 119, 6, 0.4);
+  --warning-soft-bg: rgba(245, 158, 11, 0.24);
+  --border-subtle: rgba(24, 62, 102, 0.2);
+  --badge-bg: rgba(0, 168, 141, 0.12);
+  --bg-radial-a: rgba(26, 204, 182, 0.12);
+  --bg-radial-b: rgba(15, 135, 214, 0.09);
+  --bg-radial-c: rgba(214, 61, 123, 0.08);
   --hero-image: url("/images/hero-light.jpg");
 }
 

@@ -9,9 +9,9 @@ interface Props {
 
 export const Badge = ({ children, tone = "neutral", className }: Props) => {
   const styles: Record<typeof tone, string> = {
-    success: "bg-[rgba(66,255,135,0.15)] text-[var(--primary)] border border-[rgba(66,255,135,0.4)]",
-    warning: "bg-[rgba(255,140,0,0.12)] text-orange-300 border border-[rgba(255,140,0,0.4)]",
-    neutral: "bg-[#111827] text-slate-200 border border-[#1f2937]",
+    success: "bg-[rgba(49,255,225,0.16)] text-[var(--primary)] border border-[rgba(49,255,225,0.45)] shadow-[0_0_18px_rgba(49,255,225,0.2)]",
+    warning: "bg-[var(--warning-bg)] text-[var(--warning-text)] border border-[var(--warning-border)]",
+    neutral: "bg-[var(--bg-secondary)] text-[var(--text-secondary)] border border-[var(--panel-border)]",
   };
 
   return (

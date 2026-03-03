@@ -73,7 +73,7 @@ const PublicHome = async () => {
   const recentResults = results.map(toHomeResult);
 
   return (
-    <div className="mx-auto flex max-w-6xl flex-col gap-10 px-6 py-10">
+    <div className="mx-auto flex max-w-7xl flex-col gap-12 px-6 py-10 md:px-8">
       <HeroSection />
       <RecentResultsSection results={recentResults} />
       <MatchRequestsSection initialRequests={matchRequests} />

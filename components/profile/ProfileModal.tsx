@@ -143,9 +143,9 @@ const ProfileModal = ({ isOpen, onClose }: Props) => {
         ) : (
           <>
             <div className="flex items-center gap-4">
-              <label className="flex h-16 w-16 cursor-pointer items-center justify-center overflow-hidden rounded-full border border-dashed border-[var(--border-subtle)] bg-[var(--card-bg)] text-xs text-[var(--text-secondary)] hover:border-[var(--accent-primary)]">
+              <label className="flex h-16 w-16 min-h-16 min-w-16 shrink-0 cursor-pointer items-center justify-center overflow-hidden rounded-full border border-dashed border-[var(--border-subtle)] bg-[var(--card-bg)] text-xs text-[var(--text-secondary)] hover:border-[var(--accent-primary)]">
                 {preview ? (
-                  <img src={preview} alt="Profile preview" className="h-full w-full object-cover" />
+                  <img src={preview} alt="Profile preview" className="h-full w-full rounded-full object-cover" />
                 ) : (
                   <span>{avatarLabel}</span>
                 )}

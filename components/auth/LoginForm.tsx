@@ -14,7 +14,7 @@ import { AppRoute } from "@/lib/routes";
 type FieldErrors = Record<string, string>;
 
 const inputStyles =
-  "w-full rounded-xl border border-[var(--border-subtle)] bg-[var(--card-bg)] px-4 py-3 text-sm text-[var(--text-primary)] focus:border-[var(--accent-primary)] focus:outline-none placeholder:text-[var(--text-secondary)]";
+  "neon-input w-full rounded-xl px-4 py-3 text-sm text-[var(--text-primary)] placeholder:text-[var(--text-secondary)]";
 
 export const LoginForm = () => {
   const router = useRouter();
@@ -115,7 +115,7 @@ export const LoginForm = () => {
 
       <Button
         type="submit"
-        className="w-full justify-center bg-[var(--accent-primary)] text-white hover:bg-[var(--accent-secondary)]"
+        className="w-full justify-center"
         disabled={isLoading}
       >
         {isLoading ? "Signing In..." : "Login"}

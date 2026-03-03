@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import clsx from "clsx";
 import Modal from "@/components/ui/Modal";
 import { Button } from "@/components/ui/Button";
+import { Badge } from "@/components/ui/Badge";
 import apiClient from "@/lib/apiClient";
 import { MatchRequestPublic } from "@/types/match-request.types";
 import { MatchMap } from "@/enums/MatchMap.enum";
@@ -17,7 +18,7 @@ interface Props {
 }
 
 const fieldClass =
-  "w-full rounded-xl border border-[var(--border-subtle)] bg-[var(--card-bg)] px-3 py-2 text-sm text-[var(--text-primary)] focus:border-[var(--accent-primary)] focus:outline-none";
+  "neon-input w-full rounded-xl px-3 py-2 text-sm text-[var(--text-primary)]";
 
 export const MatchRequestsSection = ({ initialRequests }: Props) => {
   const router = useRouter();
@@ -117,7 +118,7 @@ export const MatchRequestsSection = ({ initialRequests }: Props) => {
       </div>
 
       {sortedRequests.length === 0 ? (
-        <div className="rounded-2xl border border-[var(--border-subtle)] bg-[var(--card-bg)] px-4 py-6 text-[var(--text-secondary)]">
+        <div className="glass-panel rounded-2xl px-4 py-6 text-[var(--text-secondary)]">
           No match requests yet. Be the first to request a match.
         </div>
       ) : (
@@ -125,13 +126,13 @@ export const MatchRequestsSection = ({ initialRequests }: Props) => {
           {sortedRequests.map((request) => (
             <div
               key={request.id}
-              className="rounded-2xl border border-[var(--border-subtle)] bg-[var(--card-bg)] p-4 shadow-md"
+              className="glass-panel glow-hover rounded-2xl p-4"
             >
               <div className="flex items-center justify-between text-xs uppercase text-[var(--text-secondary)]">
                 <span className="font-semibold text-[var(--accent-primary)]">{request.map}</span>
-                <span className="rounded-full border border-emerald-400/40 bg-emerald-400/10 px-2 py-1 text-[10px] font-semibold text-emerald-200">
+                <Badge tone={request.status === MatchRequestStatus.OPEN ? "success" : "neutral"} className="text-[10px]">
                   {request.status === MatchRequestStatus.OPEN ? "Open" : request.status}
-                </span>
+                </Badge>
               </div>
               <div className="mt-3 space-y-2 text-sm text-[var(--text-secondary)]">
                 <div className="flex items-center justify-between">
@@ -157,8 +158,8 @@ export const MatchRequestsSection = ({ initialRequests }: Props) => {
                   className={clsx(
                     "inline-flex items-center gap-2 rounded-full border px-3 py-2 text-xs font-semibold transition",
                     request.hasVoted
-                      ? "border-emerald-400/60 bg-emerald-400/15 text-emerald-200"
-                      : "border-[var(--border-subtle)] text-[var(--text-primary)] hover:border-[var(--accent-primary)]"
+                      ? "border-[var(--panel-border)] bg-[var(--badge-bg)] text-[var(--primary)]"
+                      : "border-[var(--panel-border)] text-[var(--text-primary)] hover:border-[var(--accent-primary)]"
                   )}
                 >
                   {request.hasVoted ? "Voted" : "Vote"}

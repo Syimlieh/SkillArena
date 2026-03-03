@@ -36,8 +36,8 @@ const RulesPage = () => {
     <div className="min-h-screen bg-[var(--bg-primary)] text-[var(--text-primary)]">
       <div className="mx-auto flex w-full max-w-6xl flex-col gap-6 px-6 py-12 md:flex-row">
         <aside className="md:sticky md:top-24 md:w-64 md:self-start">
-          <div className="mb-4 text-xs uppercase tracking-[0.2em] text-[var(--primary)]">Rules</div>
           <div className="glass-panel rounded-2xl p-4 text-sm text-[var(--text-primary)]">
+            <div className="mb-1 text-xs uppercase tracking-[0.2em] text-[var(--primary)]">Rules</div>
             <div className="mb-3 font-semibold text-[var(--text-primary)]">Table of Contents</div>
             <nav className="space-y-2 text-[var(--text-secondary)]">
               {toc.map((item) => (
