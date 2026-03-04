@@ -21,7 +21,7 @@ const NavigationShell = ({ variant = "public", children }: Props) => {
   const router = useRouter();
   const pathname = usePathname();
   const { state, logout } = useAuth();
-  const { isCollapsed, toggleCollapsed, isMobileOpen, setIsMobileOpen } = useSidebar();
+  const { isCollapsed, toggleCollapsed, isMobileOpen, setIsMobileOpen, hydrated } = useSidebar();
   const isAuthenticated = state.status === AuthStatus.AUTHENTICATED;
   const role = state.user?.role ?? null;
   const dashboardHref = useMemo(() => resolveDashboardRoute(state.user?.role), [state.user?.role]);
@@ -41,7 +41,9 @@ const NavigationShell = ({ variant = "public", children }: Props) => {
     }
   };
 
-  const showSidebar = isAuthenticated;
+  // Dashboard routes are server-protected, so reserve sidebar space immediately
+  // to avoid content shifting while auth profile hydrates on the client.
+  const showSidebar = variant === "app" ? true : isAuthenticated;
 
   const sidebarWidth = isCollapsed ? "5rem" : "16rem";
   const shellStyle = { "--sidebar-width": sidebarWidth } as CSSProperties;
@@ -71,7 +73,9 @@ const NavigationShell = ({ variant = "public", children }: Props) => {
       <div
         className={
           showSidebar
-            ? "flex min-w-0 md:pl-[var(--sidebar-width)] md:transition-[padding-left] md:duration-[420ms] md:ease-in-out"
+            ? `flex min-w-0 md:pl-[var(--sidebar-width)] ${
+                hydrated ? "md:transition-[padding-left] md:duration-[420ms] md:ease-in-out" : ""
+              }`
             : ""
         }
       >
@@ -83,6 +87,7 @@ const NavigationShell = ({ variant = "public", children }: Props) => {
             activePath={pathname}
             onToggleCollapsed={toggleCollapsed}
             onAction={handleAction}
+            enableTransitions={hydrated}
           />
         ) : null}
         <div key={pathname} className={showSidebar ? "page-reveal flex-1 min-w-0" : "page-reveal w-full"}>{children}</div>

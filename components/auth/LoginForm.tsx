@@ -116,7 +116,7 @@ export const LoginForm = () => {
       <Button
         type="submit"
         className="w-full justify-center"
-        disabled={isLoading}
+        loading={isLoading}
       >
         {isLoading ? "Signing In..." : "Login"}
       </Button>

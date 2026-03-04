@@ -107,7 +107,7 @@ export const StartMatchButton = ({ matchId, disabled }: Props) => {
             <Button variant="ghost" onClick={handleClose} disabled={loading}>
               Cancel
             </Button>
-            <Button onClick={handleStart} disabled={loading}>
+            <Button onClick={handleStart} loading={loading}>
               {loading ? "Sending..." : "Send to players & start"}
             </Button>
           </div>

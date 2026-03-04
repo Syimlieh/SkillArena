@@ -206,7 +206,7 @@ export const HostApplicationForm = () => {
         </label>
       </div>
       {message && <p className={success ? "text-sm text-[var(--primary)]" : "text-sm text-red-400"}>{message}</p>}
-      <Button type="submit" disabled={loading || !allConfirmed}>
+      <Button type="submit" disabled={!allConfirmed} loading={loading}>
         {loading ? "Submitting..." : "Submit Application"}
       </Button>
     </form>

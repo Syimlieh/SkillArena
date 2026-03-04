@@ -87,7 +87,7 @@ export const ForgotPasswordForm = () => {
       <Button
         type="submit"
         className="w-full justify-center bg-[var(--accent-primary)] text-white hover:bg-[var(--accent-secondary)]"
-        disabled={status === "loading"}
+        loading={status === "loading"}
       >
         {status === "loading" ? "Sending..." : status === "sent" ? "Link sent" : "Send reset link"}
       </Button>

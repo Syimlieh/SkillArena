@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { load } from "@cashfreepayments/cashfree-js";
 import Modal from "@/components/ui/Modal";
+import { Button } from "@/components/ui/Button";
 import { Match } from "@/types/match.types";
 import { useAuth } from "@/context/AuthContext";
 import { BGMI_ID_LENGTH } from "@/lib/constants";
@@ -280,20 +281,23 @@ const RegisterModal = ({ match, isOpen, onClose, registration, paymentPending }:
         </label>
         {message && <p className="text-sm text-red-400">{message}</p>}
         <div className="flex items-center gap-3">
-          <button
+          <Button
+            type="button"
             onClick={handleProceed}
-            disabled={!agree || loading}
-            className="w-full rounded-xl bg-[var(--primary)] px-4 py-3 text-sm font-semibold text-white hover:bg-[var(--accent-secondary)] disabled:opacity-60"
+            disabled={!agree}
+            loading={loading}
+            className="w-full justify-center"
           >
             {loading ? "Processing..." : shouldCreateOrder ? "Proceed to Payment" : "Save Registration"}
-          </button>
-          <button
+          </Button>
+          <Button
+            type="button"
             onClick={onClose}
             disabled={loading}
-            className="rounded-xl border border-[var(--border-subtle)] px-4 py-3 text-sm text-[var(--text-primary)] hover:border-[var(--accent-primary)]"
+            variant="secondary"
           >
             Cancel
-          </button>
+          </Button>
         </div>
       </div>
     </Modal>

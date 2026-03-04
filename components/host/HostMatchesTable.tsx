@@ -7,6 +7,7 @@ import { MatchMap } from "@/enums/MatchMap.enum";
 import { MatchStatus } from "@/enums/MatchStatus.enum";
 import { MatchType } from "@/enums/MatchType.enum";
 import Link from "next/link";
+import { LoadingState } from "@/components/ui/Loader";
 
 const formatTime = (date: Date | string) =>
   new Intl.DateTimeFormat("en-IN", {
@@ -53,7 +54,7 @@ export const HostMatchesTable = () => {
     <div className="space-y-3">
       <div className="text-sm uppercase text-[var(--primary)]">Your Matches</div>
       {error && <p className="text-sm text-red-500">{error}</p>}
-      {loading && <p className="text-sm text-[var(--text-secondary)]">Loading...</p>}
+      {loading && <LoadingState message="Loading hosted matches..." variant="panel" />}
       {hasRows ? (
         <div className="glass-panel overflow-x-auto rounded-2xl">
           <table className="w-full text-left text-sm text-[var(--text-primary)]">

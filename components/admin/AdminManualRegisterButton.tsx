@@ -6,6 +6,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import Modal from "@/components/ui/Modal";
 import { Button } from "@/components/ui/Button";
+import { Spinner } from "@/components/ui/Loader";
 import { SafeUser } from "@/types/user.types";
 import { BGMI_ID_LENGTH } from "@/lib/constants";
 
@@ -177,7 +178,12 @@ const AdminManualRegisterButton = ({ matchId, buttonVariant = "secondary", fullW
               />
               {dropdownOpen && !selected && (
                 <div className="absolute z-20 mt-1 max-h-48 w-full overflow-y-auto rounded-xl border border-[#1f2937] bg-[#0c111a] shadow-lg">
-                  {loadingSearch && <div className="px-3 py-2 text-xs text-slate-400">Searching...</div>}
+                  {loadingSearch && (
+                    <div className="flex items-center gap-2 px-3 py-2 text-xs text-slate-400">
+                      <Spinner size="sm" className="text-[var(--accent-primary)]" />
+                      Searching...
+                    </div>
+                  )}
                   {!loadingSearch &&
                     results.map((u) => (
                       <button
@@ -309,7 +315,7 @@ const AdminManualRegisterButton = ({ matchId, buttonVariant = "secondary", fullW
             <Button variant="ghost" onClick={closeModal}>
               Cancel
             </Button>
-            <Button onClick={handleSubmit} disabled={submitting}>
+            <Button onClick={handleSubmit} loading={submitting}>
               {submitting ? "Registering..." : "Register User"}
             </Button>
           </div>

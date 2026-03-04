@@ -27,7 +27,6 @@ export const MatchRequestsSection = ({ initialRequests }: Props) => {
   const [creating, setCreating] = useState(false);
   const [open, setOpen] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
   const [form, setForm] = useState({
     map: MatchMap.ERANGEL,
     matchType: MatchRequestType.SQUAD,
@@ -241,7 +240,7 @@ export const MatchRequestsSection = ({ initialRequests }: Props) => {
             <Button type="button" variant="ghost" onClick={closeModal}>
               Cancel
             </Button>
-            <Button type="button" onClick={handleCreate} disabled={creating || !form.preferredTimeRange.trim()}>
+            <Button type="button" onClick={handleCreate} disabled={!form.preferredTimeRange.trim()} loading={creating}>
               {creating ? "Submitting..." : "Submit Request"}
             </Button>
           </div>

@@ -9,19 +9,22 @@ interface Props {
   activePath: string;
   onToggleCollapsed: () => void;
   onAction?: (item: NavItem) => void;
+  enableTransitions?: boolean;
 }
 
-const Sidebar = ({ sections, accountItems, isCollapsed, activePath, onToggleCollapsed, onAction }: Props) => (
+const Sidebar = ({ sections, accountItems, isCollapsed, activePath, onToggleCollapsed, onAction, enableTransitions = true }: Props) => (
   <aside
     className={clsx(
-      "fixed left-0 top-16 hidden h-[calc(100vh-4rem)] flex-col overflow-hidden border-r border-[var(--panel-border)] bg-[var(--bg-primary)]/85 backdrop-blur-xl transition-[width] duration-[420ms] ease-in-out md:flex",
+      "fixed left-0 top-16 hidden h-[calc(100vh-4rem)] flex-col overflow-hidden border-r border-[var(--panel-border)] bg-[var(--bg-primary)]/85 backdrop-blur-xl md:flex",
+      enableTransitions && "transition-[width] duration-[420ms] ease-in-out",
       isCollapsed ? "w-20" : "w-64"
     )}
   >
     <div className="flex items-center justify-between px-4 py-4">
       <span
         className={clsx(
-          "overflow-hidden whitespace-nowrap text-xs font-semibold uppercase tracking-[0.2em] text-[var(--text-secondary)] transition-all duration-[320ms]",
+          "overflow-hidden whitespace-nowrap text-xs font-semibold uppercase tracking-[0.2em] text-[var(--text-secondary)]",
+          enableTransitions && "transition-all duration-[320ms]",
           isCollapsed ? "max-w-0 -translate-x-1 opacity-0" : "max-w-28 translate-x-0 opacity-100"
         )}
       >
@@ -41,7 +44,8 @@ const Sidebar = ({ sections, accountItems, isCollapsed, activePath, onToggleColl
         <div key={section.id} className="space-y-2">
           <div
             className={clsx(
-              "overflow-hidden px-2 text-[10px] font-semibold uppercase tracking-[0.18em] text-[var(--text-secondary)] transition-all duration-[320ms]",
+              "overflow-hidden px-2 text-[10px] font-semibold uppercase tracking-[0.18em] text-[var(--text-secondary)]",
+              enableTransitions && "transition-all duration-[320ms]",
               isCollapsed ? "max-h-0 -translate-x-1 opacity-0" : "max-h-4 translate-x-0 opacity-100"
             )}
           >
@@ -65,7 +69,8 @@ const Sidebar = ({ sections, accountItems, isCollapsed, activePath, onToggleColl
     <div className="sticky bottom-0 mt-auto border-t border-[var(--panel-border)] bg-[var(--bg-primary)]/92 px-3 py-4 backdrop-blur">
       <div
         className={clsx(
-          "overflow-hidden px-2 text-[10px] font-semibold uppercase tracking-[0.18em] text-[var(--text-secondary)] transition-all duration-[320ms]",
+          "overflow-hidden px-2 text-[10px] font-semibold uppercase tracking-[0.18em] text-[var(--text-secondary)]",
+          enableTransitions && "transition-all duration-[320ms]",
           isCollapsed ? "max-h-0 -translate-x-1 opacity-0" : "max-h-4 translate-x-0 opacity-100"
         )}
       >

@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useAuth } from "@/context/AuthContext";
+import { LoadingState } from "@/components/ui/Loader";
 
 type VerifyState = "loading" | "success" | "error";
 
@@ -45,7 +46,7 @@ export const VerifyEmailStatus = ({ token }: { token: string }) => {
   }, [token, refreshProfile]);
 
   if (status === "loading") {
-    return <p className="text-sm text-[var(--text-secondary)]">Verifying your email...</p>;
+    return <LoadingState message="Verifying your email..." />;
   }
 
   if (status === "success") {

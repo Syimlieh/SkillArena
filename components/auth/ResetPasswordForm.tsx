@@ -112,7 +112,7 @@ export const ResetPasswordForm = ({ token }: Props) => {
       <Button
         type="submit"
         className="w-full justify-center bg-[var(--accent-primary)] text-white hover:bg-[var(--accent-secondary)]"
-        disabled={status === "loading"}
+        loading={status === "loading"}
       >
         {status === "loading" ? "Updating..." : "Reset password"}
       </Button>

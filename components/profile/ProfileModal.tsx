@@ -8,6 +8,7 @@ import apiClient from "@/lib/apiClient";
 import { Profile } from "@/types/profile.types";
 import { uploadImageDirect } from "@/lib/presigned-upload";
 import { FileType } from "@/types/file.types";
+import { LoadingState } from "@/components/ui/Loader";
 
 interface Props {
   isOpen: boolean;
@@ -139,7 +140,7 @@ const ProfileModal = ({ isOpen, onClose }: Props) => {
     <Modal isOpen={isOpen} onClose={onClose} title="Update Profile">
       <div className="space-y-4">
         {loading ? (
-          <div className="text-sm text-(--text-secondary)">Loading profile...</div>
+          <LoadingState message="Loading profile..." variant="panel" />
         ) : (
           <>
             <div className="flex items-center gap-4">

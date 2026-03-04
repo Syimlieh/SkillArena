@@ -9,6 +9,7 @@ import { ResultSubmissionResponse } from "@/types/result";
 import apiClient from "@/lib/apiClient";
 import { uploadImageDirect } from "@/lib/presigned-upload";
 import { FileType } from "@/types/file.types";
+import { LoadingState } from "@/components/ui/Loader";
 
 interface Props {
   matchId: string;
@@ -130,7 +131,7 @@ export const ResultSubmissionCard = ({ matchId, matchStatus, isRegistered }: Pro
   };
 
   const renderBody = () => {
-    if (loading) return <p className="text-sm text-[var(--text-secondary)]">Loading submission status...</p>;
+    if (loading) return <LoadingState message="Loading submission status..." />;
     if (!isRegistered) {
       return <p className="text-sm text-[var(--text-secondary)]">Register for this match to submit results.</p>;
     }
@@ -206,7 +207,7 @@ export const ResultSubmissionCard = ({ matchId, matchStatus, isRegistered }: Pro
                 <span>This screenshot is unedited and genuine.</span>
               </label>
               {error && <p className="text-sm text-rose-600 dark:text-rose-300">{error}</p>}
-              <Button type="button" onClick={handleSubmit} disabled={submitting} className="w-fit">
+              <Button type="button" onClick={handleSubmit} loading={submitting} className="w-fit">
                 {submitting ? "Submitting..." : "Resubmit Result"}
               </Button>
             </div>
@@ -249,7 +250,7 @@ export const ResultSubmissionCard = ({ matchId, matchStatus, isRegistered }: Pro
           <span>This screenshot is unedited and genuine.</span>
         </label>
         {error && <p className="text-sm text-rose-600 dark:text-rose-300">{error}</p>}
-        <Button type="button" onClick={handleSubmit} disabled={submitting} className="w-fit">
+        <Button type="button" onClick={handleSubmit} loading={submitting} className="w-fit">
           {submitting ? "Submitting..." : "Submit Result"}
         </Button>
       </div>

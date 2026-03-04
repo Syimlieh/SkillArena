@@ -2,6 +2,7 @@
 
 import { ButtonHTMLAttributes, ReactNode } from "react";
 import clsx from "clsx";
+import { Spinner } from "@/components/ui/Loader";
 
 export type ButtonVariant = "primary" | "secondary" | "ghost";
 export type ButtonSize = "md" | "sm";
@@ -10,10 +11,11 @@ interface Props extends ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: ButtonVariant;
   size?: ButtonSize;
   icon?: ReactNode;
+  loading?: boolean;
 }
 
-export const Button = ({ variant = "primary", size = "md", className, icon, children, ...props }: Props) => {
-  const base = "glow-hover rounded-xl font-semibold transition-all";
+export const Button = ({ variant = "primary", size = "md", className, icon, loading = false, children, disabled, ...props }: Props) => {
+  const base = "glow-hover rounded-xl font-semibold transition-all disabled:cursor-not-allowed disabled:opacity-60 disabled:shadow-none";
   const sizes: Record<ButtonSize, string> = {
     md: "px-4 py-2 text-sm uppercase tracking-wide",
     sm: "px-3 py-1.5 text-xs uppercase tracking-wide",
@@ -27,10 +29,13 @@ export const Button = ({ variant = "primary", size = "md", className, icon, chil
       "text-[var(--ghost-text)] border border-[var(--ghost-border)] bg-[var(--card-bg)]/35 hover:border-[var(--accent-primary)]",
   };
 
+  const resolvedDisabled = disabled || loading;
+  const resolvedIcon = loading ? <Spinner size="sm" label="Loading" /> : icon;
+
   return (
-    <button className={clsx(base, sizes[size], styles[variant], className)} {...props}>
+    <button className={clsx(base, sizes[size], styles[variant], className)} disabled={resolvedDisabled} aria-busy={loading || undefined} {...props}>
       <span className="flex items-center gap-2">
-        {icon}
+        {resolvedIcon}
         {children}
       </span>
     </button>

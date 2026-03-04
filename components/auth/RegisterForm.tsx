@@ -268,7 +268,7 @@ export const RegisterForm = () => {
       <Button
         type="submit"
         className="w-full justify-center"
-        disabled={isLoading}
+        loading={isLoading}
       >
         {isLoading ? "Creating Account..." : "Create Account"}
       </Button>

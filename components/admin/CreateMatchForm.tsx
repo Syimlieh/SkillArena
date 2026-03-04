@@ -135,7 +135,7 @@ export const CreateMatchForm = ({ onCreated }: Props) => {
               {isAdmin ? "Admins" : "Hosts"} can schedule new BGMI scrims.
             </p>
           </div>
-          <Button type="submit" disabled={loading}>
+          <Button type="submit" loading={loading}>
             {loading ? "Creating..." : "Create Match"}
           </Button>
         </div>
